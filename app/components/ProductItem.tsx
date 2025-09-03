@@ -9,21 +9,34 @@ type Product = {
   price?: number | string;
   description?: string;
   banner?: { url?: string };
-  attributes?: Record<string, unknown> & { banner?: BannerAttr; title?: string; price?: number };
+  attributes?: Record<string, unknown> & {
+    banner?: BannerAttr;
+    title?: string;
+    price?: number;
+  };
 };
 
 export default function ProductItem({ product }: { product: Product }) {
-  const { cart, setCart } = useContext(CartContext) as CartContextType;
+  const { addToCart } = useContext(CartContext) as CartContextType;
 
   const handleAddToCart = () => {
-    const image = product.banner?.url || (product.attributes?.banner as BannerAttr | undefined)?.data?.attributes?.url;
-    const item = {
-      id: product.id,
-      title: (product.title || product.attributes?.title) as string,
-      price: Number(product.price || product.attributes?.price),
+    const image =
+      product.banner?.url ||
+      (product.attributes?.banner as BannerAttr | undefined)?.data?.attributes?.url;
+
+    const title = (product.title || product.attributes?.title || "Sans titre") as string;
+    const price = Number(product.price ?? product.attributes?.price ?? 0);
+    const id = product.id;
+
+    if (id == null) return; // garde-fou si l'id manque
+
+    addToCart({
+      id,
+      title,
+      price,
       image,
-    };
-    setCart([...cart, item]);
+      qty: 1,
+    });
   };
 
   return (
@@ -32,12 +45,12 @@ export default function ProductItem({ product }: { product: Product }) {
       aria-label={product.title || "Produit"}
     >
       <h3 className="mb-1 text-base font-semibold text-zinc-900">
-        {(product.title || product.attributes?.title) as string || "Sans titre"}
+        {(product.title || product.attributes?.title || "Sans titre") as string}
       </h3>
 
-      {(product.price || product.attributes?.price) && (
+      {(product.price ?? product.attributes?.price) != null && (
         <div className="mb-2 text-sm font-semibold text-teal-700">
-          {product.price || product.attributes?.price}
+          {product.price ?? product.attributes?.price} €
         </div>
       )}
 
@@ -56,8 +69,10 @@ export default function ProductItem({ product }: { product: Product }) {
         </button>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
+          className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleAddToCart}
+          disabled={product.id == null}
+          aria-label="Ajouter au panier"
         >
           Ajouter
         </button>
