@@ -35,7 +35,6 @@ export default function ProductItem({ product }: { product: Product }) {
       title,
       price,
       image,
-      qty: 1,
     });
   };
 
