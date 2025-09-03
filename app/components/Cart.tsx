@@ -5,14 +5,25 @@ import { CartContext, CartContextType, CartItem } from "../contexts/CartContext"
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;
 
+  // Regrouper les articles identiques
+  const items = (cart ?? []).reduce<CartItem[]>((acc, item) => {
+    const found = acc.find((i) => i.id === item.id);
+    if (found) {
+      found.qty = (found.qty ?? 1) + (item.qty ?? 1);
+    } else {
+      acc.push({ ...item, qty: item.qty ?? 1 });
+    }
+    return acc;
+  }, []);
+
   // Total d’articles (qty par item, défaut = 1)
-  const totalQty = (cart ?? []).reduce((sum, item) => sum + (item.qty ?? 1), 0);
+  const totalQty = items.reduce((sum, item) => sum + (item.qty ?? 1), 0);
 
   return (
     <div className="h-[300px] w-[250px] bg-gray-100 z-10 rounded-md border shadow-sm absolute mx-10 right-10 top-12 p-5 overflow-auto">
       <div className="mt-4 space-y-6">
         <ul className="space-y-4">
-          {(cart ?? []).map((item: CartItem, index: number) => (
+          {items.map((item: CartItem, index: number) => (
             <li key={String(item.id ?? index)} className="flex items-center gap-4">
               {item.image && (
                 <img
