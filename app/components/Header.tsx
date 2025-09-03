@@ -10,7 +10,9 @@ function Header() {
   const { isSignedIn } = useUser();
   const [openCart, setOpenCart] = useState(false);
   const { cart } = useContext(CartContext) as CartContextType;
-  const totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+
+  // Total d’articles (somme des qty, défaut = 1)
+  const totalQty = (cart ?? []).reduce((sum, item) => sum + (item.qty ?? 1), 0);
 
   return (
     <header className="bg-white dark:bg-gray-900">
@@ -38,12 +40,20 @@ function Header() {
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <div className="sm:flex sm:gap-4">
-                <Link className="block rounded-md bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700 dark:hover:bg-teal-500" href="/sign-in">Login</Link>
-                <a className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block dark:bg-gray-800 dark:text-white dark:hover:text-white/75" href="#">Register</a>
+                <Link className="block rounded-md bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700 dark:hover:bg-teal-500" href="/sign-in">
+                  Login
+                </Link>
+                <a className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block dark:bg-gray-800 dark:text-white dark:hover:text-white/75" href="#">
+                  Register
+                </a>
               </div>
             ) : (
               <div className="flex items-center gap-5">
-                <div className="relative cursor-pointer" onClick={() => setOpenCart(!openCart)}>
+                <div
+                  className="relative cursor-pointer"
+                  onClick={() => setOpenCart(!openCart)}
+                  aria-label="Open cart"
+                >
                   <ShoppingCart />
                   {totalQty > 0 && (
                     <span className="absolute -top-2 -right-2 rounded-full bg-teal-600 px-2 text-xs text-white">

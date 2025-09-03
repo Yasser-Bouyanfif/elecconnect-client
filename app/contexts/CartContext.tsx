@@ -18,33 +18,40 @@ export type CartContextType = {
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const STORAGE_KEY = "cart";
+
+function mergeById(items: CartItem[]): CartItem[] {
+  const map = new Map<string | number, CartItem>();
+  for (const it of items) {
+    const id = it.id;
+    const prev = map.get(id);
+    const qty = (prev?.qty ?? 0) + (it.qty ?? 1);
+    map.set(id, { ...prev, ...it, qty: qty || 1 });
+  }
+  return Array.from(map.values());
+}
+
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
+  // Load from localStorage once
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("cart") : null;
-    if (stored) {
-      try {
-        const parsed: CartItem[] = JSON.parse(stored);
-        const merged = parsed.reduce<CartItem[]>((acc, item) => {
-          const existing = acc.find((i) => i.id === item.id);
-          if (existing) {
-            existing.qty = (existing.qty || 1) + (item.qty || 1);
-          } else {
-            acc.push({ ...item, qty: item.qty || 1 });
-          }
-          return acc;
-        }, []);
-        setCart(merged);
-      } catch {
-        setCart([]);
-      }
+    const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as CartItem[] | unknown;
+      const array = Array.isArray(parsed) ? parsed : [];
+      const normalized = array.map((i) => ({ ...i, qty: i.qty ?? 1 }));
+      setCart(mergeById(normalized));
+    } catch {
+      setCart([]);
     }
   }, []);
 
+  // Persist on changes
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     }
   }, [cart]);
 
@@ -53,7 +60,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, qty: (i.qty || 1) + 1 } : i
+          i.id === item.id ? { ...i, qty: (i.qty ?? 1) + 1 } : i
         );
       }
       return [...prev, { ...item, qty: 1 }];
