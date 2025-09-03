@@ -1,22 +1,29 @@
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import React, { useContext } from "react";
-import { CartContext } from "../contexts/CartContext";
+import { CartContext, CartContextType } from "../contexts/CartContext";
+
+type BannerAttr = { data?: { attributes?: { url?: string } } };
 
 type Product = {
   id?: number | string;
   title?: string;
   price?: number | string;
-  description?: string
+  description?: string;
+  banner?: { url?: string };
+  attributes?: Record<string, unknown> & { banner?: BannerAttr; title?: string; price?: number };
 };
 
 export default function ProductItem({ product }: { product: Product }) {
-  const { user } = useUser()
-  const router = useRouter()
-  const {cart, setCart}: any = useContext(CartContext)
+  const { cart, setCart } = useContext(CartContext) as CartContextType;
 
   const handleAddToCart = () => {
-    console.log("ok")
+    const image = product.banner?.url || (product.attributes?.banner as BannerAttr | undefined)?.data?.attributes?.url;
+    const item = {
+      id: product.id,
+      title: (product.title || product.attributes?.title) as string,
+      price: Number(product.price || product.attributes?.price),
+      image,
+    };
+    setCart([...cart, item]);
   };
 
   return (
@@ -25,12 +32,20 @@ export default function ProductItem({ product }: { product: Product }) {
       aria-label={product.title || "Produit"}
     >
       <h3 className="mb-1 text-base font-semibold text-zinc-900">
-        {product.title || "Sans titre"}
+        {(product.title || product.attributes?.title) as string || "Sans titre"}
       </h3>
 
-      {product.price && <div className="mb-2 text-sm font-semibold text-teal-700">{product.price}</div>}
+      {(product.price || product.attributes?.price) && (
+        <div className="mb-2 text-sm font-semibold text-teal-700">
+          {product.price || product.attributes?.price}
+        </div>
+      )}
 
-      {product.description && <p className="mb-3 text-sm leading-5 text-zinc-600">{product.description}</p>}
+      {product.description && (
+        <p className="mb-3 text-sm leading-5 text-zinc-600">
+          {product.description}
+        </p>
+      )}
 
       <div className="flex items-center gap-2">
         <button
