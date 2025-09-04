@@ -10,7 +10,7 @@ function Cart() {
       <div className="mt-4 space-y-6">
         <ul className="space-y-4">
           {cart?.map((item: CartItem, index: number) => (
-            <li key={String(item.id ?? index)} className="flex items-center gap-4">
+            <li key={Math.random()} className="flex items-center gap-4">
               {item.image && (
                 <img
                   src={`${process.env.NEXT_PUBLIC_SERVER_URL}${item.image}`}
