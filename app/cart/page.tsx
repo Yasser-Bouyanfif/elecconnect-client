@@ -13,11 +13,7 @@ function Cart() {
           <div className="mt-8">
             <ul className="space-y-4">
               <li className="flex items-center gap-4">
-                <img
-                  src="ok"
-                  alt="ok"
-                  className="size-16 rounded-sm object-cover"
-                />
+                <div className="size-16 rounded-sm bg-gray-200" />
                 <div>
                   <h3 className="text-sm text-gray-900">TEST</h3>
                   <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">

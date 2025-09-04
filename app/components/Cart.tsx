@@ -1,5 +1,6 @@
 "use client";
 import React, { useContext, useMemo } from "react";
+import Image from "next/image";
 import { CartContext, CartContextType, CartItem } from "../contexts/CartContext";
 
 export default function Cart() {
@@ -42,23 +43,33 @@ export default function Cart() {
     );
   }
 
+  const serverUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(
+    /^http:/,
+    "https:"
+  );
+
   return (
     <div className="h-[300px] w-[250px] bg-gray-100 z-10 rounded-md border shadow-sm absolute mx-10 right-10 top-12 p-5 overflow-auto">
       <div className="mt-2">
         <ul className="space-y-4">
           {items.map((item) => (
             <li key={item.id} className="flex items-center gap-3">
-              {item.image ? (
-                <img
-                  src={
-                    item.image.startsWith("http")
-                      ? item.image
-                      : `${process.env.NEXT_PUBLIC_SERVER_URL ?? ""}${item.image}`
-                  }
-                  alt={item.title ?? "Product image"}
-                  className="size-14 rounded-sm object-cover"
-                />
-              ) : null}
+              {item.image ? (() => {
+                const src = item.image.startsWith("http")
+                  ? item.image.startsWith(serverUrl)
+                    ? item.image
+                    : ""
+                  : `${serverUrl}${item.image}`;
+                return src ? (
+                  <Image
+                    src={src}
+                    alt={item.title ?? "Product image"}
+                    width={56}
+                    height={56}
+                    className="size-14 rounded-sm object-cover"
+                  />
+                ) : null;
+              })() : null}
 
               <div className="min-w-0">
                 <h3 className="text-sm text-gray-900 line-clamp-1">{item.title}</h3>

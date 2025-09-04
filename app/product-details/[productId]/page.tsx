@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import productApi from "@/app/_utils/productApis";
 import { useParams, useRouter } from "next/navigation";
 
@@ -16,10 +17,13 @@ interface Product {
   };
 }
 
-const STRAPI_URL ="http://localhost:9000";
+const SERVER_URL = (process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(
+  /^http:/,
+  "https:"
+);
 
-const toStrapiUrl = (path?: string) =>
-  path ? (path.startsWith("http") ? path : `${STRAPI_URL}${path}`) : "";
+const toServerUrl = (path?: string) =>
+  path ? (path.startsWith("http") ? path : `${SERVER_URL}${path}`) : "";
 
 function ProductDetails() {
   const { productId } = useParams<{ productId: string }>();
@@ -53,7 +57,7 @@ function ProductDetails() {
   if (loading) return <p className="p-6 text-gray-500">Chargement…</p>;
   if (!product) return null;
 
-  const imgSrc = toStrapiUrl(product.banner?.url);
+  const imgSrc = toServerUrl(product.banner?.url);
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-lg space-y-4">
@@ -62,9 +66,11 @@ function ProductDetails() {
       <p className="text-gray-700">{product.description}</p>
 
       {imgSrc ? (
-        <img
+        <Image
           src={imgSrc}
           alt={product.banner?.name || product.title}
+          width={800}
+          height={600}
           className="w-full rounded-lg object-cover"
         />
       ) : (
