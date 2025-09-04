@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import React, { useEffect } from 'react'
-import ProductList from './ProductList'
-import productApi from '../_utils/productApis'
-import { useState } from 'react'
+import React, { useEffect, useState } from "react";
+import ProductList from "./ProductList";
+import productApi from "../_utils/productApis";
 
 function ProductSection() {
-    const [products, setProducts] = useState([])
-    useEffect(() => {
-        getLatestProducts()
-    }, [])
+  const [products, setProducts] = useState([]);
 
-    const getLatestProducts = () => {
-        productApi.getLatestProducts().then((res) => {
-            setProducts(res.data.data)
-        })
+  useEffect(() => {
+    getLatestProducts();
+  }, []);
+
+  const getLatestProducts = async () => {
+    try {
+      const res = await productApi.getLatestProducts();
+      setProducts(res.data.data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
     }
+  };
 
-    return (
-        <div>
-            <ProductList productList={products}/>    
-        </div>
-    )
+  return (
+    <div>
+      <ProductList productList={products} />
+    </div>
+  );
 }
 
-export default ProductSection
+export default ProductSection;
