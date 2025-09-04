@@ -34,7 +34,6 @@ function mergeById(items: CartItem[]): CartItem[] {
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Load from localStorage once
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (!stored) return;
@@ -48,7 +47,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // Persist on changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));

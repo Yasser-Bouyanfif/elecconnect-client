@@ -28,7 +28,7 @@ export default function ProductItem({ product }: { product: Product }) {
     const price = Number(product.price ?? product.attributes?.price ?? 0);
     const id = product.id;
 
-    if (id == null) return; // garde-fou si l'id manque
+    if (id == null) return;
 
     addToCart({
       id,

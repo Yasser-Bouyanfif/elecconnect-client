@@ -11,7 +11,6 @@ function Header() {
   const [openCart, setOpenCart] = useState(false);
   const { cart } = useContext(CartContext) as CartContextType;
 
-  // Total d’articles (somme des qty, défaut = 1)
   const totalQty = (cart ?? []).reduce((sum, item) => sum + (item.qty ?? 1), 0);
 
   return (

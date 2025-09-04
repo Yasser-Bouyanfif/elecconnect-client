@@ -1,16 +1,13 @@
 import axios from "axios";
 
-const serverUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(
-  /^http:/,
-  "https:"
-);
 const apiKey = process.env.REST_API_KEY;
+const apiUrl = process.env.REST_API_URL;
 
 const axiosClient = axios.create({
-  baseURL: serverUrl ? `${serverUrl}/api` : undefined,
+  baseURL: apiUrl,
   headers: {
     "Content-Type": "application/json",
-    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+    "Authorization": `Bearer ${apiKey}`,
   },
 });
 
