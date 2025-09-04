@@ -1,67 +1,59 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import productApi from "@/app/_utils/productApis";
-import { useParams, useRouter } from "next/navigation";
+import React, { useContext } from "react";
+import { CartContext, CartContextType, CartItem } from "../contexts/CartContext";
 
-type RichText = { type: string; children: { text: string }[] };
-
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  banner?: {
-    url?: string;
-    name?: string;
-  };
-}
-
-function ProductDetails() {
-  const { productId } = useParams<{ productId: string }>();
-  const router = useRouter();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const getProductById = async () => {
-    try {
-      const res = await productApi.getProductById(productId);
-      const data: Product | undefined = res?.data?.data?.[0];
-
-      if (!data?.id) {
-        router.push("/404");
-        return;
-      }
-      setProduct(data);
-    } catch (e) {
-      console.error("Erreur API:", e);
-      router.push("/404");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (productId) getProductById();
-  }, [productId]);
-
-  if (loading) return <p className="p-6 text-gray-500">Chargement…</p>;
-  if (!product) return null;
-
+function Cart() {
+  const { cart } = useContext(CartContext) as CartContextType;
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-lg space-y-4">
-      <h1 className="text-2xl font-bold">{product.title}</h1>
-      <p className="text-lg font-semibold text-green-600">{product.price} €</p>
-      <p className="text-gray-700">{product.description}</p>
+    <div className="h-[300px] w-[250px] bg-gray-100 z-10 rounded-md border shadow-sm absolute mx-10 right-10 top-12 p-5 overflow-auto">
+      <div className="mt-4 space-y-6">
+        <ul className="space-y-4">
+          {cart?.map((item: CartItem) => (
+            <li key={item.id} className="flex items-center gap-4">
+              {item.image && (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_SERVER_URL}${item.image}`}
+                  alt={item.title}
+                  className="size-16 rounded-sm object-cover"
+                />
+              )}
 
-        <img
-          src={`${process.env.SERVER_URL}${product.banner?.url}`}
-          alt={product.banner?.name || product.title}
-          className="w-full h-auto rounded-lg object-cover"
-        />
+              <div>
+                <h3 className="text-sm text-gray-900 line-clamp-1">{item.title}</h3>
+
+                {item.price && (
+                  <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
+                    <div>
+                      <dt className="inline">Prix:</dt>
+                      <dd className="inline">{item.price} €</dd>
+                    </div>
+                  </dl>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-5 space-y-4 text-center">
+        <a
+          href="/cart"
+          className="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
+        >
+          View my cart ({cart?.length})
+        </a>
+
+        <a
+          href="#"
+          className="inline-block text-sm text-gray-500 underline underline-offset-4 transition hover:text-gray-600"
+        >
+          Continue shopping
+        </a>
+      </div>
     </div>
   );
 }
 
-export default ProductDetails;
+export default Cart;
