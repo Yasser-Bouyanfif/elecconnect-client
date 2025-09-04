@@ -8,11 +8,12 @@ export default function AddAddress() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const address = formData.get("address") as string;
+    const rawAddress = (formData.get("address") as string) || "";
+    const address = rawAddress.replace(/[^a-zA-Z0-9 ,.-]/g, "").trim();
 
     await user?.update({
       unsafeMetadata: {
-        address: address,
+        address,
       },
     });
 
