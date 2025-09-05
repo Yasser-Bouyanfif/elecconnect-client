@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image";
-import ProductSection from "./components/productSection";
+import ProductSection from "./components/ProductSection"
 import Header from "./components/Header";
 import { useUser } from "@clerk/nextjs";
 

@@ -2,6 +2,7 @@
 
 import React, { useContext } from "react";
 import { CartContext, CartContextType, CartItem } from "../contexts/CartContext";
+import { SERVER_URL } from "../_utils/constants";
 
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;
@@ -14,7 +15,7 @@ function Cart() {
             <li key={item.id} className="flex items-center gap-4">
               {item.image && (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_SERVER_URL}${item.image}`}
+                  src={`${SERVER_URL}${item.image}`}
                   alt={item.title}
                   className="size-16 rounded-sm object-cover"
                 />

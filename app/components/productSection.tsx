@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ProductList from "./ProductList";
+import ProductList from "./ProductList"
 import productApi from "../_utils/productApis";
 
 function ProductSection() {

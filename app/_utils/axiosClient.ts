@@ -1,15 +1,12 @@
 import axios from "axios";
-
-// Use public env vars so the client can resolve them at runtime
-const apiKey = process.env.NEXT_PUBLIC_REST_API_KEY;
-const apiUrl = process.env.NEXT_PUBLIC_REST_API_URL;
+import { API_KEY, API_URL } from "./constants";
 
 const axiosClient = axios.create({
-  baseURL: apiUrl,
-  headers: {
-    "Content-Type": "application/json",
-    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-  },
+    baseURL: API_URL,
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`,
+    },
 });
 
-export default axiosClient;
+export default axiosClient
