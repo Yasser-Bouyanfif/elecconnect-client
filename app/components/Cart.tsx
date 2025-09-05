@@ -6,20 +6,19 @@ import { SERVER_URL } from "../_utils/constants";
 
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;
+  console.log(cart?.map((item: CartItem) => item))
 
   return (
     <div className="h-[300px] w-[250px] bg-gray-100 z-10 rounded-md border shadow-sm absolute mx-10 right-10 top-12 p-5 overflow-auto">
       <div className="mt-4 space-y-6">
         <ul className="space-y-4">
           {cart?.map((item: CartItem) => (
-            <li key={item.id} className="flex items-center gap-4">
-              {item.image && (
+            <li key={Math.random()} className="flex items-center gap-4">
                 <img
-                  src={`${SERVER_URL}${item.image}`}
+                  src={`${SERVER_URL}${item.banner?.url}`}
                   alt={item.title}
                   className="size-16 rounded-sm object-cover"
                 />
-              )}
 
               <div>
                 <h3 className="text-sm text-gray-900 line-clamp-1">{item.title}</h3>
