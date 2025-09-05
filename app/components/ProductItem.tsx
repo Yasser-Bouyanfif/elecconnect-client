@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { CartContext, CartContextType } from "../contexts/CartContext";
+import { CartContext, CartContextType, CartItem } from "../contexts/CartContext";
 
 type BannerAttr = { data?: { attributes?: { url?: string } } };
 type Product = {
@@ -12,6 +12,20 @@ type Product = {
 };
 
 export default function ProductItem({ product }: { product: Product }) {
+  const { addToCart } = useContext(CartContext) as CartContextType;
+
+  const handleAdd = () => {
+    const item: CartItem = {
+      id: product.id as string | number,
+      title: (product.title || product.attributes?.title) as string,
+      price: (product.price || product.attributes?.price) as number,
+      image:
+        product.banner?.url ||
+        product.attributes?.banner?.data?.attributes?.url,
+    };
+    addToCart(item);
+  };
+
   return (
     <article
       className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -44,6 +58,7 @@ export default function ProductItem({ product }: { product: Product }) {
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
+          onClick={handleAdd}
         >
           Ajouter
         </button>

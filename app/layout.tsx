@@ -5,8 +5,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import Header from "./components/Header";
-import { CartContext, CartItem, CartContextType } from "./contexts/CartContext";
-import { useState } from "react";
+import { CartProvider } from "./contexts/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,19 +26,16 @@ const geistMono = Geist_Mono({
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const value: CartContextType = { cart, setCart };
-
   return (
     <ClerkProvider>
-      <CartContext.Provider value={value}>
+      <CartProvider>
         <html lang="en">
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <Header />
             {children}
           </body>
         </html>
-      </CartContext.Provider>
+      </CartProvider>
     </ClerkProvider>
   );
 }
