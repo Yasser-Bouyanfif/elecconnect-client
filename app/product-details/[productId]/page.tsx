@@ -14,10 +14,11 @@ interface Product {
 }
 
 export default function ProductDetails() {
-  const params = useParams();
-  const productId = Array.isArray((params as any).productId)
-    ? (params as any).productId[0]
-    : (params as any).productId;
+  const params = useParams<{ productId: string | string[] }>();
+  const productIdParam = params.productId;
+  const productId = Array.isArray(productIdParam)
+    ? productIdParam[0]
+    : productIdParam;
 
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
