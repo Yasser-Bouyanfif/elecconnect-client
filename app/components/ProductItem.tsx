@@ -8,26 +8,18 @@ type Product = {
   price?: number | string;
   description?: string;
   banner?: { url?: string };
-  attributes?: Record<string, unknown> & {
-    banner?: BannerAttr;
-    title?: string;
-    price?: number;
-  };
 };
 
 export default function ProductItem({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext) as CartContextType;
 
   const handleAdd = () => {
-    const imageUrl =
-      product.banner?.url ||
-      product.attributes?.banner?.data?.attributes?.url;
 
     const item: CartItem = {
       id: product.id as string | number,
-      title: (product.title || product.attributes?.title) as string,
-      price: (product.price || product.attributes?.price) as number,
-      banner: imageUrl ? { url: imageUrl } : undefined,
+      title: product.title as string,
+      price: product.price as number,
+      banner: {url: product.banner?.url as string}
     };
     addToCart(item);
   };
@@ -38,20 +30,16 @@ export default function ProductItem({ product }: { product: Product }) {
       aria-label={product.title || "Produit"}
     >
       <h3 className="mb-1 text-base font-semibold text-zinc-900">
-        {(product.title || product.attributes?.title) as string || "Sans titre"}
+        {product.title}
       </h3>
 
-      {(product.price || product.attributes?.price) && (
         <div className="mb-2 text-sm font-semibold text-teal-700">
-          {product.price || product.attributes?.price}
+          {product.price}
         </div>
-      )}
 
-      {product.description && (
         <p className="mb-3 text-sm leading-5 text-zinc-600">
           {product.description}
         </p>
-      )}
 
       <div className="flex items-center gap-2">
         <button
