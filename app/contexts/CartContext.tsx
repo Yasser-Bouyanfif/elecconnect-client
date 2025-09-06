@@ -40,7 +40,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromCart = (id: string | number) => {
-    setCart(cart.filter((item) => item.id !== id));
+    const index = cart.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      const updatedCart = [...cart];
+      updatedCart.splice(index, 1);
+      setCart(updatedCart);
+    }
   };
 
   return (
