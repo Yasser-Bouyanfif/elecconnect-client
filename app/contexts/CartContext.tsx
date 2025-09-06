@@ -36,16 +36,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart]);
 
   const addToCart = (item: CartItem) => {
-    setCart([...cart, item]);
+    setCart((prev) => [...prev, item]);
   };
 
   const removeFromCart = (id: string | number) => {
-    const index = cart.findIndex((item) => item.id === id);
-    if (index !== -1) {
-      const updatedCart = [...cart];
-      updatedCart.splice(index, 1);
-      setCart(updatedCart);
-    }
+    setCart((prev) => {
+      const index = prev.findIndex((item) => item.id === id);
+      if (index === -1) return prev;
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
+    });
   };
 
   return (
@@ -54,4 +55,3 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     </CartContext.Provider>
   );
 }
-

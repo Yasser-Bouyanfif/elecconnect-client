@@ -65,14 +65,20 @@ function CartPage() {
                       <button
                         type="button"
                         className="px-2 text-sm"
+                        aria-label="Decrease quantity"
                         onClick={() => removeFromCart(item.id)}
-                          />
+                      >
+                        -
+                      </button>
                       <span className="text-sm">{quantity}</span>
                       <button
                         type="button"
                         className="px-2 text-sm"
+                        aria-label="Increase quantity"
                         onClick={() => addToCart(item)}
-                          />
+                      >
+                        +
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -117,4 +123,3 @@ function CartPage() {
 }
 
 export default CartPage;
-
