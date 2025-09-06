@@ -14,6 +14,7 @@ export type CartItem = {
 export type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
+  removeFromCart: (id: string | number) => void;
 };
 
 export const CartContext = createContext<CartContextType | undefined>(
@@ -38,8 +39,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart([...cart, item]);
   };
 
+  const removeFromCart = (id: string | number) => {
+    const index = cart.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      const updatedCart = [...cart];
+      updatedCart.splice(index, 1);
+      setCart(updatedCart);
+    }
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

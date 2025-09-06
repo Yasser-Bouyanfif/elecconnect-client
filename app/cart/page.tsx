@@ -1,24 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CartItem } from "../contexts/CartContext";
+import { useContext } from "react";
+import {
+  CartContext,
+  CartContextType,
+  CartItem,
+} from "../contexts/CartContext";
 import { SERVER_URL } from "../_utils/constants";
 
 function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const { cart, addToCart, removeFromCart } = useContext(
+    CartContext
+  ) as CartContextType;
 
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
+  const groups: { [key: string]: { item: CartItem; quantity: number } } = {};
+  cart.forEach((item) => {
+    const key = item.id.toString();
+    if (groups[key]) {
+      groups[key].quantity += 1;
+    } else {
+      groups[key] = { item, quantity: 1 };
     }
-  }, []);
-
-  const handleRemove = (id: string | number) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
+  });
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
 
@@ -37,8 +40,8 @@ function CartPage() {
           ) : (
             <div className="mt-8">
               <ul className="space-y-4">
-                {cart.map((item) => (
-                  <li key={Math.random()} className="flex items-center gap-4">
+                {Object.values(groups).map(({ item, quantity }) => (
+                  <li key={item.id} className="flex items-center gap-4">
                     {item.banner?.url && (
                       <img
                         src={`${SERVER_URL}${item.banner.url}`}
@@ -58,33 +61,40 @@ function CartPage() {
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      className="text-gray-600 transition hover:text-red-600"
-                      onClick={() => handleRemove(item.id)}
-                    >
-                      <span className="sr-only">Remove item</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="size-4"
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="px-2 text-sm"
+                        onClick={() => removeFromCart(item.id)}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                        />
-                      </svg>
-                    </button>
+                        -
+                      </button>
+                      <span className="text-sm">{quantity}</span>
+                      <button
+                        type="button"
+                        className="px-2 text-sm"
+                        onClick={() => addToCart(item)}
+                      >
+                        +
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
 
               <div className="mt-8 flex justify-end border-t border-gray-100 pt-8">
                 <div className="w-screen max-w-lg space-y-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Code de réduction"
+                      className="w-full border px-2 py-1 text-sm"
+                    />
+                    <button className="rounded-sm bg-gray-700 px-3 py-1 text-sm text-gray-100">
+                      Ajouter
+                    </button>
+                  </div>
+
                   <dl className="space-y-0.5 text-sm text-gray-700">
                     <div className="flex justify-between !text-base font-medium">
                       <dt>Total</dt>
