@@ -6,7 +6,7 @@ import {
   CartContextType,
   CartItem,
 } from "../contexts/CartContext";
-import { SERVER_URL } from "../_utils/constants";
+import { SERVER_URL } from "../lib/constants";
 
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;

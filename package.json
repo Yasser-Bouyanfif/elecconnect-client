@@ -11,12 +11,14 @@
   "dependencies": {
     "@clerk/elements": "^0.23.59",
     "@clerk/nextjs": "^6.31.5",
+    "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.11.0",
     "lucide-react": "^0.542.0",
-    "next": "15.5.0",
+    "next": "^15.5.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

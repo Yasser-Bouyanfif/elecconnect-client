@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import productApi from "@/app/_utils/productApis";
 import { useParams, useRouter } from "next/navigation";
-import { SERVER_URL } from "@/app/_utils/constants";
+import { SERVER_URL } from "@/app/lib/constants";
 
 interface Product {
   id: number;

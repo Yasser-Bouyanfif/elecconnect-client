@@ -6,7 +6,7 @@ import {
   CartContextType,
   CartItem,
 } from "../contexts/CartContext";
-import { SERVER_URL } from "../_utils/constants";
+import { SERVER_URL } from "../lib/constants";
 
 function CartPage() {
   const { cart, addToCart, removeFromCart } = useContext(
@@ -106,7 +106,7 @@ function CartPage() {
 
                   <div className="flex justify-end">
                     <a
-                      href="#"
+                      href="/checkout"
                       className="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
                     >
                       Checkout
