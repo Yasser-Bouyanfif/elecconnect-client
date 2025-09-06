@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CartItem } from "../contexts/CartContext";
+import { useContext } from "react";
+import {
+  CartContext,
+  CartContextType,
+  CartItem,
+} from "../contexts/CartContext";
 import { SERVER_URL } from "../_utils/constants";
 
 function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
-    }
-  }, []);
-
-  const handleRemove = (id: string | number) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
+  const { cart, removeFromCart } = useContext(
+    CartContext
+  ) as CartContextType;
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
 
@@ -37,7 +30,7 @@ function CartPage() {
           ) : (
             <div className="mt-8">
               <ul className="space-y-4">
-                {cart.map((item) => (
+                {cart.map((item: CartItem) => (
                   <li key={Math.random()} className="flex items-center gap-4">
                     {item.banner?.url && (
                       <img
@@ -61,7 +54,7 @@ function CartPage() {
                     <button
                       type="button"
                       className="text-gray-600 transition hover:text-red-600"
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => removeFromCart(item.id)}
                     >
                       <span className="sr-only">Remove item</span>
                       <svg
@@ -85,6 +78,17 @@ function CartPage() {
 
               <div className="mt-8 flex justify-end border-t border-gray-100 pt-8">
                 <div className="w-screen max-w-lg space-y-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Code de réduction"
+                      className="w-full border px-2 py-1 text-sm"
+                    />
+                    <button className="rounded-sm bg-gray-700 px-3 py-1 text-sm text-gray-100">
+                      Ajouter
+                    </button>
+                  </div>
+
                   <dl className="space-y-0.5 text-sm text-gray-700">
                     <div className="flex justify-between !text-base font-medium">
                       <dt>Total</dt>
