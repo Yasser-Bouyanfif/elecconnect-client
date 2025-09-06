@@ -1,5 +1,5 @@
 "use client";
-
+//test
 import { useContext } from "react";
 import {
   CartContext,
@@ -66,14 +66,13 @@ function CartPage() {
                         type="button"
                         className="px-2 text-sm"
                         onClick={() => removeFromCart(item.id)}
-                      </button>
+                          />
                       <span className="text-sm">{quantity}</span>
                       <button
                         type="button"
                         className="px-2 text-sm"
                         onClick={() => addToCart(item)}
-                      >
-                      </button>
+                          />
                     </div>
                   </li>
                 ))}
