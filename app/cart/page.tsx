@@ -38,7 +38,7 @@ function CartPage() {
             <div className="mt-8">
               <ul className="space-y-4">
                 {cart.map((item) => (
-                  <li key={item.id} className="flex items-center gap-4">
+                  <li key={Math.random()} className="flex items-center gap-4">
                     {item.banner?.url && (
                       <img
                         src={`${SERVER_URL}${item.banner.url}`}

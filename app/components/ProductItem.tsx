@@ -14,7 +14,6 @@ export default function ProductItem({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext) as CartContextType;
 
   const handleAdd = () => {
-
     const item: CartItem = {
       id: product.id as string | number,
       title: product.title as string,
