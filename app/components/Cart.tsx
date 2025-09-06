@@ -1,35 +1,57 @@
 "use client";
 
 import React, { useContext } from "react";
-import { CartContext, CartContextType, CartItem } from "../contexts/CartContext";
+import {
+  CartContext,
+  CartContextType,
+  CartItem,
+} from "../contexts/CartContext";
 import { SERVER_URL } from "../_utils/constants";
 
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;
 
+  const groups: { [key: string]: { item: CartItem; quantity: number } } = {};
+  cart.forEach((item) => {
+    const key = item.id.toString();
+    if (groups[key]) {
+      groups[key].quantity += 1;
+    } else {
+      groups[key] = { item, quantity: 1 };
+    }
+  });
+
   return (
     <div className="h-[300px] w-[250px] bg-gray-100 z-10 rounded-md border shadow-sm absolute mx-10 right-10 top-12 p-5 overflow-auto">
       <div className="mt-4 space-y-6">
         <ul className="space-y-4">
-          {cart?.map((item: CartItem) => (
-            <li key={Math.random()} className="flex items-center gap-4">
+          {Object.values(groups).map(({ item, quantity }) => (
+            <li key={item.id} className="flex items-center gap-4">
+              {item.banner?.url && (
                 <img
-                  src={`${SERVER_URL}${item.banner?.url}`}
+                  src={`${SERVER_URL}${item.banner.url}`}
                   alt={item.title}
                   className="size-16 rounded-sm object-cover"
                 />
+              )}
 
               <div>
-                <h3 className="text-sm text-gray-900 line-clamp-1">{item.title}</h3>
+                <h3 className="text-sm text-gray-900 line-clamp-1">
+                  {item.title}
+                </h3>
 
-                {item.price && (
-                  <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
+                <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
+                  {item.price !== undefined && (
                     <div>
                       <dt className="inline">Prix:</dt>
                       <dd className="inline">{item.price} €</dd>
                     </div>
-                  </dl>
-                )}
+                  )}
+                  <div>
+                    <dt className="inline">Quantity:</dt>
+                    <dd className="inline">{quantity}</dd>
+                  </div>
+                </dl>
               </div>
             </li>
           ))}
@@ -56,3 +78,4 @@ function Cart() {
 }
 
 export default Cart;
+
