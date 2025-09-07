@@ -24,6 +24,7 @@ export const CartContext = createContext<CartContextType | undefined>(
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
       const storedCart = localStorage.getItem("cart");
       if (storedCart) {
         try {
@@ -32,6 +33,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           return [];
         }
       }
+    }
     return [];
   });
 
