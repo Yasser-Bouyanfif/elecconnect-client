@@ -16,9 +16,10 @@ export async function POST(req: Request) {
 
     const ids = items.map((i: { id: string | number }) => String(i.id));
     const { data } = await productApis.getProductsByIds(ids);
-    const products: any[] = data?.data || [];
+    type Product = { id: string | number; attributes: { price?: number; title?: string } };
+    const products: Product[] = data?.data || [];
     const productMap = new Map(
-      products.map((p: any) => [String(p.id), p.attributes])
+      products.map((p) => [String(p.id), p.attributes])
     );
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
