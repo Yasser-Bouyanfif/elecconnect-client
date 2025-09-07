@@ -96,18 +96,6 @@ function CheckoutPage() {
       setCheckoutError("Votre panier est vide.");
       return;
     }
-
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items }),
-    });
-    const data = await res.json();
-    if (!res.ok || !data.url) {
-      setCheckoutError(data.error || "Erreur de paiement");
-      return;
-    }
-    window.location.href = data.url as string;
   };
 
   return (
