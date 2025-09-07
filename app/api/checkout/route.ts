@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import productApis from "@/app/_utils/productApis";
-import { SERVER_URL } from "@/app/lib/constants";
+import { LOCAL_URL } from "@/app/lib/constants";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-06-20",
+  apiVersion: "2025-08-27.basil",
 });
 
 export async function POST(req: Request) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No valid products" }, { status: 400 });
     }
 
-    const origin = req.headers.get("origin") || SERVER_URL || "";
+    const origin = req.headers.get("origin") || LOCAL_URL || "";
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
