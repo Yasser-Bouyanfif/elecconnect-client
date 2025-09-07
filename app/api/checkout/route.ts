@@ -4,10 +4,8 @@ import productApis from "@/app/_utils/productApis";
 import { LOCAL_URL } from "@/app/lib/constants";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-08-27.basil",
-});
-
-///
+  apiVersion: "2024-06-20",
+})
 
 export async function POST(req: Request) {
   try {
@@ -16,14 +14,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid items" }, { status: 400 });
     }
 
-    const lineItems = [] as Stripe.Checkout.SessionCreateParams.LineItem[];
+    const ids = items.map((i: { id: string | number }) => String(i.id));
+    const { data } = await productApis.getProductsByIds(ids);
+    const products: any[] = data?.data || [];
+    const productMap = new Map(
+      products.map((p: any) => [String(p.id), p.attributes])
+    );
+
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
     for (const item of items) {
       const id = String(item.id);
       const quantity = Number(item.quantity) || 1;
-      const { data } = await productApis.getProductById(id);
-      const attributes = data?.data?.[0]?.attributes;
-      if (!attributes) continue;
+      const attributes = productMap.get(id);
+      if (!attributes || typeof attributes.price !== "number") {
+        return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+      }
+
       lineItems.push({
         price_data: {
           currency: "eur",
@@ -36,16 +43,13 @@ export async function POST(req: Request) {
       });
     }
 
-    if (lineItems.length === 0) {
-      return NextResponse.json({ error: "No valid products" }, { status: 400 });
-    }
-
+    const origin = req.headers.get("origin") || LOCAL_URL || "";
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
-      success_url: `${LOCAL_URL}/checkout/success`,
-      cancel_url: `${LOCAL_URL}/cart`,
+      success_url: `${origin}/checkout/success`,
+      cancel_url: `${origin}/cart`,
     });
 
     return NextResponse.json({ url: session.url });
