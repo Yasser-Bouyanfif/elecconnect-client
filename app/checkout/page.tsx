@@ -18,6 +18,7 @@ function CheckoutPage() {
     postalCode?: string;
     country?: string;
   }>({});
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const addressRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s,'-]{5,100}$/u;
   const cityRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,100}$/u;
@@ -63,6 +64,7 @@ function CheckoutPage() {
   ): Promise<void> => {
     e.preventDefault();
     if (!validate()) return;
+    setCheckoutError(null);
     const sanitized = {
       address: billing.address.trim(),
       city: billing.city.trim(),
@@ -90,6 +92,10 @@ function CheckoutPage() {
       },
       []
     );
+    if (items.length === 0) {
+      setCheckoutError("Votre panier est vide.");
+      return;
+    }
 
     const res = await fetch("/api/checkout", {
       method: "POST",
@@ -97,9 +103,11 @@ function CheckoutPage() {
       body: JSON.stringify({ items }),
     });
     const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url as string;
+    if (!res.ok || !data.url) {
+      setCheckoutError(data.error || "Erreur de paiement");
+      return;
     }
+    window.location.href = data.url as string;
   };
 
   return (
@@ -203,6 +211,11 @@ function CheckoutPage() {
                 Procéder au paiement
               </button>
             </div>
+            {checkoutError && (
+              <p className="text-center text-sm text-red-600">
+                {checkoutError}
+              </p>
+            )}
           </form>
         </div>
       </div>

@@ -8,7 +8,6 @@ function SuccessPage() {
 
   useEffect(() => {
     cartContext?.clearCart();
-    localStorage.removeItem("cart");
   }, [cartContext]);
 
   return (
