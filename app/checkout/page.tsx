@@ -10,22 +10,68 @@ function CheckoutPage() {
     postalCode: "",
     country: "",
   });
+  const [errors, setErrors] = useState<{
+    address?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+  }>({});
+
+  const addressRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s,'-]{5,100}$/u;
+  const cityRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,100}$/u;
+  const postalCodeRegex = /^[0-9]{4,5}$/;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ): void => {
-    setBilling({ ...billing, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setBilling({ ...billing, [name]: value });
+  };
+
+  const validate = (): boolean => {
+    const newErrors: {
+      address?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    } = {};
+
+    if (!addressRegex.test(billing.address.trim())) {
+      newErrors.address = "Adresse invalide";
+    }
+
+    if (!cityRegex.test(billing.city.trim())) {
+      newErrors.city = "Ville invalide";
+    }
+
+    if (!postalCodeRegex.test(billing.postalCode.trim())) {
+      newErrors.postalCode = "Code postal invalide";
+    }
+
+    if (!billing.country) {
+      newErrors.country = "Pays requis";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
+    if (!validate()) return;
+    const sanitized = {
+      address: billing.address.trim(),
+      city: billing.city.trim(),
+      postalCode: billing.postalCode.trim(),
+      country: billing.country,
+    };
     if (user) {
       await user.update({
         unsafeMetadata: {
           ...user.unsafeMetadata,
-          billing,
+          billing: sanitized,
         },
       });
     }
@@ -53,7 +99,11 @@ function CheckoutPage() {
                 value={billing.address}
                 onChange={handleChange}
                 className="w-full border px-2 py-1 text-sm"
+                required
               />
+              {errors.address && (
+                <p className="mt-1 text-xs text-red-600">{errors.address}</p>
+              )}
             </div>
 
             <div>
@@ -67,7 +117,11 @@ function CheckoutPage() {
                 value={billing.city}
                 onChange={handleChange}
                 className="w-full border px-2 py-1 text-sm"
+                required
               />
+              {errors.city && (
+                <p className="mt-1 text-xs text-red-600">{errors.city}</p>
+              )}
             </div>
 
             <div>
@@ -81,7 +135,11 @@ function CheckoutPage() {
                 value={billing.postalCode}
                 onChange={handleChange}
                 className="w-full border px-2 py-1 text-sm"
+                required
               />
+              {errors.postalCode && (
+                <p className="mt-1 text-xs text-red-600">{errors.postalCode}</p>
+              )}
             </div>
 
             <div>
@@ -94,6 +152,7 @@ function CheckoutPage() {
                 value={billing.country}
                 onChange={handleChange}
                 className="w-full border px-2 py-1 text-sm"
+                required
               >
                 <option value="">Sélectionnez un pays</option>
                 <option value="France">France</option>
@@ -106,6 +165,9 @@ function CheckoutPage() {
                 <option value="Monaco">Monaco</option>
                 <option value="Luxembourg">Luxembourg</option>
               </select>
+              {errors.country && (
+                <p className="mt-1 text-xs text-red-600">{errors.country}</p>
+              )}
             </div>
 
             <div className="flex justify-end">
