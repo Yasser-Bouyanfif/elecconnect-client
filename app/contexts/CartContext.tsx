@@ -23,19 +23,18 @@ export const CartContext = createContext<CartContextType | undefined>(
 );
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window !== "undefined") {
-      const storedCart = localStorage.getItem("cart");
-      if (storedCart) {
-        try {
-          return JSON.parse(storedCart) as CartItem[];
-        } catch {
-          return [];
-        }
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart) as CartItem[]);
+      } catch {
+        // ignore malformed data
       }
     }
-    return [];
-  });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -57,9 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => {
     setCart([]);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("cart");
-    }
+    localStorage.removeItem("cart");
   };
 
   return (
