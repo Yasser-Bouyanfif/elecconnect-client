@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useUser } from "@clerk/nextjs";
+import { CartContext } from "@/app/contexts/CartContext";
 
 function CheckoutPage() {
   const { user } = useUser();
+  const cartContext = useContext(CartContext);
   const [billing, setBilling] = useState({
     address: "",
     city: "",
@@ -74,6 +76,29 @@ function CheckoutPage() {
           billing: sanitized,
         },
       });
+    }
+
+    const items = (cartContext?.cart || []).reduce(
+      (
+        acc: { id: string | number; quantity: number }[],
+        item
+      ) => {
+        const existing = acc.find((i) => i.id === item.id);
+        if (existing) existing.quantity += 1;
+        else acc.push({ id: item.id, quantity: 1 });
+        return acc;
+      },
+      []
+    );
+
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url as string;
     }
   };
 
@@ -175,7 +200,7 @@ function CheckoutPage() {
                 type="submit"
                 className="rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100"
               >
-                Enregistrer l&apos;adresse
+                Procéder au paiement
               </button>
             </div>
           </form>
