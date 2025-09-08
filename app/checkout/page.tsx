@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { loadStripe } from "@stripe/stripe-js";
 import { CartContext, CartContextType } from "../contexts/CartContext";
+import orderApis from "../_utils/orderApis";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -21,7 +22,6 @@ export default function CheckoutPage() {
     postalCode: "",
     city: "",
     country: "",
-    phoneCode: "+1",
     phoneNumber: "",
   });
 
@@ -48,6 +48,46 @@ export default function CheckoutPage() {
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };
+
+  const createOrder = () => {
+
+    let productIds = []
+    cart.forEach((item: any) => {
+      productIds.push(item.id);
+    })
+
+    const data = {
+      data: {
+        userId: user?.id,
+        userEmail: user?.emailAddresses[0].emailAddress,
+        products: [],
+        address: {
+          fullName: form.fullName,
+          company: form.company,
+          address1: form.address1,
+          address2: form.address2,
+          postalCode: form.postalCode,
+          city: form.city,
+          country: form.country,
+          phone: form.phoneNumber,
+        },
+        shipping: {
+          carrier: "Chronopost",
+          price: 57
+        },
+        subTotal: 477,
+        total: 540,
+        paymentStatus: "pending"
+        
+      } 
+    }
+
+    orderApis.createOrder(data).then((res: any) => {
+      if(res) {
+        console.log(res)
+      }
+    })
+  }
 
   return (
     <section className="mx-auto max-w-md p-4">
@@ -110,17 +150,6 @@ export default function CheckoutPage() {
               className="w-full border p-2"
               required
             />
-            <div className="flex">
-              <select
-                name="phoneCode"
-                value={form.phoneCode}
-                onChange={handleChange}
-                className="border p-2"
-              >
-                <option value="+1">+1</option>
-                <option value="+33">+33</option>
-                <option value="+44">+44</option>
-              </select>
               <input
                 name="phoneNumber"
                 type="number"
@@ -131,7 +160,6 @@ export default function CheckoutPage() {
                 required
               />
             </div>
-          </div>
           <button
             type="button"
             onClick={() => setStep(2)}
@@ -153,7 +181,7 @@ export default function CheckoutPage() {
             </p>
             <p>{form.country}</p>
             <p>
-              {form.phoneCode} {form.phoneNumber}
+               {form.phoneNumber}
             </p>
           </div>
           <div className="mt-4 space-y-1">
