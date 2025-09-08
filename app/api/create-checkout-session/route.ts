@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { LOCAL_URL } from "@/app/lib/constants";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-06-20",
-});
-
 export async function POST(req: Request) {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    return NextResponse.json(
+      { error: "Stripe configuration missing" },
+      { status: 500 }
+    );
+  }
+
   try {
     const { items } = await req.json();
     if (!Array.isArray(items) || items.length === 0) {
@@ -17,6 +21,19 @@ export async function POST(req: Request) {
     }
 
     type Item = { id: string | number; title?: string; price?: number };
+    const hasValidPrices = (items as Item[]).every(
+      (item) => typeof item.price === "number" && item.price > 0
+    );
+    if (!hasValidPrices) {
+      return NextResponse.json(
+        { error: "Invalid item prices" },
+        { status: 400 }
+      );
+    }
+
+    const stripe = new Stripe(secretKey, {
+      apiVersion: "2024-06-20",
+    });
     const groups: Record<string, { item: Item; quantity: number }> = {};
     (items as Item[]).forEach((item) => {
       const key = item.id.toString();

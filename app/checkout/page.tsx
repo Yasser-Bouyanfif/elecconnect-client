@@ -153,8 +153,14 @@ export default function CheckoutPage() {
         body: JSON.stringify({ items: cart }),
       });
       const data = await response.json();
+      if (!response.ok || !data.id) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
       const stripe = await stripePromise;
-      await stripe?.redirectToCheckout({ sessionId: data.id });
+      const result = await stripe?.redirectToCheckout({ sessionId: data.id });
+      if (result?.error) {
+        throw result.error;
+      }
     } catch (err) {
       console.error(err);
       setError("Payment failed. Please try again.");
