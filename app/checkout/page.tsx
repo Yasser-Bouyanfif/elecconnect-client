@@ -1,20 +1,35 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { loadStripe } from "@stripe/stripe-js";
+import { useSearchParams } from "next/navigation";
+
 import { CartContext, CartContextType } from "../contexts/CartContext";
-import orderApis from "../_utils/orderApis";
+import productApi from "../_utils/productApis";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
+type FormState = {
+  fullName: string;
+  company: string;
+  address1: string;
+  address2: string;
+  postalCode: string;
+  city: string;
+  country: string;
+  phoneNumber: string;
+};
+
 export default function CheckoutPage() {
-  const { cart } = useContext(CartContext) as CartContextType;
+  const { cart, clearCart } = useContext(CartContext) as CartContextType;
   const { user } = useUser();
+  const searchParams = useSearchParams();
+
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     fullName: "",
     company: "",
     address1: "",
@@ -24,6 +39,9 @@ export default function CheckoutPage() {
     country: "",
     phoneNumber: "",
   });
+  const [error, setError] = useState<string>("");
+  const [orderCreated, setOrderCreated] = useState(false);
+  const [subTotal, setSubTotal] = useState(0);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -31,36 +49,66 @@ export default function CheckoutPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const total = cart.reduce((sum, item) => sum + (item.price ?? 0), 0);
-  const discount = 0;
-  const grandTotal = total - discount;
-
-  const handleSubmit = async () => {
-    if (!user) return;
-    await user.update({ unsafeMetadata: { billing: form } });
-
-    const response = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: cart }),
-    });
-    const data = await response.json();
-    const stripe = await stripePromise;
-    await stripe?.redirectToCheckout({ sessionId: data.id });
+  const validateForm = () => {
+    const required: (keyof FormState)[] = [
+      "fullName",
+      "address1",
+      "postalCode",
+      "city",
+      "country",
+      "phoneNumber",
+    ];
+    for (const key of required) {
+      if (!form[key]) {
+        setError("Please fill in all required fields.");
+        return false;
+      }
+    }
+    setError("");
+    return true;
   };
 
-  const createOrder = () => {
+  useEffect(() => {
+    const fetchTotal = async () => {
+      const groups: Record<string, number> = {};
+      cart.forEach((item) => {
+        const key = item.id.toString();
+        groups[key] = (groups[key] || 0) + 1;
+      });
+      const ids = Object.keys(groups);
+      if (ids.length === 0) {
+        setSubTotal(0);
+        return;
+      }
+      try {
+        const res = await productApi.getProductsByIds(ids);
+        const data = res.data.data as {
+          id: number;
+          attributes: { price: number };
+        }[];
+        let total = 0;
+        data.forEach((p) => {
+          const price = p.attributes?.price || 0;
+          total += price * groups[p.id.toString()];
+        });
+        setSubTotal(total);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchTotal();
+  }, [cart]);
 
-    let productIds = []
-    cart.forEach((item: any) => {
-      productIds.push(item.id);
-    })
+  const discount = 0;
+  const grandTotal = subTotal - discount;
 
-    const data = {
-      data: {
+  const createOrder = async () => {
+    try {
+      const items = cart.map((item) => item.id);
+      const payload = {
         userId: user?.id,
         userEmail: user?.emailAddresses[0].emailAddress,
-        products: [],
+        items,
         address: {
           fullName: form.fullName,
           company: form.company,
@@ -71,26 +119,57 @@ export default function CheckoutPage() {
           country: form.country,
           phone: form.phoneNumber,
         },
-        shipping: {
-          carrier: "Chronopost",
-          price: 57
-        },
-        subTotal: 477,
-        total: 540,
-        paymentStatus: "pending"
-        
-      } 
+      };
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Order failed");
+      clearCart();
+      setOrderCreated(true);
+    } catch (err) {
+      console.error(err);
+      setError("Unable to create order.");
     }
+  };
 
-    orderApis.createOrder(data).then((res: any) => {
-      if(res) {
-        console.log(res)
-      }
-    })
-  }
+  useEffect(() => {
+    if (searchParams.get("success") && !orderCreated) {
+      createOrder();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, orderCreated]);
+
+  const handleNext = () => {
+    if (validateForm()) setStep(2);
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm() || !user) return;
+    try {
+      await user.update({ unsafeMetadata: { billing: form } });
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cart.map((item) => item.id) }),
+      });
+      const data = await response.json();
+      const stripe = await stripePromise;
+      await stripe?.redirectToCheckout({ sessionId: data.id });
+    } catch (err) {
+      console.error(err);
+      setError("Payment failed. Please try again.");
+    }
+  };
 
   return (
     <section className="mx-auto max-w-md p-4">
+      {error && (
+        <p className="mb-4 rounded-sm bg-red-100 p-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
       {step === 1 ? (
         <>
           <h1 className="mb-4 text-xl font-bold">Billing details</h1>
@@ -150,19 +229,19 @@ export default function CheckoutPage() {
               className="w-full border p-2"
               required
             />
-              <input
-                name="phoneNumber"
-                type="number"
-                value={form.phoneNumber}
-                onChange={handleChange}
-                placeholder="Phone number"
-                className="ml-2 w-full border p-2"
-                required
-              />
-            </div>
+            <input
+              name="phoneNumber"
+              type="number"
+              value={form.phoneNumber}
+              onChange={handleChange}
+              placeholder="Phone number"
+              className="w-full border p-2"
+              required
+            />
+          </div>
           <button
             type="button"
-            onClick={() => setStep(2)}
+            onClick={handleNext}
             className="mt-4 w-full rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 hover:bg-gray-600"
           >
             Suivant
@@ -180,12 +259,10 @@ export default function CheckoutPage() {
               {form.postalCode} {form.city}
             </p>
             <p>{form.country}</p>
-            <p>
-               {form.phoneNumber}
-            </p>
+            <p>{form.phoneNumber}</p>
           </div>
           <div className="mt-4 space-y-1">
-            <p>Total: {total.toFixed(2)}</p>
+            <p>Total: {subTotal.toFixed(2)}</p>
             <p>Discount: {discount.toFixed(2)}</p>
             <p className="font-bold">Grand Total: {grandTotal.toFixed(2)}</p>
           </div>
@@ -210,4 +287,3 @@ export default function CheckoutPage() {
     </section>
   );
 }
-
