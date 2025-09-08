@@ -1,7 +1,8 @@
-const {default: axiosClient} = require("./axiosClient");
+import axiosClient from "./axiosClient";
 
-const createOrder = (data: any) => axiosClient.post("/orders", data);
+const createOrder = (data: unknown) => axiosClient.post("/orders", data);
 
 export default {
-    createOrder
-}
+  createOrder,
+};
+
