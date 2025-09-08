@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const handleSubmit = async () => {
     if (!user) return;
     await user.update({ unsafeMetadata: { billing: form } });
+    
     const response = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,6 +36,7 @@ export default function CheckoutPage() {
     const data = await response.json();
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
+
   };
 
   return (
