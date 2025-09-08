@@ -58,7 +58,7 @@ export default function CheckoutPage() {
       "phoneNumber",
     ];
     for (const key of required) {
-      if (!form[key]) {
+      if (!form[key].trim()) {
         setError("Please fill in all required fields.");
         return false;
       }
@@ -73,11 +73,12 @@ export default function CheckoutPage() {
 
   const createOrder = async () => {
     try {
+      if (!user) throw new Error("User not found");
       const productIds = cart.map((item) => item.id);
       const data = {
         data: {
-          userId: user?.id,
-          userEmail: user?.emailAddresses[0].emailAddress,
+          userId: user.id,
+          userEmail: user.emailAddresses[0].emailAddress,
           products: productIds,
           address: {
             fullName: form.fullName,
@@ -108,11 +109,35 @@ export default function CheckoutPage() {
   };
 
   useEffect(() => {
-    if (searchParams.get("success") && !orderCreated) {
-      createOrder();
+    const success = searchParams.get("success");
+    const sessionId = searchParams.get("session_id");
+    const cancelled = searchParams.get("cancelled");
+
+    if (cancelled) {
+      setError("Payment was cancelled.");
+      return;
+    }
+
+    if (success && sessionId && !orderCreated && cart.length > 0) {
+      (async () => {
+        try {
+          const res = await fetch(
+            `/api/verify-checkout-session?session_id=${sessionId}`,
+          );
+          const data = await res.json();
+          if (data.paid) {
+            await createOrder();
+          } else {
+            setError("Payment not confirmed.");
+          }
+        } catch (err) {
+          console.error(err);
+          setError("Unable to verify payment.");
+        }
+      })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, orderCreated]);
+  }, [searchParams, orderCreated, cart]);
 
   const handleNext = () => {
     if (validateForm()) setStep(2);

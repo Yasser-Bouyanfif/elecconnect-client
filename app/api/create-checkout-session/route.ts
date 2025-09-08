@@ -9,6 +9,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 export async function POST(req: Request) {
   try {
     const { items } = await req.json();
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: "Invalid cart" },
+        { status: 400 }
+      );
+    }
+
     type Item = { id: string | number; title?: string; price?: number };
     const groups: Record<string, { item: Item; quantity: number }> = {};
     (items as Item[]).forEach((item) => {
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-      success_url: `${LOCAL_URL}/checkout?success=true`,
+      success_url: `${LOCAL_URL}/checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${LOCAL_URL}/checkout?cancelled=true`,
     });
 
