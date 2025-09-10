@@ -53,6 +53,7 @@ export default function CheckoutPage() {
     country: "",
     phoneNumber: "",
   });
+
   const [error, setError] = useState("");
   const [items, setItems] = useState<PricedItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -157,6 +158,7 @@ export default function CheckoutPage() {
       setError("Unable to create order.");
     }
   };
+
   useEffect(() => {
     const success = searchParams.get("success");
     const sessionId = searchParams.get("session_id");
@@ -215,6 +217,7 @@ export default function CheckoutPage() {
           {error}
         </p>
       )}
+     
       <form onSubmit={handleSubmit} className="space-y-2">
         <input
           name="fullName"
