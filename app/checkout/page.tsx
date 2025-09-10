@@ -171,7 +171,7 @@ export default function CheckoutPage() {
         </p>
       )}
       {step === 1 ? (
-        <>
+        <div>
           <h1 className="mb-4 text-xl font-bold">Billing details</h1>
           <div className="space-y-2">
             <input
@@ -195,7 +195,15 @@ export default function CheckoutPage() {
               onChange={handleChange}
               placeholder="Address 1"
               className="w-full border p-2"
-@@ -128,86 +207,83 @@ export default function CheckoutPage() {
+              required
+            />
+            <input
+              name="address2"
+              value={form.address2}
+              onChange={handleChange}
+              placeholder="Address 2"
+              className="w-full border p-2"
+            />
             <input
               name="postalCode"
               type="number"
@@ -238,9 +246,9 @@ export default function CheckoutPage() {
           >
             Suivant
           </button>
-        </>
+        </div>
       ) : (
-        <>
+        <div>
           <h1 className="mb-4 text-xl font-bold">Order summary</h1>
           <div className="space-y-2">
             <p>{form.fullName}</p>
@@ -274,7 +282,7 @@ export default function CheckoutPage() {
               Proceed to Pay
             </button>
           </div>
-        </>
+        </div>
       )}
     </section>
   );
