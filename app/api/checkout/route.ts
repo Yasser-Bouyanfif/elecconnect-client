@@ -15,14 +15,15 @@ export async function POST(req: Request) {
     for (const item of items) {
       try {
         const res = await productApi.getProductById(String(item.id));
-        const product = res?.data?.data?.[0] ?? res?.data?.data;
-        if (!product?.id) continue;
-
+        const product = res?.data?.data?.[0];
+        const attrs = product?.attributes;
+        if (!product?.id || !attrs) continue;
+        
         lineItems.push({
           price_data: {
             currency: "eur",
-            product_data: { name: product.title },
-            unit_amount: Math.round(product.price * 100),
+            product_data: { name: attrs.title },
+            unit_amount: Math.round((attrs.price ?? 0) * 100),
           },
           quantity: item.quantity,
         });

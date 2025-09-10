@@ -8,13 +8,13 @@ import orderApi from "../_utils/orderApis";
 
 export default function SuccessPage() {
   const { cart, clearCart } = useContext(CartContext) as CartContextType;
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     const recordOrder = async () => {
-      try {
-        if (!user || cart.length === 0) return;
+      if (!user || cart.length === 0) return;
 
+      try {
         const quantities = new Map<string | number, number>();
         cart.forEach((item) => {
           quantities.set(item.id, (quantities.get(item.id) || 0) + 1);
@@ -55,17 +55,16 @@ export default function SuccessPage() {
             },
           },
         });
+        clearCart();
       } catch (err) {
         console.error("Failed to record order", err);
-      } finally {
-        clearCart();
       }
     };
 
-    if (cart.length) {
+    if (isLoaded && cart.length) {
       recordOrder();
     }
-  }, [cart, clearCart, user]);
+  }, [cart, clearCart, user, isLoaded]);
 
   return (
     <section className="mx-auto max-w-md p-4 text-center">
