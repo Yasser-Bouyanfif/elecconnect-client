@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import axiosClient from "@/app/_utils/axiosClient";
+import productApi from "@/app/_utils/productApis";
 import { LOCAL_URL } from "@/app/lib/constants";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -13,17 +13,22 @@ export async function POST(req: Request) {
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
     for (const item of items) {
-      const res = await axiosClient.get(`/products/${item.id}`);
-      const product = res.data?.data;
-      if (!product) continue;
-      lineItems.push({
-        price_data: {
-          currency: "eur",
-          product_data: { name: product.title },
-          unit_amount: Math.round(product.price * 100),
-        },
-        quantity: item.quantity,
-      });
+      try {
+        const res = await productApi.getProductById(String(item.id));
+        const product = res?.data?.data?.[0] ?? res?.data?.data;
+        if (!product?.id) continue;
+
+        lineItems.push({
+          price_data: {
+            currency: "eur",
+            product_data: { name: product.title },
+            unit_amount: Math.round(product.price * 100),
+          },
+          quantity: item.quantity,
+        });
+      } catch (err) {
+        console.error(`Failed to fetch product ${item.id}`, err);
+      }
     }
 
     const session = await stripe.checkout.sessions.create({

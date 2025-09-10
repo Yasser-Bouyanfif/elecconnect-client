@@ -37,8 +37,8 @@ export default function CheckoutPage() {
     } else {
       console.error("Failed to create checkout session", data);
     }
-  }
-  
+  };
+
   return (
     <section className="mx-auto max-w-md p-4">
       <h1 className="mb-4 text-2xl font-bold">Checkout</h1>
