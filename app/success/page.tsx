@@ -47,7 +47,7 @@ export default function SuccessPage() {
             shipping,
             subtotal,
             total,
-            paymentStatus: "paid",
+            paymentStatus: "pending",
             address: {
               fullName: user.fullName,
               email: user.primaryEmailAddress?.emailAddress,
