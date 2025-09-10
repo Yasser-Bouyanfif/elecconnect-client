@@ -63,7 +63,11 @@ export default function CheckoutPage() {
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.id) {
+      console.error("Checkout error", data);
+      return;
+    }
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };

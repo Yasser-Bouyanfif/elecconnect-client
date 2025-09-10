@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import axiosClient from "@/app/_utils/axiosClient";
-import {
-  STRIPE_SECRET_KEY,
-  LOCAL_URL,
-} from "@/app/lib/constants";
+import { STRIPE_SECRET_KEY, LOCAL_URL } from "@/app/lib/constants";
 
-const stripe = new Stripe(STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-06-20",
-});
+const stripe = STRIPE_SECRET_KEY
+  ? new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" })
+  : null;
 
 export async function POST(req: NextRequest) {
+  if (!stripe) {
+    return NextResponse.json(
+      { error: "Stripe secret key not configured" },
+      { status: 500 }
+    );
+  }
+
   try {
     const { products = [], address, userId, userEmail } = await req.json();
 
-    const lineItems = [] as Stripe.Checkout.SessionCreateParams.LineItem[];
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
     for (const id of products) {
       const res = await axiosClient.get(`/products/${id}`);
@@ -46,6 +50,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ id: session.id });
   } catch (error) {
     console.error(error);
-    return new NextResponse("Stripe error", { status: 500 });
+    return NextResponse.json(
+      { error: "Unable to create Stripe session" },
+      { status: 500 }
+    );
   }
 }
