@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         const product = res?.data?.data?.[0];
         const attrs = product?.attributes;
         if (!product?.id || !attrs) continue;
-
+        
         lineItems.push({
           price_data: {
             currency: "eur",
