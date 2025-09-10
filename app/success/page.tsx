@@ -21,16 +21,16 @@ export default function SuccessPage() {
         });
 
         let subtotal = 0;
-        const productIds: (string | number)[] = [];
+        const products: { product: string | number; quantity: number }[] = [];
         for (const [id, quantity] of quantities) {
           try {
             const res = await productApi.getProductById(String(id));
             const product = res.data?.data?.[0];
             const price = product?.attributes?.price ?? 0;
             subtotal += price * quantity;
-            productIds.push(id);
-          } catch {
-            // ignore product lookup failures
+            products.push({ product: id, quantity });
+          } catch (err) {
+            console.error(`Failed to fetch product ${id}`, err);
           }
         }
 
@@ -43,11 +43,11 @@ export default function SuccessPage() {
           data: {
             userId: user.id,
             userEmail: user.primaryEmailAddress?.emailAddress,
-            products: productIds,
+            products,
             shipping,
             subtotal,
             total,
-            paymentStatus: "paid",
+            paymentStatus: "pending",
             address: {
               fullName: user.fullName,
               email: user.primaryEmailAddress?.emailAddress,
@@ -55,6 +55,8 @@ export default function SuccessPage() {
             },
           },
         });
+      } catch (err) {
+        console.error("Failed to record order", err);
       } finally {
         clearCart();
       }
