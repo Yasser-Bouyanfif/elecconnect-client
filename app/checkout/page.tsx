@@ -3,7 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { loadStripe } from "@stripe/stripe-js";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { CartContext, CartContextType } from "../contexts/CartContext";
 import orderApis from "../_utils/orderApis";
@@ -41,6 +41,7 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useContext(CartContext) as CartContextType;
   const { user } = useUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
@@ -125,6 +126,7 @@ export default function CheckoutPage() {
   const createOrder = async () => {
     try {
       if (!user) throw new Error("User not found");
+      await user.update({ unsafeMetadata: { billing: form } });
       const productIds = items.map((i) => i.id);
       const data = {
         data: {
@@ -149,6 +151,8 @@ export default function CheckoutPage() {
       };
       await orderApis.createOrder(data);
       clearCart();
+      localStorage.clear();
+      router.push("/success");
     } catch (e) {
       console.error(e);
       setError("Unable to create order.");
@@ -182,13 +186,13 @@ export default function CheckoutPage() {
         }
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, cart]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm() || !user) return;
     try {
-      await user.update({ unsafeMetadata: { billing: form } });
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -213,7 +217,7 @@ export default function CheckoutPage() {
           {error}
         </p>
       )}
-    
+     
       <form onSubmit={handleSubmit} className="space-y-2">
         <input
           name="fullName"
