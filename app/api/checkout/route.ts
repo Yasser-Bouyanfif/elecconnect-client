@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       cancel_url: `${LOCAL_URL}/cart`,
     });
 
-    return NextResponse.json({ sessionId: session.id });
+    return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to create session" }, { status: 500 });

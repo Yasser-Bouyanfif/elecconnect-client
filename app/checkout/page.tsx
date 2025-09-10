@@ -2,12 +2,7 @@
 
 import { useContext, useState } from "react";
 import { CartContext, CartContextType } from "../contexts/CartContext";
-import { loadStripe } from "@stripe/stripe-js";
 import { useUser } from "@clerk/nextjs";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
-);
 
 export default function CheckoutPage() {
   const { cart } = useContext(CartContext) as CartContextType;
@@ -37,10 +32,13 @@ export default function CheckoutPage() {
       body: JSON.stringify({ items: grouped }),
     });
     const data = await res.json();
-    const stripe = await stripePromise;
-    await stripe?.redirectToCheckout({ sessionId: data.sessionId });
-  };
-
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      console.error("Failed to create checkout session", data);
+    }
+  }
+  
   return (
     <section className="mx-auto max-w-md p-4">
       <h1 className="mb-4 text-2xl font-bold">Checkout</h1>
