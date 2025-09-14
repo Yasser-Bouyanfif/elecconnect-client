@@ -1,6 +1,6 @@
 "use client";
-//test
-import { useContext } from "react";
+
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   CartContext,
   CartContextType,
@@ -8,22 +8,72 @@ import {
 } from "../contexts/CartContext";
 import { SERVER_URL } from "../lib/constants";
 
+async function createCheckoutSession(items: {
+  id: string | number;
+  quantity: number;
+}[]) {
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+  return (await res.json()) as { url?: string };
+}
+
 function CartPage() {
   const { cart, addToCart, removeFromCart } = useContext(
     CartContext
   ) as CartContextType;
 
-  const groups: { [key: string]: { item: CartItem; quantity: number } } = {};
-  cart.forEach((item) => {
-    const key = item.id.toString();
-    if (groups[key]) {
-      groups[key].quantity += 1;
-    } else {
-      groups[key] = { item, quantity: 1 };
-    }
-  });
+  const groups = useMemo(() => {
+    const g: { [key: string]: { item: CartItem; quantity: number } } = {};
+    cart.forEach((item) => {
+      const key = item.id.toString();
+      if (g[key]) {
+        g[key].quantity += 1;
+      } else {
+        g[key] = { item, quantity: 1 };
+      }
+    });
+    return g;
+  }, [cart]);
 
-  const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const items = Object.values(groups).map(({ item, quantity }) => ({
+      id: item.id,
+      quantity,
+    }));
+    if (items.length === 0) {
+      setTotal(0);
+      return;
+    }
+    (async () => {
+      try {
+        const res = await fetch("/api/cart/total", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
+        });
+        const data = await res.json();
+        setTotal(data.total || 0);
+      } catch {
+        setTotal(0);
+      }
+    })();
+  }, [groups]);
+
+  const handleCheckout = async () => {
+    const items = Object.values(groups).map(({ item, quantity }) => ({
+      id: item.id,
+      quantity,
+    }));
+    const { url } = await createCheckoutSession(items);
+    if (url) {
+      window.location.href = url;
+    }
+  };
 
   return (
     <section>
@@ -105,12 +155,12 @@ function CartPage() {
                   </dl>
 
                   <div className="flex justify-end">
-                    <a
-                      href="/checkout"
+                    <button
+                      onClick={handleCheckout}
                       className="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
                     >
                       Checkout
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
