@@ -2,13 +2,49 @@
 
 import { useContext, useEffect } from "react";
 import { CartContext, CartContextType } from "../contexts/CartContext";
+import axiosClient from "../_utils/axiosClient";
+import { useUser } from "@clerk/nextjs";
 
 function SuccessPage() {
-  const { clearCart } = useContext(CartContext) as CartContextType;
+  const { cart, clearCart } = useContext(CartContext) as CartContextType;
+  const { user } = useUser();
 
   useEffect(() => {
-    clearCart();
-  }, [clearCart]);
+    const createOrder = async () => {
+      const orderData = {
+        data: {
+          orderNumber: "271545510232532",
+          userId: user?.id ?? "clerk_user_12345",
+          userEmail: user?.primaryEmailAddress?.emailAddress ?? "client@example.com",
+          products: cart.map((item) => item.id),
+          address: {
+            fullName: "Jean Dupont",
+            company: "Ma Société",
+            address1: "12 rue des Fleurs",
+            address2: "Appartement 34",
+            postalCode: 75001,
+            city: "Paris",
+            country: "France",
+            phone: 33123456789,
+          },
+          shipping: { carrier: "DHL", price: 9.99 },
+          subtotal: 120.5,
+          total: 130.49,
+          orderStatus: "pending",
+        },
+      };
+
+      try {
+        await axiosClient.post("/orderApis", orderData);
+      } catch (error) {
+        console.error("Order creation failed", error);
+      } finally {
+        clearCart();
+      }
+    };
+
+    createOrder();
+  }, [cart, clearCart, user]);
 
   return (
     <section className="p-8 text-center">
