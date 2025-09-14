@@ -1,5 +1,5 @@
 "use client";
-//test
+
 import { useContext } from "react";
 import {
   CartContext,
@@ -7,6 +7,19 @@ import {
   CartItem,
 } from "../contexts/CartContext";
 import { SERVER_URL } from "../lib/constants";
+
+async function createCheckoutSession(items: {
+  title?: string;
+  price?: number;
+  quantity: number;
+}[]) {
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+  return (await res.json()) as { url?: string };
+}
 
 function CartPage() {
   const { cart, addToCart, removeFromCart } = useContext(
@@ -24,6 +37,18 @@ function CartPage() {
   });
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  const handleCheckout = async () => {
+    const items = Object.values(groups).map(({ item, quantity }) => ({
+      title: item.title,
+      price: item.price,
+      quantity,
+    }));
+    const { url } = await createCheckoutSession(items);
+    if (url) {
+      window.location.href = url;
+    }
+  };
 
   return (
     <section>
@@ -105,12 +130,12 @@ function CartPage() {
                   </dl>
 
                   <div className="flex justify-end">
-                    <a
-                      href="/checkout"
+                    <button
+                      onClick={handleCheckout}
                       className="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
                     >
                       Checkout
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
