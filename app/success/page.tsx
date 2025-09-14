@@ -11,7 +11,7 @@ function SuccessPage() {
 
   useEffect(() => {
     const createOrder = async () => {
-      if (!cart.length) return;
+      if (!cart.length || !user) return;
 
       const subtotal = cart.reduce(
         (acc, item) => acc + (item.price || 0),
@@ -22,9 +22,9 @@ function SuccessPage() {
       try {
         await orderApis.createOrder({
           data: {
-            userId: user?.id,
-            userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: cart.map((item) => item.id),
+            userId: user.id,
+            userEmail: user.primaryEmailAddress?.emailAddress,
+            products: cart.map((item) => Number(item.id)),
             address: {
               line1: "123 Demo Street",
               city: "Paris",
