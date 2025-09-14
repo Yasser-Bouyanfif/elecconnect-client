@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   CartContext,
   CartContextType,
@@ -36,7 +36,40 @@ function CartPage() {
     }
   });
 
-  const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const map: { [key: string]: number } = {};
+    cart.forEach((item) => {
+      const key = item.id.toString();
+      map[key] = (map[key] || 0) + 1;
+    });
+
+    const items = Object.entries(map).map(([id, quantity]) => ({
+      id,
+      quantity,
+    }));
+
+    if (items.length === 0) {
+      setTotal(0);
+      return;
+    }
+
+    (async () => {
+      try {
+        const res = await fetch("/api/cart-total", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
+        });
+        const data = await res.json();
+        setTotal(data.total || 0);
+      } catch (err) {
+        console.error("Failed to calculate total", err);
+        setTotal(0);
+      }
+    })();
+  }, [cart]);
 
   const handleCheckout = async () => {
     const items = Object.values(groups).map(({ item, quantity }) => ({
