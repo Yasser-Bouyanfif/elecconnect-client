@@ -2,7 +2,7 @@
 
 import { useContext, useEffect } from "react";
 import { CartContext, CartContextType } from "../contexts/CartContext";
-import axiosClient from "../_utils/axiosClient";
+import orderApis from "../_utils/orderApis";
 import { useUser } from "@clerk/nextjs";
 
 function SuccessPage() {
@@ -35,7 +35,7 @@ function SuccessPage() {
       };
 
       try {
-        await axiosClient.post("/orderApis", orderData);
+        await orderApis.createOrder(orderData);
       } catch (error) {
         console.error("Order creation failed", error);
       } finally {
