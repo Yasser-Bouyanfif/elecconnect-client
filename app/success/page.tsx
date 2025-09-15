@@ -49,7 +49,7 @@ function SuccessPage() {
             products: {
               connect: Array.from(
                 new Set(cart.map((item) => Number(item.id)))
-              ),
+              ).map((id) => ({ id })),
             },
             address: {
               fullName: "Jean Dupont",
