@@ -4,6 +4,7 @@ import { CartContext, CartContextType, CartItem } from "../contexts/CartContext"
 type BannerAttr = { data?: { attributes?: { url?: string } } };
 type Product = {
   id?: number | string;
+  documentId?: string;
   title?: string;
   price?: number | string;
   description?: string;
@@ -16,9 +17,10 @@ export default function ProductItem({ product }: { product: Product }) {
   const handleAdd = () => {
     const item: CartItem = {
       id: product.id as string | number,
+      documentId: product.documentId as string,
       title: product.title as string,
       price: product.price as number,
-      banner: {url: product.banner?.url as string}
+      banner: { url: product.banner?.url as string },
     };
     addToCart(item);
   };
