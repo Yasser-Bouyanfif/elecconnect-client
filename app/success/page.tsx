@@ -46,11 +46,9 @@ function SuccessPage() {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => Number(item.id)))
-              ),
-            },
+            products: Array.from(
+              new Set(cart.map((item) => Number(item.id)))
+            ),
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
