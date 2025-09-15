@@ -18,10 +18,17 @@ function SuccessPage() {
           quantityMap[key] = (quantityMap[key] || 0) + 1;
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
-          id,
-          quantity,
-        }));
+        const uniqueItems = Object.entries(quantityMap).map(([id, quantity]) => {
+          const cartItem = cart.find((i) => String(i.id) === id);
+          return {
+            id,
+            quantity,
+            price: cartItem?.price,
+            documentId: cartItem?.documentId,
+          };
+        });
+
+        const items = uniqueItems.map(({ id, quantity }) => ({ id, quantity }));
 
         let subtotal = 0;
         if (items.length > 0) {
@@ -46,10 +53,14 @@ function SuccessPage() {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
+            orderLines: {
+              create: uniqueItems
+                .filter((item) => item.documentId)
+                .map((item) => ({
+                  quantity: item.quantity,
+                  unitPrice: item.price || 0,
+                  product: { connect: [item.documentId as string] },
+                })),
             },
             address: {
               fullName: "Jean Dupont",
