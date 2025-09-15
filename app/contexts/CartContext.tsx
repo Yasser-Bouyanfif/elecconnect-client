@@ -4,6 +4,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 
 export type CartItem = {
   id: string | number;
+  documentId: string;
   title?: string;
   price?: number;
   banner?: {

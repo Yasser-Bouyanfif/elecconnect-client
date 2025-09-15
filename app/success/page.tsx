@@ -48,7 +48,7 @@ function SuccessPage() {
             userEmail: user?.primaryEmailAddress?.emailAddress,
             products: {
               connect: Array.from(
-                new Set(cart.map((item) => Number(item.id)))
+                new Set(cart.map((item) => item.documentId))
               ),
             },
             address: {
