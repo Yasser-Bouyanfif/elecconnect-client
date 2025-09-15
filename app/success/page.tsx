@@ -1,21 +1,56 @@
 "use client";
 
 import { useContext, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { CartContext, CartContextType } from "../contexts/CartContext";
 import orderApis from "../_utils/orderApis";
 
 function SuccessPage() {
-  const { clearCart } = useContext(CartContext) as CartContextType;
+  const { cart, clearCart } = useContext(CartContext) as CartContextType;
+  const { user } = useUser();
 
   useEffect(() => {
     const sendOrder = async () => {
       try {
+        const quantityMap: Record<string, number> = {};
+        cart.forEach((item) => {
+          const key = String(item.id);
+          quantityMap[key] = (quantityMap[key] || 0) + 1;
+        });
+
+        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
+          id,
+          quantity,
+        }));
+
+        let subtotal = 0;
+        if (items.length > 0) {
+          try {
+            const res = await fetch("/api/cart-total", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ items }),
+            });
+            const data = await res.json();
+            subtotal = data.total || 0;
+          } catch (err) {
+            console.error("Failed to calculate subtotal", err);
+          }
+        }
+
+        const shipping = { carrier: "DHL", price: 9.99 };
+        const total = subtotal + shipping.price;
+
         await orderApis.createOrder({
           data: {
-            orderNumber: "271545510232532",
-            userId: "clerk_user_12345",
-            userEmail: "client@example.com",
-            products: [3],
+            orderNumber: crypto.randomUUID(),
+            userId: user?.id,
+            userEmail: user?.primaryEmailAddress?.emailAddress,
+            products: {
+              connect: Array.from(
+                new Set(cart.map((item) => item.documentId))
+              ),
+            },
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
@@ -26,9 +61,9 @@ function SuccessPage() {
               country: "France",
               phone: 33123456789,
             },
-            shipping: { carrier: "DHL", price: 9.99 },
-            subtotal: 120.5,
-            total: 130.49,
+            shipping,
+            subtotal,
+            total,
             orderStatus: "pending",
           },
         });
@@ -39,8 +74,10 @@ function SuccessPage() {
       }
     };
 
-    sendOrder();
-  }, [clearCart]);
+    if (user && cart.length > 0) {
+      sendOrder();
+    }
+  }, [cart, clearCart, user]);
 
   return (
     <section className="p-8 text-center">
