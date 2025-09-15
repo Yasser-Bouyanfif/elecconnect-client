@@ -12,32 +12,31 @@ function SuccessPage() {
   useEffect(() => {
     const sendOrder = async () => {
       try {
-        const quantityMap: Record<string, number> = {};
+        const lineMap: Record<string, { quantity: number; unitPrice: number; documentId: string }> = {};
         cart.forEach((item) => {
-          const key = String(item.id);
-          quantityMap[key] = (quantityMap[key] || 0) + 1;
+          const key = String(item.documentId);
+          if (!lineMap[key]) {
+            lineMap[key] = {
+              quantity: 0,
+              unitPrice: item.price || 0,
+              documentId: item.documentId,
+            };
+          }
+          lineMap[key].quantity += 1;
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
-          id,
-          quantity,
-        }));
+        const orderLinesData = Object.values(lineMap).map(
+          ({ quantity, unitPrice, documentId }) => ({
+            quantity,
+            unitPrice,
+            product: { connect: [documentId] },
+          })
+        );
 
-        let subtotal = 0;
-        if (items.length > 0) {
-          try {
-            const res = await fetch("/api/cart-total", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ items }),
-            });
-            const data = await res.json();
-            subtotal = data.total || 0;
-          } catch (err) {
-            console.error("Failed to calculate subtotal", err);
-          }
-        }
-
+        const subtotal = orderLinesData.reduce(
+          (sum, line) => sum + line.quantity * line.unitPrice,
+          0
+        );
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
@@ -46,11 +45,7 @@ function SuccessPage() {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
-            },
+            orderLines: { create: orderLinesData },
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
