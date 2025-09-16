@@ -87,11 +87,38 @@ function SuccessPage() {
           },
         });
 
-        const orderDocumentId =
-          orderResponse?.data?.data?.documentId ??
-          orderResponse?.data?.documentId ??
-          orderResponse?.data?.data?.id ??
-          orderResponse?.data?.id;
+        const extractDocumentId = (payload: unknown): string | undefined => {
+          if (!payload || typeof payload !== "object") {
+            return undefined;
+          }
+
+          const candidateValues = [
+            (payload as { documentId?: unknown }).documentId,
+            (payload as { data?: { documentId?: unknown } }).data?.documentId,
+            (
+              payload as {
+                data?: { data?: { documentId?: unknown; attributes?: { documentId?: unknown } } };
+              }
+            ).data?.data?.documentId,
+            (
+              payload as {
+                data?: { data?: { attributes?: { documentId?: unknown } } };
+              }
+            ).data?.data?.attributes?.documentId,
+            (payload as { data?: { attributes?: { documentId?: unknown } } }).data?.attributes
+              ?.documentId,
+          ];
+
+          for (const value of candidateValues) {
+            if (typeof value === "string" && value.trim().length > 0) {
+              return value;
+            }
+          }
+
+          return undefined;
+        };
+
+        const orderDocumentId = extractDocumentId(orderResponse?.data);
 
         if (!orderDocumentId) {
           console.error("Order created without documentId", orderResponse?.data);
@@ -106,10 +133,18 @@ function SuccessPage() {
                     quantity,
                     unitPrice,
                     order: {
-                      connect: [orderDocumentId],
+                      connect: [
+                        {
+                          documentId: orderDocumentId,
+                        },
+                      ],
                     },
                     product: {
-                      connect: [productDocumentId],
+                      connect: [
+                        {
+                          documentId: productDocumentId,
+                        },
+                      ],
                     },
                   },
                 })
