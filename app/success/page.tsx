@@ -79,17 +79,30 @@ function SuccessPage() {
         const orderLinesPayload =
           aggregatedItems.length > 0
             ? {
-                create: aggregatedItems.map(({ id, documentId, quantity }) => ({
-                  quantity,
-                  unitPrice: unitPriceMap.get(id) ?? 0,
-                  product: {
-                    connect: [
-                      {
+                create: aggregatedItems.map(({ id, documentId, quantity }) => {
+                  const payload: {
+                    quantity: number;
+                    unitPrice: number;
+                    product?: {
+                      connect: {
+                        documentId: string;
+                      };
+                    };
+                  } = {
+                    quantity,
+                    unitPrice: unitPriceMap.get(id) ?? 0,
+                  };
+
+                  if (documentId) {
+                    payload.product = {
+                      connect: {
                         documentId,
                       },
-                    ],
-                  },
-                })),
+                    };
+                  }
+
+                  return payload;
+                }),
               }
             : undefined;
 
