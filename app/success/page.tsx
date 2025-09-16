@@ -12,14 +12,46 @@ function SuccessPage() {
   useEffect(() => {
     const sendOrder = async () => {
       try {
-        const quantityMap: Record<string, number> = {};
+        const productMap = new Map<
+          string,
+          { quantity: number; unitPrice: number; documentId?: string }
+        >();
         cart.forEach((item) => {
-          const key = String(item.id);
-          quantityMap[key] = (quantityMap[key] || 0) + 1;
+          if (item.id === undefined || item.id === null) {
+            return;
+          }
+
+          const productId = String(item.id);
+          const parsedPrice = Number(item.price);
+          const unitPrice = Number.isFinite(parsedPrice) ? parsedPrice : 0;
+          const existing = productMap.get(productId);
+
+          if (existing) {
+            existing.quantity += 1;
+            if (!existing.documentId && item.documentId) {
+              existing.documentId = item.documentId;
+            }
+            if (unitPrice > 0) {
+              existing.unitPrice = unitPrice;
+            }
+          } else {
+            productMap.set(productId, {
+              quantity: 1,
+              unitPrice,
+              documentId: item.documentId,
+            });
+          }
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
-          id,
+        const aggregatedProducts = Array.from(productMap.entries()).map(
+          ([productId, info]) => ({
+            productId,
+            ...info,
+          })
+        );
+
+        const items = aggregatedProducts.map(({ productId, quantity }) => ({
+          id: productId,
           quantity,
         }));
 
@@ -41,16 +73,28 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
+        const orderLines = aggregatedProducts
+          .filter((product) => Boolean(product.documentId))
+          .map((product) => ({
+            quantity: product.quantity,
+            unitPrice: product.unitPrice,
+            product: {
+              connect: [product.documentId as string],
+            },
+          }));
+
         await orderApis.createOrder({
           data: {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
-            },
+            ...(orderLines.length > 0
+              ? {
+                  order_line: {
+                    create: orderLines,
+                  },
+                }
+              : {}),
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
