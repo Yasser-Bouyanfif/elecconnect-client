@@ -12,16 +12,40 @@ function SuccessPage() {
   useEffect(() => {
     const sendOrder = async () => {
       try {
-        const quantityMap: Record<string, number> = {};
+        const productMap: Record<
+          string,
+          { quantity: number; unitPrice: number; documentId: string }
+        > = {};
+
         cart.forEach((item) => {
           const key = String(item.id);
-          quantityMap[key] = (quantityMap[key] || 0) + 1;
+          const existing = productMap[key];
+
+          const resolvedUnitPrice =
+            existing?.unitPrice ??
+            (typeof item.price === "number"
+              ? item.price
+              : Number(item.price ?? 0) || 0);
+
+          productMap[key] = {
+            documentId: existing?.documentId ?? item.documentId,
+            quantity: (existing?.quantity ?? 0) + 1,
+            unitPrice: resolvedUnitPrice,
+          };
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
+        const items = Object.entries(productMap).map(([id, { quantity }]) => ({
           id,
           quantity,
         }));
+
+        const orderLineInputs = Object.values(productMap)
+          .map(({ documentId, quantity, unitPrice }) => ({
+            productDocumentId: documentId,
+            quantity,
+            unitPrice,
+          }))
+          .filter(({ productDocumentId }) => Boolean(productDocumentId));
 
         let subtotal = 0;
         if (items.length > 0) {
@@ -41,16 +65,11 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
-        await orderApis.createOrder({
+        const orderResponse = await orderApis.createOrder({
           data: {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
-            },
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
@@ -67,6 +86,36 @@ function SuccessPage() {
             orderStatus: "pending",
           },
         });
+
+        const orderDocumentId =
+          orderResponse?.data?.data?.documentId ??
+          orderResponse?.data?.documentId ??
+          orderResponse?.data?.data?.id ??
+          orderResponse?.data?.id;
+
+        if (!orderDocumentId) {
+          console.error("Order created without documentId", orderResponse?.data);
+        }
+
+        if (orderDocumentId && orderLineInputs.length > 0) {
+          await Promise.all(
+            orderLineInputs.map(
+              ({ productDocumentId, quantity, unitPrice }) =>
+                orderApis.createOrderLine({
+                  data: {
+                    quantity,
+                    unitPrice,
+                    order: {
+                      connect: [orderDocumentId],
+                    },
+                    product: {
+                      connect: [productDocumentId],
+                    },
+                  },
+                })
+            )
+          );
+        }
       } catch (error) {
         console.error("Failed to create order", error);
       } finally {
