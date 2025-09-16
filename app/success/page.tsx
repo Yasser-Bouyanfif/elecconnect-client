@@ -18,6 +18,7 @@ function SuccessPage() {
             quantity: number;
             unitPrice: number;
             productDocumentId?: string;
+            productId?: string | number;
           }
         > = {};
         cart.forEach((item) => {
@@ -28,6 +29,7 @@ function SuccessPage() {
               quantity: 0,
               unitPrice: Number.isFinite(parsedPrice) ? parsedPrice : 0,
               productDocumentId: item.documentId,
+              productId: item.id,
             };
           }
           orderLineMap[key].quantity += 1;
@@ -59,21 +61,39 @@ function SuccessPage() {
         const orderLineData = Object.values(orderLineMap).reduce(
           (
             acc,
-            { quantity, unitPrice, productDocumentId }
+            { quantity, unitPrice, productDocumentId, productId }
           ): Array<{
             quantity: number;
             unitPrice: number;
-            product: { connect: string[] };
+            product: {
+              connect: Array<{ documentId?: string; id?: number }>;
+            };
           }> => {
-            if (!productDocumentId) {
+            if (!quantity) {
+              return acc;
+            }
+
+            let connectEntry: { documentId?: string; id?: number } | undefined;
+
+            if (productDocumentId) {
+              connectEntry = { documentId: productDocumentId };
+            } else if (productId !== undefined && productId !== null) {
+              const parsedId = Number.parseInt(String(productId), 10);
+              if (!Number.isNaN(parsedId)) {
+                connectEntry = { id: parsedId };
+              }
+            }
+
+            if (!connectEntry) {
               return acc;
             }
 
             acc.push({
               quantity,
               unitPrice,
-              product: { connect: [productDocumentId] },
+              product: { connect: [connectEntry] },
             });
+
             return acc;
           },
           []
