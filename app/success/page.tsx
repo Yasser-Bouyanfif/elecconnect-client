@@ -13,15 +13,47 @@ function SuccessPage() {
     const sendOrder = async () => {
       try {
         const quantityMap: Record<string, number> = {};
+        const orderLineMap: Record<
+          string,
+          { quantity: number; unitPrice: number }
+        > = {};
+
         cart.forEach((item) => {
           const key = String(item.id);
           quantityMap[key] = (quantityMap[key] || 0) + 1;
+
+          if (item.documentId) {
+            const price = item.price ?? 0;
+
+            if (!orderLineMap[item.documentId]) {
+              orderLineMap[item.documentId] = {
+                quantity: 0,
+                unitPrice: price,
+              };
+            }
+
+            const orderLine = orderLineMap[item.documentId];
+            orderLine.quantity += 1;
+            if (orderLine.unitPrice === 0 && price > 0) {
+              orderLine.unitPrice = price;
+            }
+          }
         });
 
         const items = Object.entries(quantityMap).map(([id, quantity]) => ({
           id,
           quantity,
         }));
+
+        const orderLines = Object.entries(orderLineMap).map(
+          ([documentId, { quantity, unitPrice }]) => ({
+            quantity,
+            unitPrice,
+            product: {
+              connect: [documentId],
+            },
+          })
+        );
 
         let subtotal = 0;
         if (items.length > 0) {
@@ -46,10 +78,8 @@ function SuccessPage() {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
+            order_line: {
+              create: orderLines,
             },
             address: {
               fullName: "Jean Dupont",
