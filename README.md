@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This project is a [Next.js](https://nextjs.org) e-commerce front-end. It now integrates [Shippo](https://goshippo.com/) to let shoppers pick a carrier before being redirected to Stripe Checkout.
 
-## Getting Started
+## Getting started
 
-First, run the development server:
+Install dependencies and run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app is available at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Shippo configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create an `.env.local` file at the project root and configure at least the Shippo API token:
 
-## Learn More
+```bash
+SHIPPO_API_TOKEN=your_private_token
+```
 
-To learn more about Next.js, take a look at the following resources:
+Without this token the carrier list will stay disabled and shoppers will see a friendly "service indisponible" message.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The shipping origin defaults to a demo Paris address. Override it on the server by setting any of the following variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+SHIPPO_FROM_NAME=John Doe
+SHIPPO_FROM_COMPANY=My Company            # optional
+SHIPPO_FROM_STREET1=12 Rue des Fleurs
+SHIPPO_FROM_STREET2=Appartement 34        # optional
+SHIPPO_FROM_CITY=Paris
+SHIPPO_FROM_STATE=Île-de-France           # optional
+SHIPPO_FROM_ZIP=75001
+SHIPPO_FROM_COUNTRY=FR
+SHIPPO_FROM_PHONE=+33123456789            # optional
+SHIPPO_FROM_EMAIL=john.doe@example.com    # optional
+SHIPPO_CURRENCY=EUR                       # optional (defaults to EUR)
+```
 
-## Deploy on Vercel
+If you want the post-checkout summary to display the same fallback address in the browser, also expose the corresponding public overrides (for example `NEXT_PUBLIC_SHIPPO_FROM_NAME`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The checkout flow requests shipping rates from `app/api/shipping-rates`, filters them to the configured currency, and persists the shopper's choice until the Stripe Checkout session completes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Development workflow
+
+- `npm run dev` – start the local development server.
+- `npm run lint` – run ESLint checks.
+
+When testing the checkout flow locally, make sure your browser can reach the Next.js server (http://localhost:3000) and that the Shippo API token has access to live or test rates for the destination country.
