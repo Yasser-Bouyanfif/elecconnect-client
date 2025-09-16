@@ -12,16 +12,36 @@ function SuccessPage() {
   useEffect(() => {
     const sendOrder = async () => {
       try {
-        const quantityMap: Record<string, number> = {};
+        const productMap: Record<
+          string,
+          { quantity: number; unitPrice: number; documentId: string }
+        > = {};
+
         cart.forEach((item) => {
           const key = String(item.id);
-          quantityMap[key] = (quantityMap[key] || 0) + 1;
+          const existing = productMap[key];
+
+          productMap[key] = {
+            documentId: existing?.documentId ?? item.documentId,
+            quantity: (existing?.quantity ?? 0) + 1,
+            unitPrice: item.price ?? existing?.unitPrice ?? 0,
+          };
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
+        const items = Object.entries(productMap).map(([id, { quantity }]) => ({
           id,
           quantity,
         }));
+
+        const orderLines = Object.values(productMap).map(
+          ({ documentId, quantity, unitPrice }) => ({
+            quantity,
+            unitPrice,
+            product: {
+              connect: [documentId],
+            },
+          })
+        );
 
         let subtotal = 0;
         if (items.length > 0) {
@@ -46,11 +66,6 @@ function SuccessPage() {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
-            },
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
@@ -65,6 +80,13 @@ function SuccessPage() {
             subtotal,
             total,
             orderStatus: "pending",
+            ...(orderLines.length > 0
+              ? {
+                  order_line: {
+                    create: orderLines,
+                  },
+                }
+              : {}),
           },
         });
       } catch (error) {
