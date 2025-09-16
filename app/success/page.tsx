@@ -12,13 +12,28 @@ function SuccessPage() {
   useEffect(() => {
     const sendOrder = async () => {
       try {
-        const quantityMap: Record<string, number> = {};
+        const orderLineMap: Record<
+          string,
+          {
+            quantity: number;
+            unitPrice: number;
+            productDocumentId?: string;
+          }
+        > = {};
         cart.forEach((item) => {
           const key = String(item.id);
-          quantityMap[key] = (quantityMap[key] || 0) + 1;
+          if (!orderLineMap[key]) {
+            const parsedPrice = Number(item.price ?? 0);
+            orderLineMap[key] = {
+              quantity: 0,
+              unitPrice: Number.isFinite(parsedPrice) ? parsedPrice : 0,
+              productDocumentId: item.documentId,
+            };
+          }
+          orderLineMap[key].quantity += 1;
         });
 
-        const items = Object.entries(quantityMap).map(([id, quantity]) => ({
+        const items = Object.entries(orderLineMap).map(([id, { quantity }]) => ({
           id,
           quantity,
         }));
@@ -41,15 +56,36 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
+        const orderLineData = Object.values(orderLineMap).reduce(
+          (
+            acc,
+            { quantity, unitPrice, productDocumentId }
+          ): Array<{
+            quantity: number;
+            unitPrice: number;
+            product: { connect: string[] };
+          }> => {
+            if (!productDocumentId) {
+              return acc;
+            }
+
+            acc.push({
+              quantity,
+              unitPrice,
+              product: { connect: [productDocumentId] },
+            });
+            return acc;
+          },
+          []
+        );
+
         await orderApis.createOrder({
           data: {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            products: {
-              connect: Array.from(
-                new Set(cart.map((item) => item.documentId))
-              ),
+            order_line: {
+              create: orderLineData,
             },
             address: {
               fullName: "Jean Dupont",
