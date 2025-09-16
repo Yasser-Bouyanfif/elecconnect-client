@@ -4,5 +4,5 @@ export const API_KEY = process.env.NEXT_PUBLIC_REST_API_KEY;
 export const LOCAL_URL = "http://localhost:3000";
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-
-
+export const SENDCLOUD_PUBLIC_KEY = process.env.SENDCLOUD_PUBLIC_KEY;
+export const SENDCLOUD_SECRET_KEY = process.env.SENDCLOUD_SECRET_KEY;
