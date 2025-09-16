@@ -53,6 +53,16 @@ function SuccessPage() {
           })
         );
 
+        const orderLinePayloads = orderLines
+          .filter(({ productDocumentId }) => Boolean(productDocumentId))
+          .map(({ quantity, unitPrice, productDocumentId }) => ({
+            quantity,
+            unitPrice,
+            product: {
+              connect: [productDocumentId],
+            },
+          }));
+
         let subtotal = 0;
         if (items.length > 0) {
           try {
@@ -71,54 +81,37 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
-        const orderResponse = await orderApis.createOrder({
-          data: {
-            orderNumber: crypto.randomUUID(),
-            userId: user?.id,
-            userEmail: user?.primaryEmailAddress?.emailAddress,
-            address: {
-              fullName: "Jean Dupont",
-              company: "Ma Société",
-              address1: "12 rue des Fleurs",
-              address2: "Appartement 34",
-              postalCode: 75001,
-              city: "Paris",
-              country: "France",
-              phone: 33123456789,
-            },
-            shipping,
-            subtotal,
-            total,
-            orderStatus: "pending",
+        const orderNumber = crypto.randomUUID();
+
+        const orderPayload: Record<string, unknown> = {
+          orderNumber,
+          userId: user?.id,
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+          address: {
+            fullName: "Jean Dupont",
+            company: "Ma Société",
+            address1: "12 rue des Fleurs",
+            address2: "Appartement 34",
+            postalCode: 75001,
+            city: "Paris",
+            country: "France",
+            phone: 33123456789,
           },
-        });
+          shipping,
+          subtotal,
+          total,
+          orderStatus: "pending",
+        };
 
-        const orderData = orderResponse?.data?.data;
-        const orderDocumentId =
-          typeof orderData?.documentId === "string"
-            ? orderData.documentId
-            : typeof orderData?.id !== "undefined"
-              ? String(orderData.id)
-              : undefined;
-
-        if (orderDocumentId && orderLines.length > 0) {
-          await Promise.all(
-            orderLines.map(({ quantity, unitPrice, productDocumentId }) =>
-              orderApis.createOrderLine({
-                data: {
-                  quantity,
-                  unitPrice,
-                  order: {
-                    connect: [orderDocumentId],
-                  },
-                  product: {
-                    connect: [productDocumentId],
-                  },
-                },
-              })
-            )
-          );
+        if (orderLinePayloads.length > 0) {
+          orderPayload.order_line = {
+            create: orderLinePayloads,
+          };
         }
+
+        await orderApis.createOrder({
+          data: orderPayload,
+        });
       } catch (error) {
         console.error("Failed to create order", error);
       } finally {
