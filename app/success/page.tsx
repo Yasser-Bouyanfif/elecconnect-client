@@ -99,20 +99,15 @@ function SuccessPage() {
 
         if (orderDocumentId && orderLineInputs.length > 0) {
           await Promise.all(
-            orderLineInputs.map(
-              ({ productDocumentId, quantity, unitPrice }) =>
-                orderApis.createOrderLine({
-                  data: {
-                    quantity,
-                    unitPrice,
-                    order: {
-                      connect: [orderDocumentId],
-                    },
-                    product: {
-                      connect: [productDocumentId],
-                    },
-                  },
-                })
+            orderLineInputs.map(({ productDocumentId, quantity, unitPrice }) =>
+              orderApis.createOrderLine({
+                data: {
+                  quantity,
+                  unitPrice,
+                  order: orderDocumentId,
+                  product: productDocumentId,
+                },
+              })
             )
           );
         }
