@@ -46,12 +46,10 @@ function SuccessPage() {
         }));
 
         const orderLines = Object.entries(orderLineMap).map(
-          ([documentId, { quantity, unitPrice }]) => ({
+          ([productDocumentId, { quantity, unitPrice }]) => ({
             quantity,
             unitPrice,
-            product: {
-              connect: [documentId],
-            },
+            productDocumentId,
           })
         );
 
@@ -73,14 +71,11 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
-        await orderApis.createOrder({
+        const orderResponse = await orderApis.createOrder({
           data: {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
-            order_line: {
-              create: orderLines,
-            },
             address: {
               fullName: "Jean Dupont",
               company: "Ma Société",
@@ -97,6 +92,33 @@ function SuccessPage() {
             orderStatus: "pending",
           },
         });
+
+        const orderData = orderResponse?.data?.data;
+        const orderDocumentId =
+          typeof orderData?.documentId === "string"
+            ? orderData.documentId
+            : typeof orderData?.id !== "undefined"
+              ? String(orderData.id)
+              : undefined;
+
+        if (orderDocumentId && orderLines.length > 0) {
+          await Promise.all(
+            orderLines.map(({ quantity, unitPrice, productDocumentId }) =>
+              orderApis.createOrderLine({
+                data: {
+                  quantity,
+                  unitPrice,
+                  order: {
+                    connect: [orderDocumentId],
+                  },
+                  product: {
+                    connect: [productDocumentId],
+                  },
+                },
+              })
+            )
+          );
+        }
       } catch (error) {
         console.error("Failed to create order", error);
       } finally {
