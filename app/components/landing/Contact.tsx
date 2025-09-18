@@ -32,7 +32,7 @@ export default function Contact() {
               Contactez-nous
             </h2>
             <p className="text-slate-600 mb-8">
-              Obtenez votre devis gratuit sous 24h pour votre projet d'installation.
+              Obtenez votre devis gratuit sous 24h pour votre projet d&apos;installation.
             </p>
 
             <div className="space-y-4">
@@ -62,7 +62,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="font-medium text-slate-800">Île-de-France</div>
-                  <div className="text-sm text-slate-500">Zone d'intervention</div>
+                  <div className="text-sm text-slate-500">Zone d&apos;intervention</div>
                 </div>
               </div>
             </div>
