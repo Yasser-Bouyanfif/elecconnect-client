@@ -76,72 +76,88 @@ const GoogleLogo = () => (
 
 export default function Testimonials() {
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[320px,1fr] lg:items-center">
-          {/* Left side - Stats */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="mb-6 flex items-center gap-3">
-              <GoogleLogo />
-              <div>
-                <p className="text-sm font-medium text-slate-500">Avis Google</p>
-                <p className="text-lg font-semibold text-slate-900">Nos clients nous recommandent</p>
-              </div>
-            </div>
-
-            <h2 className="text-3xl font-bold text-slate-900">Ce que disent nos clients</h2>
-
-            <div className="mt-6">
-              <div className="flex items-baseline gap-3">
-                <span className="text-5xl font-bold text-slate-900">4.9</span>
-                <div className="flex space-x-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  ))}
+    <section className="bg-gray-50 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,360px),1fr] lg:items-stretch">
+            {/* Left side - Stats */}
+            <div className="relative isolate flex flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-10">
+              <div className="absolute -right-24 -top-24 h-48 w-48 rounded-full bg-emerald-100/60 blur-2xl" aria-hidden="true" />
+              <div className="relative">
+                <div className="mb-6 flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
+                    <GoogleLogo />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">Avis Google</p>
+                    <p className="text-xl font-semibold text-slate-900">Nos clients nous recommandent</p>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-3 text-sm text-slate-500">Note moyenne basée sur plus de 200 avis clients.</p>
-            </div>
-          </div>
 
-          {/* Right side - Testimonials Carousel */}
-          <div className="relative">
-            <Swiper
-              modules={[Navigation, Pagination, Autoplay]}
-              spaceBetween={16}
-              slidesPerView={1}
-              navigation
-              pagination={{ clickable: true }}
-              autoplay={{
-                delay: 4000,
-                disableOnInteraction: false,
-              }}
-              className="testimonials-swiper"
-            >
-              {testimonials.map((testimonial) => (
-                <SwiperSlide key={testimonial.id}>
-                  <div className="mx-auto max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-md">
-                    <div className="mb-4 flex space-x-1">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Ce que disent nos clients</h2>
+                <p className="mt-4 text-sm text-slate-600">
+                  Une expérience client saluée pour la qualité de nos installations et notre accompagnement sur-mesure.
+                </p>
+              </div>
+
+              <div className="relative mt-10">
+                <div className="flex items-end gap-4">
+                  <span className="text-6xl font-bold text-slate-900">4.9</span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
-
-                    <p className="mb-6 text-sm leading-relaxed text-slate-600">&ldquo;{testimonial.comment}&rdquo;</p>
-
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600">
-                        <span className="text-sm font-medium text-white">{testimonial.avatar}</span>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-900">{testimonial.name}</div>
-                        <div className="text-xs text-slate-500">{testimonial.role} - {testimonial.location}</div>
-                      </div>
-                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Satisfaction globale</span>
                   </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                </div>
+                <p className="mt-3 text-sm text-slate-500">
+                  Note moyenne basée sur plus de 200 avis clients vérifiés.
+                </p>
+              </div>
+            </div>
+
+            {/* Right side - Testimonials Carousel */}
+            <div className="border-t border-slate-100 bg-slate-50/40 p-6 lg:border-l lg:border-t-0 lg:p-10">
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                spaceBetween={24}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                autoplay={{
+                  delay: 4500,
+                  disableOnInteraction: false,
+                }}
+                className="testimonials-swiper"
+              >
+                {testimonials.map((testimonial) => (
+                  <SwiperSlide key={testimonial.id}>
+                    <article className="flex h-full flex-col justify-between rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-sm backdrop-blur">
+                      <div>
+                        <div className="mb-4 flex space-x-1">
+                          {Array.from({ length: testimonial.rating }).map((_, i) => (
+                            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                        <p className="text-base leading-relaxed text-slate-600">&ldquo;{testimonial.comment}&rdquo;</p>
+                      </div>
+
+                      <div className="mt-8 flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600">
+                          <span className="text-sm font-medium text-white">{testimonial.avatar}</span>
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-slate-900">{testimonial.name}</div>
+                          <div className="text-xs text-slate-500">{testimonial.role} • {testimonial.location}</div>
+                        </div>
+                      </div>
+                    </article>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           </div>
         </div>
       </div>
