@@ -2,10 +2,9 @@
 
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Pagination, Autoplay } from 'swiper/modules';
 import { Star } from 'lucide-react';
 import 'swiper/css';
-import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const testimonials = [
@@ -94,12 +93,12 @@ export default function Testimonials() {
 
           {/* Right side - Testimonials Carousel */}
           <div className="w-full lg:flex-1 flex justify-center lg:justify-end">
-            <div className="w-full max-w-xl">
+            <div className="w-full">
               <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
+                modules={[Pagination, Autoplay]}
                 spaceBetween={24}
-                slidesPerView={1}
-                navigation
+                slidesPerView={1.05}
+                centeredSlides
                 pagination={{ clickable: true }}
                 autoplay={{
                   delay: 4000,
@@ -108,8 +107,8 @@ export default function Testimonials() {
                 className="testimonials-swiper"
               >
                 {testimonials.map((testimonial) => (
-                  <SwiperSlide key={testimonial.id}>
-                    <div className="bg-white rounded-3xl px-10 py-12 shadow-xl border border-white/70">
+                  <SwiperSlide key={testimonial.id} className="!flex justify-end">
+                    <div className="bg-white/90 rounded-3xl px-10 py-12 shadow-xl border border-white/80 max-w-xl w-full sm:w-4/5 lg:w-3/4">
                       <div className="flex items-center gap-1 mb-5">
                         {Array.from({ length: testimonial.rating }).map((_, i) => (
                           <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
