@@ -1,28 +1,53 @@
-import React from 'react';
-import { Zap, Shield, Leaf, Users } from 'lucide-react';
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import { Zap, Shield, Leaf, Users } from "lucide-react";
 
 export default function AboutUs() {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-800 mb-6">
+        {/* Titre */}
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold text-slate-800">
             Qui sommes-nous ?
           </h2>
-          <div className="max-w-4xl mx-auto space-y-6 text-lg text-slate-600 leading-relaxed">
-            <p>
-              <strong className="text-emerald-600">ELEC'CONNECT</strong> votre partenaire de confiance pour l'installation professionnelle 
-              de bornes de recharge pour véhicules électriques. Nous nous engageons à fournir des solutions 
-              de recharge efficaces, durables et adaptées à vos besoins.
-            </p>
-            <p>
-              Chez Elec'connect, nous sommes animés par la vision d'un monde où chaque kilomètre parcouru 
-              est une contribution positive à notre environnement. En faisant le choix de la mobilité électrique, 
-              vous participez activement à la création d'un avenir plus propre et plus durable.
-            </p>
+        </div>
+
+        {/* Bloc texte + image */}
+        <div className="grid lg:grid-cols-2 gap-10 items-center mb-16">
+          {/* Texte à gauche */}
+          <div className="max-w-2xl">
+            <div className="space-y-5 text-lg text-slate-700 leading-relaxed">
+              <p>
+                <strong className="text-emerald-600">ELEC'CONNECT</strong> est
+                votre partenaire de confiance pour l’installation professionnelle
+                de bornes de recharge pour véhicules électriques. Nous proposons
+                des solutions de recharge efficaces, durables et adaptées à vos usages.
+              </p>
+              <p>
+                Portés par la transition énergétique, nous croyons à une mobilité
+                plus propre et accessible. Nous vous accompagnons de l’étude à la
+                maintenance avec une approche certifiée et transparente.
+              </p>
+            </div>
+          </div>
+
+          {/* Image à droite — sans card + hauteur réduite */}
+          <div className="relative w-full h-56 sm:h-64 lg:h-72">
+            <Image
+              src="/borne.png"
+              alt="Borne de recharge ELEC'CONNECT"
+              fill
+              sizes="(max-width: 1024px) 100vw, 600px"
+              className="object-contain" // pas de card/ombre/arrondis
+              priority
+            />
           </div>
         </div>
 
+        {/* Icônes / valeurs */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="text-center group">
             <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
