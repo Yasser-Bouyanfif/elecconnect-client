@@ -3,8 +3,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-
-import Header from "./components/Header";
+import Footer from "./components/landing/Footer";
+import Header from "./components/landing/Header";
 import { CartProvider } from "./contexts/CartContext";
 
 const geistSans = Geist({
@@ -33,6 +33,7 @@ export default function RootLayout({
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <Header />
             {children}
+            <Footer />
           </body>
         </html>
       </CartProvider>

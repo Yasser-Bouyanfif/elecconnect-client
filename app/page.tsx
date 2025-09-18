@@ -1,14 +1,19 @@
-"use client"
+import Hero from "./components/landing/Hero";
+import AboutUs from "./components/landing/AboutUs";
+import Testimonials from "./components/landing/Testimonials";
+import ProductSection from "./components/landing/ProductSection";
+import About from "./components/landing/About";
+import Contact from "./components/landing/Contact";
 
-import Image from "next/image";
-import ProductSection from "./components/ProductSection"
-import Header from "./components/Header";
-import { useUser } from "@clerk/nextjs";
-
-export default function Home() {
+export default function Page() {
   return (
-    <div>
+    <div className="min-h-screen">
+      <Hero />
+      <AboutUs />
+      <Testimonials />
       <ProductSection />
+      <About />
+      <Contact />
     </div>
   );
 }
