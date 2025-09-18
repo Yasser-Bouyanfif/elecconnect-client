@@ -10,10 +10,11 @@ export default function Page() {
     <div className="min-h-screen">
       <Hero />
       <AboutUs />
+      <About />
       <Testimonials />
       <ProductSection />
-      <About />
       <Contact />
     </div>
   );
 }
+

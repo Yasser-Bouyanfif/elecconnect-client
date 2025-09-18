@@ -11,21 +11,21 @@ export default function AboutUs() {
           </h2>
           <div className="max-w-4xl mx-auto space-y-6 text-lg text-slate-600 leading-relaxed">
             <p>
-              <strong className="text-emerald-600">ELEC'CONNECT</strong> votre partenaire de confiance pour l'installation professionnelle 
-              de bornes de recharge pour véhicules électriques. Nous nous engageons à fournir des solutions 
+              <strong className="text-emerald-600">ELEC&apos;CONNECT</strong> votre partenaire de confiance pour l&apos;installation professionnelle
+              de bornes de recharge pour véhicules électriques. Nous nous engageons à fournir des solutions
               de recharge efficaces, durables et adaptées à vos besoins.
             </p>
             <p>
-              Chez Elec'connect, nous sommes animés par la vision d'un monde où chaque kilomètre parcouru 
-              est une contribution positive à notre environnement. En faisant le choix de la mobilité électrique, 
-              vous participez activement à la création d'un avenir plus propre et plus durable.
+              Chez Elec&apos;connect, nous sommes animés par la vision d&apos;un monde où chaque kilomètre parcouru
+              est une contribution positive à notre environnement. En faisant le choix de la mobilité électrique,
+              vous participez activement à la création d&apos;un avenir plus propre et plus durable.
             </p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="text-center group">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+          <div className="text-center">
+            <div className="flex items-center justify-center mx-auto mb-4">
               <Zap className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
@@ -36,8 +36,8 @@ export default function AboutUs() {
             </p>
           </div>
 
-          <div className="text-center group">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+          <div className="text-center">
+            <div className="flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
@@ -48,8 +48,8 @@ export default function AboutUs() {
             </p>
           </div>
 
-          <div className="text-center group">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+          <div className="text-center">
+            <div className="flex items-center justify-center mx-auto mb-4">
               <Leaf className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
@@ -60,8 +60,8 @@ export default function AboutUs() {
             </p>
           </div>
 
-          <div className="text-center group">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+          <div className="text-center">
+            <div className="flex items-center justify-center mx-auto mb-4">
               <Users className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
