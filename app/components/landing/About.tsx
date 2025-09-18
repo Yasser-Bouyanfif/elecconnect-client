@@ -10,7 +10,7 @@ export default function About() {
             Pourquoi nous choisir ?
           </h2>
           <p className="text-slate-600 max-w-2xl mx-auto">
-            Chez ELEC'CONNECT, nous sommes animés par la vision d'un monde où chaque kilomètre 
+            Chez ELEC&apos;CONNECT, nous sommes animés par la vision d&apos;un monde où chaque kilomètre
             parcouru contribue à un environnement plus propre.
           </p>
         </div>

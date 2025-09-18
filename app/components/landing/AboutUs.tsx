@@ -11,14 +11,14 @@ export default function AboutUs() {
           </h2>
           <div className="max-w-4xl mx-auto space-y-6 text-lg text-slate-600 leading-relaxed">
             <p>
-              <strong className="text-emerald-600">ELEC'CONNECT</strong> votre partenaire de confiance pour l'installation professionnelle 
-              de bornes de recharge pour véhicules électriques. Nous nous engageons à fournir des solutions 
+              <strong className="text-emerald-600">ELEC&apos;CONNECT</strong> votre partenaire de confiance pour l&apos;installation professionnelle
+              de bornes de recharge pour véhicules électriques. Nous nous engageons à fournir des solutions
               de recharge efficaces, durables et adaptées à vos besoins.
             </p>
             <p>
-              Chez Elec'connect, nous sommes animés par la vision d'un monde où chaque kilomètre parcouru 
-              est une contribution positive à notre environnement. En faisant le choix de la mobilité électrique, 
-              vous participez activement à la création d'un avenir plus propre et plus durable.
+              Chez Elec&apos;connect, nous sommes animés par la vision d&apos;un monde où chaque kilomètre parcouru
+              est une contribution positive à notre environnement. En faisant le choix de la mobilité électrique,
+              vous participez activement à la création d&apos;un avenir plus propre et plus durable.
             </p>
           </div>
         </div>
