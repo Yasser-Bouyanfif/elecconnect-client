@@ -41,8 +41,8 @@ export default function Contact() {
                   <Phone className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">+33 1 23 45 67 89</div>
-                  <div className="text-sm text-slate-500">Lun-Ven 8h-18h</div>
+                  <div className="font-medium text-slate-800">+33 6 98 65 77 80</div>
+                  <div className="text-sm text-slate-500">24/24</div>
                 </div>
               </div>
 
@@ -51,8 +51,8 @@ export default function Contact() {
                   <Mail className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">contact@elec-connect.fr</div>
-                  <div className="text-sm text-slate-500">Réponse sous 24h</div>
+                  <div className="font-medium text-slate-800">contact@elecconnect.fr</div>
+                  <div className="text-sm text-slate-500">Réponse sous 8h</div>
                 </div>
               </div>
 
@@ -61,7 +61,7 @@ export default function Contact() {
                   <MapPin className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">Île-de-France</div>
+                  <div className="font-medium text-slate-800">Provence-Alpes-Côte d'Azur</div>
                   <div className="text-sm text-slate-500">Zone d'intervention</div>
                 </div>
               </div>

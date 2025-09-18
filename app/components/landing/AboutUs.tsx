@@ -21,15 +21,13 @@ export default function AboutUs() {
           <div className="max-w-2xl">
             <div className="space-y-5 text-lg text-slate-700 leading-relaxed">
               <p>
-                <strong className="text-emerald-600">ELEC'CONNECT</strong> est
-                votre partenaire de confiance pour l’installation professionnelle
-                de bornes de recharge pour véhicules électriques. Nous proposons
-                des solutions de recharge efficaces, durables et adaptées à vos usages.
+                <strong className="text-emerald-600">ELEC'CONNECT</strong> vous accompagne
+                pour l’installation fiable de bornes de recharge pour véhicules électriques.
+                Nous concevons des solutions performantes, durables et réellement adaptées à vos usages.
               </p>
               <p>
-                Portés par la transition énergétique, nous croyons à une mobilité
-                plus propre et accessible. Nous vous accompagnons de l’étude à la
-                maintenance avec une approche certifiée et transparente.
+              Engagés pour la transition énergétique, nous facilitons une mobilité plus propre et accessible.
+              De l’audit à la maintenance, notre démarche certifiée, claire et transparente vous garantit un suivi sans surprise.
               </p>
             </div>
           </div>

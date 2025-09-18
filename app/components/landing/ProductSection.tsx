@@ -14,13 +14,13 @@ const responsive = {
 
 // Tu peux garder tes données réelles ici.
 // J’utilise ton mock mais toutes les images pointent vers la même URL souhaitée.
-const IMAGE_URL = "https://www.e-totem.eu/wp-content/uploads/2025/05/Borne-de-recharge-e-Smart.jpg";
+const IMAGE_URL = "/borne2.png";
 const products = [
-  { id: 1, name: "Borne AC 7kW Résidentielle", price: 890,   location: "Installation incluse" },
-  { id: 2, name: "Borne DC 50kW Rapide",       price: 15900, location: "Entreprises" },
-  { id: 3, name: "Wallbox 11kW Pro",           price: 1290,  location: "Copropriétés" },
-  { id: 4, name: "Borne AC 22kW Triphasée",    price: 1890,  location: "Usage professionnel" },
-  { id: 5, name: "Borne Murale 3.7kW",         price: 590,   location: "Particuliers" },
+  { id: 1, name: "Borne AC 7kW Résidentielle", price: 225,   location: "Installation incluse" },
+  { id: 2, name: "Borne DC 50kW Rapide",       price: 375, location: "Entreprises" },
+  { id: 3, name: "Wallbox 11kW Pro",           price: 389,  location: "Copropriétés" },
+  { id: 4, name: "Borne AC 22kW Triphasée",    price: 559,  location: "Usage professionnel" },
+  { id: 5, name: "Borne Murale 3.7kW",         price: 788,   location: "Particuliers" },
 ];
 
 // Flèches custom : blanches sur fond noir

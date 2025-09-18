@@ -46,7 +46,7 @@ export default function Hero() {
               <ArrowRight className="w-4 h-4" />
             </button>
             <button className="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-medium hover:border-emerald-600 hover:text-emerald-600 transition-colors">
-              Nos services
+              Notre boutique
             </button>
           </div>
         </div>
