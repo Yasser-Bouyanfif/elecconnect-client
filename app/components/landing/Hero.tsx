@@ -14,7 +14,7 @@ export default function Hero() {
           </h1>
           
           <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-            ELEC'CONNECT, votre partenaire de confiance pour l'installation professionnelle 
+            ELEC&apos;CONNECT, votre partenaire de confiance pour l&apos;installation professionnelle
             de bornes de recharge pour véhicules électriques.
           </p>
 

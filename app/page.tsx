@@ -2,7 +2,6 @@ import Hero from "./components/landing/Hero";
 import AboutUs from "./components/landing/AboutUs";
 import Testimonials from "./components/landing/Testimonials";
 import ProductSection from "./components/landing/ProductSection";
-import About from "./components/landing/About";
 import Contact from "./components/landing/Contact";
 
 export default function Page() {

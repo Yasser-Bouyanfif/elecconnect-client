@@ -9,12 +9,12 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-3">
             <img
-              src="/image01-high.webp" 
-              alt="ELEC'CONNECT" 
+              src="/image01-high.webp"
+              alt="ELEC&apos;CONNECT"
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">ELEC'CONNECT</h1>
+              <h1 className="text-2xl font-bold text-gray-900">ELEC&apos;CONNECT</h1>
               <p className="text-sm text-emerald-600 font-medium">Solutions de recharge électrique</p>
             </div>
           </div>

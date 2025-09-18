@@ -6,8 +6,11 @@ import { Zap, Shield, Leaf, Users } from "lucide-react";
 
 export default function AboutUs() {
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 bg-white overflow-hidden">
+      {/* Effets de halo lumineux venant des côtés */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 max-w-lg -z-10 bg-gradient-to-r from-slate-300/70 via-slate-100/30 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 max-w-lg -z-10 bg-gradient-to-l from-slate-300/70 via-slate-100/30 to-transparent blur-3xl" />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Titre */}
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold text-slate-800">
@@ -21,7 +24,7 @@ export default function AboutUs() {
           <div className="max-w-2xl">
             <div className="space-y-5 text-lg text-slate-700 leading-relaxed">
               <p>
-                <strong className="text-emerald-600">ELEC'CONNECT</strong> est
+                <strong className="text-emerald-600">ELEC&apos;CONNECT</strong> est
                 votre partenaire de confiance pour l’installation professionnelle
                 de bornes de recharge pour véhicules électriques. Nous proposons
                 des solutions de recharge efficaces, durables et adaptées à vos usages.
@@ -38,7 +41,7 @@ export default function AboutUs() {
           <div className="relative w-full h-56 sm:h-64 lg:h-72">
             <Image
               src="/borne.png"
-              alt="Borne de recharge ELEC'CONNECT"
+              alt="Borne de recharge ELEC&apos;CONNECT"
               fill
               sizes="(max-width: 1024px) 100vw, 600px"
               className="object-contain" // pas de card/ombre/arrondis
