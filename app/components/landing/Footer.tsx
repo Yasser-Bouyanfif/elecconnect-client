@@ -9,18 +9,18 @@ export default function Footer() {
           {/* Logo et description */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/image01-high.webp" 
-                alt="ELEC'CONNECT" 
+              <img
+                src="/image01-high.webp"
+                alt="ELEC&apos;CONNECT"
                 className="w-10 h-10 object-contain"
               />
               <div>
-                <h3 className="text-xl font-bold">ELEC'CONNECT</h3>
+                <h3 className="text-xl font-bold">ELEC&apos;CONNECT</h3>
                 <p className="text-emerald-400 text-sm">Solutions de recharge électrique</p>
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Votre partenaire de confiance pour l'installation professionnelle de bornes de recharge électrique. 
+              Votre partenaire de confiance pour l&apos;installation professionnelle de bornes de recharge électrique.
               Nous contribuons à un avenir plus durable grâce à la mobilité électrique.
             </p>
             <div className="flex space-x-4">
@@ -69,7 +69,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 ELEC'CONNECT. Tous droits réservés.
+            © 2024 ELEC&apos;CONNECT. Tous droits réservés.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
