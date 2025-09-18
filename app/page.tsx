@@ -12,7 +12,6 @@ export default function Page() {
       <AboutUs />
       <Testimonials />
       <ProductSection />
-      <About />
       <Contact />
     </div>
   );
