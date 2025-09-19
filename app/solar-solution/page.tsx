@@ -115,6 +115,44 @@ export default function SolutionsSolaires() {
               </p>
             </div>
           </div>
+
+          {/* Carte d'offre spéciale */}
+          <div className="mt-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl">
+            <div className="p-8 md:p-10 lg:flex items-center">
+              <div className="lg:w-2/3">
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white mb-4">
+                  <Zap className="w-4 h-4 mr-2" />
+                  OFFRE EXCLUSIVE
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Borne de Recharge 7 kW à 0€</h3>
+                <p className="text-emerald-100 mb-6">
+                  Avec l'installation de panneaux solaires d'une puissance minimale de 3 kWc, la borne de recharge 7 kW est offerte
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-emerald-50">
+                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
+                    Installation incluse
+                  </li>
+                  <li className="flex items-center text-emerald-50">
+                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
+                    Compatible avec tous les véhicules électriques
+                  </li>
+                  <li className="flex items-center text-emerald-50">
+                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
+                    Pilotage intelligent de la charge
+                  </li>
+                </ul>
+              </div>
+              <div className="lg:w-1/3 mt-8 lg:mt-0 lg:pl-8">
+                <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border-2 border-white/30 text-center transform hover:scale-105 transition-transform duration-300 shadow-2xl">
+                  <div className="text-6xl font-extrabold text-white mb-2 drop-shadow-lg">0€</div>
+                  <div className="text-white/90 text-lg line-through font-medium">À partir de 1299€</div>
+                  <div className="text-white/80 text-sm mt-1">(Prix selon configuration)</div>
+                  <div className="mt-3 text-emerald-100 font-semibold animate-pulse">OFFRE EXCEPTIONNELLE</div>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div className="mt-12 flex justify-end">
             <a 

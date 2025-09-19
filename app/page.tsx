@@ -18,48 +18,24 @@ const ExclusiveOfferPopup = dynamic(
 export default function Page() {
   const [showPopup, setShowPopup] = useState(false);
 
+  useEffect(() => {
+    // Vérifier si la popup a déjà été affichée dans cette session
+    const popupShown = sessionStorage.getItem('popupShown');
+    
+    if (!popupShown) {
+      // Délai avant d'afficher la popup
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+      }, 2000); // 2 secondes de délai
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const handleClosePopup = () => {
     console.log('Fermeture de la popup');
     setShowPopup(false);
   };
-
-  useEffect(() => {
-    console.log('useEffect exécuté');
-    // Vérifier si la popup a déjà été affichée dans cette session
-    const popupShown = sessionStorage.getItem('popupShown');
-    console.log('Popup déjà affichée ?', popupShown);
-    
-    if (!popupShown) {
-      console.log('Démarrage du timer pour afficher la popup');
-      const timer = setTimeout(() => {
-        console.log('Affichage de la popup');
-        setShowPopup(true);
-        sessionStorage.setItem('popupShown', 'true');
-      }, 1000); // Délai de 1 seconde avant d'afficher la popup
-      
-      return () => {
-        console.log('Nettoyage du timer');
-        clearTimeout(timer);
-      };
-    } else {
-      // Si la popup a déjà été affichée, on s'assure qu'elle reste fermée
-      setShowPopup(false);
-    }
-  }, []);
-
-  console.log('Rendu du composant, showPopup =', showPopup);
-  
-  useEffect(() => {
-    if (showPopup) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showPopup]);
   
   return (
     <div className="min-h-screen">
