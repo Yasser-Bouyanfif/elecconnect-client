@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PhoneCall, Menu, ShoppingCart, LogIn } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { CartContext, CartContextType } from "../../contexts/CartContext";
-import Cart from "../../components/Cart";
+import Cart from "../../components/landing/Cart";
 
 export default function Header() {
   const { isSignedIn } = useUser();

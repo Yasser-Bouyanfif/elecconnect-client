@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <CartProvider>
-        <html lang="en">
+        <html lang="en" data-theme="emerald">
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <Header />
             {children}

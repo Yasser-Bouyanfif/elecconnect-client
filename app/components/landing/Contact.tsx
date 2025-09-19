@@ -32,37 +32,50 @@ export default function Contact() {
               Contactez-nous
             </h2>
             <p className="text-slate-600 mb-8">
-              Obtenez votre devis gratuit sous 24h pour votre projet d'installation.
+              Obtenez votre devis gratuit sous 8h pour votre projet d'installation.
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
+              {/* Téléphone */}
+              <div className="flex items-start space-x-3">
                 <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <Phone className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">+33 6 98 65 77 80</div>
-                  <div className="text-sm text-slate-500">24/24</div>
+                  <a href="tel:+33698657780" className="block font-medium text-slate-800 hover:text-emerald-600 transition-colors">
+                    +33 6 98 65 77 80
+                  </a>
+                  <a href="tel:+33422918291" className="block font-medium text-slate-800 hover:text-emerald-600 transition-colors">
+                    +33 4 22 91 82 91
+                  </a>
+                  <div className="text-sm font-bold text-emerald-500 animate-[heartbeat_2s_ease-in-out_infinite]">
+                    24/24
+                  </div>
                 </div>
               </div>
 
+              {/* Email */}
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <Mail className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">contact@elecconnect.fr</div>
+                  <a href="mailto:contact@elecconnect.fr" className="block font-medium text-slate-800 hover:text-emerald-600 transition-colors">
+                    contact@elecconnect.fr
+                  </a>
                   <div className="text-sm text-slate-500">Réponse sous 8h</div>
                 </div>
               </div>
 
+              {/* Localisation */}
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <MapPin className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
                   <div className="font-medium text-slate-800">Provence-Alpes-Côte d'Azur</div>
-                  <div className="text-sm text-slate-500">Zone d'intervention</div>
+                  <div className="font-medium text-slate-800 mt-1">Île-de-France</div>
+                  <div className="text-sm text-slate-500">Zones d'intervention</div>
                 </div>
               </div>
             </div>
@@ -113,7 +126,7 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <span>Envoyer ma demande</span>
                 <Send className="w-4 h-4" />
@@ -122,6 +135,16 @@ export default function Contact() {
           </div>
         </div>
       </div>
+
+      {/* Animation heartbeat */}
+      <style jsx>{`
+        @keyframes heartbeat {
+          0%, 100% { transform: scale(1); }
+          25% { transform: scale(1.08); }
+          50% { transform: scale(0.96); }
+          75% { transform: scale(1.05); }
+        }
+      `}</style>
     </section>
   );
 }

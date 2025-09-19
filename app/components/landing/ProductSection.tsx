@@ -3,6 +3,7 @@
 import "react-multi-carousel/lib/styles.css";
 import Carousel from "react-multi-carousel";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
@@ -12,18 +13,15 @@ const responsive = {
   mobile:  { breakpoint: { max: 764,  min: 0    }, items: 1, slidesToSlide: 1 },
 };
 
-// Tu peux garder tes données réelles ici.
-// J’utilise ton mock mais toutes les images pointent vers la même URL souhaitée.
 const IMAGE_URL = "/borne2.png";
 const products = [
-  { id: 1, name: "Borne AC 7kW Résidentielle", price: 225,   location: "Installation incluse" },
+  { id: 1, name: "Borne AC 7kW Résidentielle", price: 225, location: "Installation incluse" },
   { id: 2, name: "Borne DC 50kW Rapide",       price: 375, location: "Entreprises" },
-  { id: 3, name: "Wallbox 11kW Pro",           price: 389,  location: "Copropriétés" },
-  { id: 4, name: "Borne AC 22kW Triphasée",    price: 559,  location: "Usage professionnel" },
-  { id: 5, name: "Borne Murale 3.7kW",         price: 788,   location: "Particuliers" },
+  { id: 3, name: "Wallbox 11kW Pro",           price: 389, location: "Copropriétés" },
+  { id: 4, name: "Borne AC 22kW Triphasée",    price: 559, location: "Usage professionnel" },
+  { id: 5, name: "Borne Murale 3.7kW",         price: 788, location: "Particuliers" },
 ];
 
-// Flèches custom : blanches sur fond noir
 function Arrow({
   onClick,
   direction,
@@ -71,7 +69,7 @@ export default function ProductCarouselSimple() {
             keyBoardControl
             customLeftArrow={<Arrow direction="left" />}
             customRightArrow={<Arrow direction="right" />}
-            containerClass="pb-6" 
+            containerClass="pb-6"
             itemClass="px-6"
             draggable
           >
@@ -96,6 +94,17 @@ export default function ProductCarouselSimple() {
                 <h3 className="text-slate-800 font-medium md:font-semibold text-[15px] md:text-base">
                   {p.name}
                 </h3>
+
+                {/* Bouton DaisyUI */}
+                <div className="mt-3">
+                  <Link
+                    href={`/produits/${p.id}`}
+                    className="btn btn-outline md:btn-md"
+                    aria-label={`Voir le produit ${p.name}`}
+                  >
+                    Voir le produit
+                  </Link>
+                </div>
               </div>
             ))}
           </Carousel>

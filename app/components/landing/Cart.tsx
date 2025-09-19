@@ -5,8 +5,8 @@ import {
   CartContext,
   CartContextType,
   CartItem,
-} from "../contexts/CartContext";
-import { SERVER_URL } from "../lib/constants";
+} from "../../contexts/CartContext";
+import { SERVER_URL } from "../../lib/constants";
 
 function Cart() {
   const { cart } = useContext(CartContext) as CartContextType;
@@ -78,4 +78,3 @@ function Cart() {
 }
 
 export default Cart;
-
