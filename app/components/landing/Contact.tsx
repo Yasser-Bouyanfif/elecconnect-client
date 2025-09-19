@@ -126,7 +126,7 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer"
+                className="btn btn-success btn-block text-white hover:text-white flex items-center justify-center gap-2"
               >
                 <span>Envoyer ma demande</span>
                 <Send className="w-4 h-4" />

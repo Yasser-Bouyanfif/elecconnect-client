@@ -55,7 +55,7 @@ export default function Header() {
             {/* Bouton Contact (inchangé) */}
             <a
               href="/#contact"
-              className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-semibold flex items-center gap-2"
+              className="btn btn-success btn text-white flex items-center gap-2"
             >
               <span>Contact</span>
               <span className="relative flex items-center justify-center">

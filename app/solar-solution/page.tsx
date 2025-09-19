@@ -14,15 +14,9 @@ export default function SolutionsSolaires() {
                 Optimisez votre Recharge Électrique
                 <span className="block text-emerald-600">avec des Bornes Couplées à des Installations Photovoltaïques</span>
               </h1>
-              <p className="text-lg text-slate-600 mb-8">
+              <p className="text-lg text-slate-600">
                 Découvrez comment l'énergie solaire peut révolutionner votre façon de recharger votre véhicule électrique, tout en réduisant votre empreinte carbone et vos coûts énergétiques.
               </p>
-              <a 
-                href="#comment-ca-marche"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors cursor-pointer"
-              >
-                Découvrir comment ça marche
-              </a>
             </div>
             <div className="lg:w-1/2">
               <div className="relative w-full h-80 lg:h-96 group">
@@ -121,24 +115,18 @@ export default function SolutionsSolaires() {
               </p>
             </div>
           </div>
+          
+          <div className="mt-12 flex justify-end">
+            <a 
+              href="/#contact" 
+              className="btn btn-success btn-lg text-white"
+            >
+              Demander un devis
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 bg-emerald-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">Prêt à passer à la recharge solaire ?</h2>
-          <p className="text-xl text-emerald-100 mb-8">
-            Contactez-nous dès aujourd'hui pour un devis personnalisé et découvrez comment nous pouvons vous aider à faire des économies tout en préservant la planète.
-          </p>
-          <a 
-            href="/#contact"
-            className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-emerald-700 bg-white hover:bg-gray-100 transition-colors cursor-pointer"
-          >
-            Demander un devis
-          </a>
-        </div>
-      </section>
     </main>
   );
 }

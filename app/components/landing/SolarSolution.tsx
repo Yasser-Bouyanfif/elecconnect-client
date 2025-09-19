@@ -59,12 +59,12 @@ export default function SolaireSolution() {
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 flex justify-end">
               <a 
-                href="/solutions-solaires" 
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors cursor-pointer"
+                href="/solar-solution" 
+                className="btn btn-success btn-wide text-white"
               >
-                En savoir plus sur nos solutions solaires
+                En savoir plus
               </a>
             </div>
           </div>

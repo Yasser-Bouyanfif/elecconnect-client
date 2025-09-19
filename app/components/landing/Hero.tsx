@@ -42,13 +42,13 @@ export default function Hero() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#contact">
-            <button className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
+            <button className="btn btn-success btn-lg text-white hover:text-white flex items-center gap-2">
               <span>Devis gratuit</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             </a>
             <a href="/shop">
-            <button className="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-medium hover:border-emerald-600 hover:text-emerald-600 transition-colors cursor-pointer">
+            <button className="btn btn-outline btn-lg">
               Notre boutique
             </button>
             </a>
