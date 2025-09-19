@@ -5,22 +5,26 @@ import Carousel from "react-multi-carousel";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import productApi from "@/app/_utils/productApis";
+import { SERVER_URL } from "@/app/lib/constants";
 
 const responsive = {
   desktop: { breakpoint: { max: 3000, min: 1324 }, items: 3, slidesToSlide: 1 },
-  tablet:  { breakpoint: { max: 1324, min: 764  }, items: 2, slidesToSlide: 1 },
-  mobile:  { breakpoint: { max: 764,  min: 0    }, items: 1, slidesToSlide: 1 },
+  tablet: { breakpoint: { max: 1324, min: 764 }, items: 2, slidesToSlide: 1 },
+  mobile: { breakpoint: { max: 764, min: 0 }, items: 1, slidesToSlide: 1 },
 };
 
 const IMAGE_URL = "/borne2.png";
-const products = [
-  { id: 1, name: "Borne AC 7kW Résidentielle", price: 225, location: "Installation incluse" },
-  { id: 2, name: "Borne DC 50kW Rapide",       price: 375, location: "Entreprises" },
-  { id: 3, name: "Wallbox 11kW Pro",           price: 389, location: "Copropriétés" },
-  { id: 4, name: "Borne AC 22kW Triphasée",    price: 559, location: "Usage professionnel" },
-  { id: 5, name: "Borne Murale 3.7kW",         price: 788, location: "Particuliers" },
-];
+
+interface Product {
+  id: number;
+  title?: string;
+  price?: number;
+  description?: string;
+  banner?: { url?: string; name?: string } | null;
+}
 
 function Arrow({
   onClick,
@@ -48,6 +52,38 @@ function Arrow({
 }
 
 export default function ProductCarouselSimple() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await productApi.getLatestProducts();
+        if (!alive) return;
+
+        const data = res?.data?.data;
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else if (data) {
+          setProducts([data]);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des produits", error);
+        if (alive) setProducts([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   return (
     <section className="py-12 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,53 +97,75 @@ export default function ProductCarouselSimple() {
         </div>
 
         <div className="relative">
-          <Carousel
-            responsive={responsive}
-            infinite
-            autoPlay
-            autoPlaySpeed={5000}
-            keyBoardControl
-            customLeftArrow={<Arrow direction="left" />}
-            customRightArrow={<Arrow direction="right" />}
-            containerClass="pb-6"
-            itemClass="px-6"
-            draggable
-          >
-            {products.map((p) => (
-              <div key={p.id} className="m-0">
-                <div className="relative h-[400px]">
-                  <Image
-                    src={IMAGE_URL}
-                    alt={p.name}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 1324px) 90vw, 20vw"
-                    className="object-cover rounded-xl"
-                    priority={p.id <= 2}
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-black/20" />
-                </div>
+          {loading ? (
+            <p className="py-10 text-center text-slate-500">Chargement…</p>
+          ) : products.length === 0 ? (
+            <p className="py-10 text-center text-slate-500">
+              Aucun produit disponible pour le moment.
+            </p>
+          ) : (
+            <Carousel
+              responsive={responsive}
+              infinite
+              autoPlay
+              autoPlaySpeed={5000}
+              keyBoardControl
+              customLeftArrow={<Arrow direction="left" />}
+              customRightArrow={<Arrow direction="right" />}
+              containerClass="pb-6"
+              itemClass="px-6"
+              draggable
+            >
+              {products.map((product) => {
+                const price = Number(product.price) || 0;
+                const imageSrc = product.banner?.url
+                  ? `${SERVER_URL ?? ""}${product.banner.url}`
+                  : IMAGE_URL;
+                const productTitle = product.title ?? "Produit";
+                const description = product.description
+                  ? product.description.substring(0, 80)
+                  : "";
 
-                <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
-                  {p.price.toLocaleString()}€ <span className="text-xs text-slate-500">HT</span>
-                </p>
-                <h3 className="text-slate-800 font-medium md:font-semibold text-[15px] md:text-base">
-                  {p.name}
-                </h3>
+                return (
+                  <div key={product.id} className="m-0">
+                    <div className="relative h-[400px]">
+                      <Image
+                        src={imageSrc}
+                        alt={product.banner?.name || productTitle}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 1324px) 90vw, 20vw"
+                        className="object-cover rounded-xl"
+                        priority={product.id <= 2}
+                      />
+                      <div className="absolute inset-0 rounded-xl bg-black/20" />
+                    </div>
 
-                {/* Bouton DaisyUI */}
-                <div className="mt-3">
-                  <Link
-                    href={`/product/${p.id}`}
-                    className="btn btn-outline md:btn-md"
-                    aria-label={`Voir le produit ${p.name}`}
-                  >
-                    Voir le produit
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </Carousel>
+                    <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
+                      {price.toLocaleString()}€ <span className="text-xs text-slate-500">HT</span>
+                    </p>
+                    <h3 className="text-slate-800 font-medium md:font-semibold text-[15px] md:text-base">
+                      {productTitle}
+                    </h3>
+                    {description && (
+                      <p className="text-sm text-slate-500 mt-1 line-clamp-2">{description}</p>
+                    )}
+
+                    {/* Bouton DaisyUI */}
+                    <div className="mt-3">
+                      <Link
+                        href={`/product/${product.id}`}
+                        className="btn btn-outline md:btn-md"
+                        aria-label={`Voir le produit ${productTitle}`}
+                      >
+                        Voir le produit
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </Carousel>
+          )}
         </div>
       </div>
     </section>
