@@ -98,7 +98,7 @@ export default function ProductCarouselSimple() {
                 {/* Bouton DaisyUI */}
                 <div className="mt-3">
                   <Link
-                    href={`/produits/${p.id}`}
+                    href={`/products/${p.id}`}
                     className="btn btn-outline md:btn-md"
                     aria-label={`Voir le produit ${p.name}`}
                   >

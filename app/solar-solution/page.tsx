@@ -117,8 +117,8 @@ export default function SolutionsSolaires() {
           </div>
 
           {/* Carte d'offre spéciale */}
-          <div className="mt-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl">
-            <div className="p-8 md:p-10 lg:flex items-center">
+          <div className="mt-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl relative">
+            <div className="p-8 md:p-10 lg:flex items-center pt-16 md:pt-16">
               <div className="lg:w-2/3">
                 <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white mb-4">
                   <Zap className="w-4 h-4 mr-2" />
