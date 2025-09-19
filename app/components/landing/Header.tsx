@@ -33,22 +33,28 @@ export default function Header() {
 
           {/* Nav desktop (inchangé) */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#hero" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            <a href="/" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Accueil
             </a>
-            <a href="#about" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            <a href="/#about" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               À propos
             </a>
-            <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            <a href="/#testimonials" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Avis
             </a>
-            <a href="#products" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            <a href="/#products" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Produits
+            </a>
+            <a href="/solar-solution" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+              Solution Solaire
+            </a>
+            <a href="/shop" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+              Boutique
             </a>
 
             {/* Bouton Contact (inchangé) */}
             <a
-              href="#contact"
+              href="/#contact"
               className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-semibold flex items-center gap-2"
             >
               <span>Contact</span>

@@ -3,6 +3,7 @@ import AboutUs from "./components/landing/AboutUs";
 import Testimonials from "./components/landing/Testimonials";
 import ProductSection from "./components/landing/ProductSection";
 import Contact from "./components/landing/Contact";
+import SolaireSolution from "./components/landing/SolarSolution";
 
 export default function Page() {
   return (
@@ -22,6 +23,8 @@ export default function Page() {
       <section id="products" className="scroll-mt-24">
         <ProductSection />
       </section>
+
+      <SolaireSolution />
 
       <section id="contact" className="scroll-mt-24">
         <Contact />
