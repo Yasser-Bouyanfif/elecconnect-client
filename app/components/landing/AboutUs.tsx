@@ -67,7 +67,7 @@ export default function AboutUs() {
               Installation certifiée
             </h3>
             <p className="text-slate-600 text-sm">
-              Qualification IRVE et garantie complète
+              Qualification IRVE et QUALIFELEC
             </p>
           </div>
 
