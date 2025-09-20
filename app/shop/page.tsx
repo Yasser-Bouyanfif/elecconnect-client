@@ -88,60 +88,57 @@ export default function ShopPage() {
                   ? `${SERVER_URL ?? ""}${product.banner.url}`
                   : IMAGE_FALLBACK;
                 const productTitle = product.title ?? "Produit";
-              const description = product.description
-                ? product.description.substring(0, 100)
-                : "";
-              return (
-                <div key={product.id} className="m-0 h-full min-h-[560px] flex flex-col border rounded-xl overflow-hidden shadow-sm hover:shadow transition-shadow">
-                  <div className="relative h-[400px] bg-gray-50">
-                    <Image
-                      src={imageSrc}
-                      alt={product.banner?.name || productTitle}
-                      fill
-                      unoptimized
-                      sizes="(max-width: 1024px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col">
-                    <p className="text-base font-semibold text-slate-900">
-                      {price.toLocaleString()}€ <span className="text-xs text-slate-500">TT</span>
-                    </p>
-                    <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">{productTitle}</h3>
-                    {description && (
-                      <p className="text-sm text-slate-500 mt-1 line-clamp-2">{description}</p>
-                    )}
-                    <div className="mt-auto pt-3">
-                      <Link href={`/product/${product.id}`} className="btn btn-outline btn-sm md:btn-md w-full">
-                        Voir le produit
-                      </Link>
+                const description = product.description
+                  ? product.description.substring(0, 100)
+                  : "";
+                return (
+                  <div key={product.id} className="m-0 h-full min-h-[560px] flex flex-col border rounded-xl overflow-hidden shadow-sm hover:shadow transition-shadow">
+                    <div className="relative h-[400px] bg-gray-50">
+                      <Image
+                        src={imageSrc}
+                        alt={product.banner?.name || productTitle}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col">
+                      <p className="text-base font-semibold text-slate-900">
+                        {price.toLocaleString()}€ <span className="text-xs text-slate-500">TT</span>
+                      </p>
+                      <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">{productTitle}</h3>
+                      {description && (
+                        <p className="text-sm text-slate-500 mt-1 line-clamp-2">{description}</p>
+                      )}
+                      <div className="mt-auto pt-3">
+                        <Link href={`/product/${product.id}`} className="btn btn-outline btn-sm md:btn-md w-full">
+                          Voir le produit
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
               })}
             </div>
             {totalPages > 1 && (
-              <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Pagination">
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="btn btn-sm"
-                >
-                  Précédent
-                </button>
-                <span className="text-sm text-slate-600">
-                  Page {currentPage} sur {totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="btn btn-sm"
-                >
-                  Suivant
-                </button>
+              <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const page = index + 1;
+                  const isActive = page === currentPage;
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => goToPage(page)}
+                      disabled={isActive}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`btn btn-sm ${isActive ? "btn-active" : ""}`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
               </nav>
             )}
           </>
