@@ -72,4 +72,4 @@ export default function SolaireSolution() {
       </div>
     </section>
   );
-}
+} 

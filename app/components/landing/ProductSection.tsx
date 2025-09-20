@@ -60,7 +60,7 @@ export default function ProductCarouselSimple() {
 
     (async () => {
       try {
-        const res = await productApi.getLatestProducts();
+        const res = await productApi.getProducts();
         if (!alive) return;
 
         const data = res?.data?.data;

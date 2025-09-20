@@ -36,6 +36,45 @@ export default function SolutionsSolaires() {
         </div>
       </section>
 
+      {/* Partenariats & Certifications */}
+      <section className="py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 sm:p-8">
+              <div className="text-center mb-6">
+                <p className="text-sm uppercase tracking-wider text-emerald-600 font-semibold">Confiance & Qualité</p>
+                <h3 className="text-2xl font-bold text-slate-800 mt-1">Nos engagements</h3>
+                <p className="text-slate-600 mt-2">En partenariat avec SSP pour des installations conformes et performantes.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* SSP */}
+                <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+                  <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
+                    <Image src="/ssp.png" alt="Partenaire SSP" fill className="object-contain" sizes="(max-width: 640px) 40vw, 20vw" priority />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Partenaire</p>
+                    <p className="font-semibold text-slate-900">SSP</p>
+                  </div>
+                </div>
+
+                {/* RGE */}
+                <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+                  <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
+                    <Image src="/rge.png" alt="Certification RGE" fill className="object-contain" sizes="(max-width: 640px) 40vw, 20vw" priority />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Certification</p>
+                    <p className="font-semibold text-slate-900">RGE</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Comment ça marche */}
       <section id="comment-ca-marche" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
