@@ -16,9 +16,12 @@ interface Product {
 
 const IMAGE_FALLBACK = "/borne2.png";
 
+const ITEMS_PER_PAGE = 6;
+
 export default function ShopPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch all products once
   useEffect(() => {
@@ -42,6 +45,28 @@ export default function ShopPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(allProducts.length / ITEMS_PER_PAGE));
+    setCurrentPage((prev) => {
+      if (prev < 1) return 1;
+      if (prev > totalPages) return totalPages;
+      return prev;
+    });
+  }, [allProducts]);
+
+  const totalPages = Math.max(1, Math.ceil(allProducts.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentProducts = allProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    setCurrentPage((prev) => {
+      if (page < 1 || page > totalPages) {
+        return prev;
+      }
+      return page;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-white py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,13 +80,14 @@ export default function ShopPage() {
         ) : allProducts.length === 0 ? (
           <p className="py-10 text-center text-slate-500">Aucun produit disponible pour le moment.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allProducts.map((product) => {
-              const price = Number(product.price) || 0;
-              const imageSrc = product.banner?.url
-                ? `${SERVER_URL ?? ""}${product.banner.url}`
-                : IMAGE_FALLBACK;
-              const productTitle = product.title ?? "Produit";
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentProducts.map((product) => {
+                const price = Number(product.price) || 0;
+                const imageSrc = product.banner?.url
+                  ? `${SERVER_URL ?? ""}${product.banner.url}`
+                  : IMAGE_FALLBACK;
+                const productTitle = product.title ?? "Produit";
               const description = product.description
                 ? product.description.substring(0, 100)
                 : "";
@@ -93,8 +119,32 @@ export default function ShopPage() {
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+            {totalPages > 1 && (
+              <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Pagination">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="btn btn-sm"
+                >
+                  Précédent
+                </button>
+                <span className="text-sm text-slate-600">
+                  Page {currentPage} sur {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-sm"
+                >
+                  Suivant
+                </button>
+              </nav>
+            )}
+          </>
         )}
       </div>
     </div>
