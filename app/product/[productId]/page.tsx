@@ -20,6 +20,28 @@ interface Product {
   banner?: { url?: string; name?: string };
   images?: Array<{ url?: string; name?: string }>;
   features?: string[];
+  // The API may expose sections under various keys; we'll access them dynamically
+  [key: string]: any;
+}
+
+// Types for ProductSection rendering (kept permissive to match API)
+interface SectionItemEntry { label?: string; value?: string }
+interface SectionContentItem { value?: string; label?: string; items?: SectionItemEntry[] }
+interface ProductSection { id?: number; title?: string; content?: SectionContentItem[] }
+
+// Extract sections from various possible API keys
+function extractSections(p?: Product | null): ProductSection[] {
+  if (!p) return [];
+  const candidates = [
+    (p as any).ProductSection,
+    (p as any).productSection,
+    (p as any).product_sections,
+    (p as any).ProductSections,
+    (p as any).sections,
+  ];
+  const found = candidates.find((c) => Array.isArray(c) && c.length);
+  if (!found) return [];
+  return (found as any[]).filter(Boolean);
 }
 
 export default function ProductDetails() {
@@ -85,11 +107,13 @@ export default function ProductDetails() {
     alert(`${qty} × ${product.title} a été ajouté au panier!`);
   };
 
+  const sections = extractSections(product);
+
   return (
     <div className="bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:[grid-template-columns:1.2fr_1fr] gap-6 md:gap-8 items-start">
             {/* Galerie d'images */}
             <div className="w-full">
               <div className="w-full overflow-hidden rounded-lg">
@@ -98,7 +122,7 @@ export default function ProductDetails() {
                   alt={product.banner?.name || product.title}
                   width={1000}
                   height={800}
-                  className="h-full w-full object-cover object-center"
+                  className="h-full w-full object-contain bg-white"
                 />
               </div>
               {product.images && product.images.length > 0 && (
@@ -119,7 +143,7 @@ export default function ProductDetails() {
             </div>
 
             {/* Détails du produit */}
-            <div className="w-full">
+            <div className="w-full flex flex-col gap-4">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
 
               {/* Prix */}
@@ -131,14 +155,56 @@ export default function ProductDetails() {
               </div>
 
               {/* Description */}
-              <div className="mb-4">
-                <h3 className="text-base font-medium text-gray-900 mb-2">Description</h3>
+              <div>
                 <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
               </div>
 
+              {/* Caractéristiques détaillées (depuis l'API ProductSection) */}
+              {sections.length > 0 && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3">Caractéristiques détaillées</h2>
+                  <div className="space-y-4">
+                    {sections.map((section, sIdx) => (
+                      <div key={section.id ?? sIdx} className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+                        {section.title && (
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">{section.title}</h3>
+                        )}
+                        <div className="space-y-2">
+                          {section.content?.map((c, cIdx) => (
+                            <div key={cIdx}>
+                              {c.items && c.items.length > 0 ? (
+                                <ul className="list-disc list-inside space-y-1 marker:text-black">
+                                  {c.items.map((it, iIdx) => (
+                                    <li key={iIdx} className="text-sm text-gray-700">
+                                      {it.label && (
+                                        <span className="font-semibold text-gray-800">{it.label}: </span>
+                                      )}
+                                      <span>{it.value}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <ul className="list-disc list-inside marker:text-black">
+                                  <li className="text-sm text-gray-700">
+                                    {c.label && (
+                                      <span className="font-semibold text-gray-800">{c.label}{c.value ? ": " : ""}</span>
+                                    )}
+                                    {c.value}
+                                  </li>
+                                </ul>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Caractéristiques */}
               {product.features && product.features.length > 0 && (
-                <div className="mb-4">
+                <div>
                   <h3 className="text-base font-medium text-gray-900 mb-2">Caractéristiques</h3>
                   <ul className="space-y-1">
                     {product.features.map((feature, index) => (
@@ -195,7 +261,7 @@ export default function ProductDetails() {
                     <Truck className="w-6 h-6 text-blue-500 mr-2" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Livraison rapide</p>
-                      <p className="text-xs text-gray-500">Sous 48h</p>
+                      <p className="text-xs text-gray-500">Le lendemain</p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -207,7 +273,10 @@ export default function ProductDetails() {
                   </div>
                 </div>
               </div>
+
+              {/* sections moved out to full-width row below */}
             </div>
+            {/* sections block moved above, between Description and Quantité */}
           </div>
         </div>
       </div>
