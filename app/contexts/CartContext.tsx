@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type CartItem = {
   id: string | number;
@@ -23,17 +29,89 @@ export const CartContext = createContext<CartContextType | undefined>(
   undefined
 );
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export const MAX_PER_PRODUCT = 4;
+
+const getCartKey = (item: Pick<CartItem, "id" | "documentId">) =>
+  (item.documentId ?? item.id).toString();
+
+const clampStoredQuantity = (value: unknown): number | null => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  const whole = Math.floor(value);
+  if (whole <= 0) {
+    return 0;
+  }
+
+  return Math.min(whole, MAX_PER_PRODUCT);
+};
+
+const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): CartItem[] => {
+  const counts = new Map<string, number>();
+
+  return items.reduce<CartItem[]>((acc, current) => {
+    if (!current) {
+      return acc;
+    }
+
+    const { id } = current;
+    if (typeof id !== "string" && typeof id !== "number") {
+      return acc;
+    }
+
+    const key = getCartKey(current);
+    const existing = counts.get(key) ?? 0;
+    if (existing >= MAX_PER_PRODUCT) {
+      return acc;
+    }
+
+    const { quantity: rawQuantity, ...rest } = current as CartItem & {
+      quantity?: unknown;
+    };
+
+    const parsedQuantity =
+      rawQuantity !== undefined ? clampStoredQuantity(rawQuantity) : null;
+
+    if (parsedQuantity === 0) {
+      return acc;
+    }
+
+    const desired = parsedQuantity ?? 1;
+    const remaining = MAX_PER_PRODUCT - existing;
+    const copies = Math.min(remaining, desired);
+
+    if (copies <= 0) {
+      return acc;
+    }
+
+    for (let index = 0; index < copies; index += 1) {
+      acc.push({ ...rest, id });
+    }
+
+    counts.set(key, existing + copies);
+    return acc;
+  }, []);
+};
+
+export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      try {
-        setCart(JSON.parse(storedCart) as CartItem[]);
-      } catch {
-        // ignore malformed data
+    if (!storedCart) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedCart);
+      if (Array.isArray(parsed)) {
+        setCart(
+          sanitizeCartItems(parsed as Array<CartItem & { quantity?: unknown }>)
+        );
       }
+    } catch {
+      // ignore malformed data
     }
   }, []);
 
@@ -42,7 +120,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart]);
 
   const addToCart = useCallback((item: CartItem) => {
-    setCart((prev) => [...prev, item]);
+    if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+      return;
+    }
+
+    setCart((prev) => sanitizeCartItems([...prev, item]));
   }, []);
 
   const removeFromCart = useCallback((id: string | number) => {
