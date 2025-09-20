@@ -22,7 +22,7 @@ export default function AboutUs() {
             <div className="space-y-5 text-lg text-slate-700 leading-relaxed">
               <p>
                 <strong className="text-emerald-600">ELEC'CONNECT</strong> vous accompagne
-                pour l’installation fiable de bornes de recharge pour véhicules électriques.
+                pour l’installation fiable de bornes de recharge pour véhicules électriques garanties <b>2 ans</b>.
                 Nous concevons des solutions performantes, durables et réellement adaptées à vos usages.
               </p>
               <p>
@@ -67,7 +67,7 @@ export default function AboutUs() {
               Installation certifiée
             </h3>
             <p className="text-slate-600 text-sm">
-              Qualification IRVE et QUALIFELEC
+              Qualification <b>IRVE</b> et <b>QUALIFELEC</b>
             </p>
           </div>
 

@@ -127,7 +127,7 @@ export default function ProductCarouselSimple() {
                   : "";
 
                 return (
-                  <div key={product.id} className="m-0">
+                  <div key={product.id} className="m-0 h-full min-h-[560px] flex flex-col">
                     <div className="relative h-[400px]">
                       <Image
                         src={imageSrc}
@@ -138,7 +138,6 @@ export default function ProductCarouselSimple() {
                         className="object-cover rounded-xl"
                         priority={product.id <= 2}
                       />
-                      <div className="absolute inset-0 rounded-xl bg-black/20" />
                     </div>
 
                     <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
@@ -152,7 +151,7 @@ export default function ProductCarouselSimple() {
                     )}
 
                     {/* Bouton DaisyUI */}
-                    <div className="mt-3">
+                    <div className="mt-auto pt-3">
                       <Link
                         href={`/product/${product.id}`}
                         className="btn btn-outline md:btn-md"
