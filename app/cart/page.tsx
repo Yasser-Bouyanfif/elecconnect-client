@@ -60,8 +60,13 @@ function CartPage() {
           return null;
         }
 
+        const { id } = item;
+        if (typeof id !== "string" && typeof id !== "number") {
+          return null;
+        }
+
         return {
-          id: toCartKey(item),
+          id: id.toString(),
           quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
         };
       })
@@ -83,8 +88,15 @@ function CartPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items }),
         });
+        if (!res.ok) {
+          console.error("Failed to calculate total", await res.text());
+          setTotal(0);
+          return;
+        }
+
         const data = await res.json();
-        setTotal(data.total || 0);
+        const parsedTotal = Number(data.total);
+        setTotal(Number.isFinite(parsedTotal) ? parsedTotal : 0);
       } catch (err) {
         console.error("Failed to calculate total", err);
         setTotal(0);
