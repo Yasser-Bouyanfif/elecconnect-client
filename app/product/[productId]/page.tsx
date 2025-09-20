@@ -1,15 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import productApi from "@/app/_utils/productApis";
 import { useParams, useRouter } from "next/navigation";
 import { SERVER_URL } from "@/app/lib/constants";
 import { ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  CartContext,
+  CartContextType,
+  CartItem,
+} from "@/app/contexts/CartContext";
 
 interface Product {
   id: number;
+  documentId?: string;
   title: string;
   description: string;
   price: number;
@@ -55,6 +61,14 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState<number>(1);
+  const cartContext = useContext(CartContext) as CartContextType | undefined;
+
+  const clampQuantity = (value: number) => {
+    if (Number.isNaN(value)) {
+      return 1;
+    }
+    return Math.min(4, Math.max(1, value));
+  };
 
   useEffect(() => {
     if (!productId) return;
@@ -100,11 +114,31 @@ export default function ProductDetails() {
     </div>
   );
 
-  const addToCart = () => {
-    // Logique d'ajout au panier
-    console.log('Ajout au panier:', { product, quantity: qty });
-    // Ici, vous pourriez ajouter une notification ou une alerte
-    alert(`${qty} × ${product.title} a été ajouté au panier!`);
+  const handleAddToCart = () => {
+    const quantity = clampQuantity(qty);
+    setQty(quantity);
+    if (!product) {
+      return;
+    }
+
+    if (!cartContext?.addToCart) {
+      console.error("Cart context non disponible pour ajouter un produit.");
+      return;
+    }
+
+    const cartItem: CartItem = {
+      id: product.id,
+      documentId: product.documentId ?? String(product.id),
+      title: product.title,
+      price: product.price,
+      banner: product.banner?.url ? { url: product.banner.url } : undefined,
+    };
+
+    for (let index = 0; index < quantity; index += 1) {
+      cartContext.addToCart(cartItem);
+    }
+
+    alert(`${quantity} × ${product.title} a été ajouté au panier!`);
   };
 
   const sections = extractSections(product);
@@ -227,18 +261,29 @@ export default function ProductDetails() {
                     <button
                       type="button"
                       aria-label="Diminuer la quantité"
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      onClick={() => setQty((q) => clampQuantity(q - 1))}
                       className="p-2 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <div className="px-4 py-2 min-w-[3rem] text-center select-none">
-                      {qty}
-                    </div>
+                    <input
+                      type="number"
+                      min={1}
+                      max={4}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={qty}
+                      onChange={(event) => {
+                        const value = Number.parseInt(event.target.value, 10);
+                        setQty(clampQuantity(value));
+                      }}
+                      className="px-4 py-2 min-w-[3rem] text-center border-l border-r border-gray-300 focus:outline-none"
+                      aria-label="Quantité du produit"
+                    />
                     <button
                       type="button"
                       aria-label="Augmenter la quantité"
-                      onClick={() => setQty((q) => Math.min(99, q + 1))}
+                      onClick={() => setQty((q) => clampQuantity(q + 1))}
                       className="p-2 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
@@ -246,7 +291,7 @@ export default function ProductDetails() {
                   </div>
                 </div>
                 <button
-                  onClick={addToCart}
+                  onClick={handleAddToCart}
                   className="btn btn-soft btn-primary btn-block btn-lg"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />

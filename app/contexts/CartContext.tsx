@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type CartItem = {
   id: string | number;
@@ -23,17 +29,52 @@ export const CartContext = createContext<CartContextType | undefined>(
   undefined
 );
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export const MAX_PER_PRODUCT = 4;
+
+const getCartKey = (item: Pick<CartItem, "id" | "documentId">) =>
+  (item.documentId ?? item.id).toString();
+
+const sanitizeCartItems = (items: CartItem[]): CartItem[] => {
+  const counts = new Map<string, number>();
+
+  return items.reduce<CartItem[]>((acc, current) => {
+    if (!current) {
+      return acc;
+    }
+
+    const { id } = current;
+    if (typeof id !== "string" && typeof id !== "number") {
+      return acc;
+    }
+
+    const key = getCartKey(current);
+    const quantity = counts.get(key) ?? 0;
+    if (quantity >= MAX_PER_PRODUCT) {
+      return acc;
+    }
+
+    counts.set(key, quantity + 1);
+    acc.push({ ...current, id });
+    return acc;
+  }, []);
+};
+
+export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      try {
-        setCart(JSON.parse(storedCart) as CartItem[]);
-      } catch {
-        // ignore malformed data
+    if (!storedCart) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedCart);
+      if (Array.isArray(parsed)) {
+        setCart(sanitizeCartItems(parsed as CartItem[]));
       }
+    } catch {
+      // ignore malformed data
     }
   }, []);
 
@@ -42,7 +83,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart]);
 
   const addToCart = useCallback((item: CartItem) => {
-    setCart((prev) => [...prev, item]);
+    if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+      return;
+    }
+
+    setCart((prev) => sanitizeCartItems([...prev, item]));
   }, []);
 
   const removeFromCart = useCallback((id: string | number) => {
