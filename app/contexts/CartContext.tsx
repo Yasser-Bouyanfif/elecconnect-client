@@ -99,6 +99,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
+    
     if (!storedCart) {
       return;
     }
