@@ -2,11 +2,17 @@
 
 import { useContext, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { CartContext, CartContextType } from "../contexts/CartContext";
+import {
+  CartContext,
+  CartContextType,
+  ShippingAddress,
+  ShippingRate,
+} from "../contexts/CartContext";
 import orderApis from "../_utils/orderApis";
 
 function SuccessPage() {
-  const { cart, clearCart } = useContext(CartContext) as CartContextType;
+  const { cart, clearCart, shippingAddress, selectedShippingRate } =
+    useContext(CartContext) as CartContextType;
   const { user } = useUser();
 
   useEffect(() => {
@@ -62,8 +68,52 @@ function SuccessPage() {
           }
         }
 
-        const shipping = { carrier: "DHL", price: 9.99 };
-        const total = subtotal + shipping.price;
+        const defaultAddress = {
+          fullName: "Jean Dupont",
+          company: "Ma Société",
+          address1: "12 rue des Fleurs",
+          address2: "Appartement 34",
+          postalCode: "75001",
+          city: "Paris",
+          country: "FR",
+          phone: "+33123456789",
+        } satisfies Partial<ShippingAddress>;
+
+        const resolvedAddress: ShippingAddress = {
+          fullName: shippingAddress?.fullName || defaultAddress.fullName || "",
+          company: shippingAddress?.company || defaultAddress.company,
+          address1: shippingAddress?.address1 || defaultAddress.address1 || "",
+          address2: shippingAddress?.address2 || defaultAddress.address2,
+          city: shippingAddress?.city || defaultAddress.city || "",
+          state: shippingAddress?.state,
+          postalCode:
+            shippingAddress?.postalCode || defaultAddress.postalCode || "",
+          country: shippingAddress?.country || defaultAddress.country || "FR",
+          phone: shippingAddress?.phone || defaultAddress.phone,
+          email: shippingAddress?.email,
+        };
+
+        const fallbackShipping: ShippingRate = {
+          objectId: "",
+          amount: 0,
+          currency: "EUR",
+          provider: "Standard",
+          serviceLevelName: "",
+        };
+
+        const shippingSelection: ShippingRate = selectedShippingRate
+          ? {
+              ...selectedShippingRate,
+              amount:
+                typeof selectedShippingRate.amount === "number"
+                  ? selectedShippingRate.amount
+                  : 0,
+              currency:
+                selectedShippingRate.currency || fallbackShipping.currency,
+            }
+          : fallbackShipping;
+
+        const total = subtotal + (shippingSelection.amount || 0);
 
         const orderResponse = await orderApis.createOrder({
           data: {
@@ -71,16 +121,24 @@ function SuccessPage() {
             userId: user?.id,
             userEmail: user?.primaryEmailAddress?.emailAddress,
             address: {
-              fullName: "Jean Dupont",
-              company: "Ma Société",
-              address1: "12 rue des Fleurs",
-              address2: "Appartement 34",
-              postalCode: 75001,
-              city: "Paris",
-              country: "France",
-              phone: 33123456789,
+              fullName: resolvedAddress.fullName,
+              company: resolvedAddress.company,
+              address1: resolvedAddress.address1,
+              address2: resolvedAddress.address2,
+              postalCode: resolvedAddress.postalCode,
+              city: resolvedAddress.city,
+              country: resolvedAddress.country,
+              phone: resolvedAddress.phone,
             },
-            shipping,
+            shipping: {
+              carrier: shippingSelection.provider,
+              service: shippingSelection.serviceLevelName,
+              price: shippingSelection.amount,
+              currency: shippingSelection.currency,
+              estimatedDays: shippingSelection.estimatedDays,
+              rateId: shippingSelection.objectId,
+              shipmentId: shippingSelection.shipmentId,
+            },
             subtotal,
             total,
             orderStatus: "pending",
@@ -126,7 +184,13 @@ function SuccessPage() {
     if (user && cart.length > 0) {
       sendOrder();
     }
-  }, [cart, clearCart, user]);
+  }, [
+    cart,
+    clearCart,
+    selectedShippingRate,
+    shippingAddress,
+    user,
+  ]);
 
   return (
     <section className="p-8 text-center">
