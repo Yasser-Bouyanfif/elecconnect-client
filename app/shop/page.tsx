@@ -23,7 +23,7 @@ interface PaginationMeta {
   total: number;
 }
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 6;
 const IMAGE_FALLBACK = "/borne2.png";
 
 export default function ShopPage() {
@@ -118,7 +118,7 @@ export default function ShopPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Boutique</h1>
-          <p className="text-slate-600 mt-1">Découvrez nos produits. 4 par page.</p>
+          <p className="text-slate-600 mt-1">Découvrez nos produits. 6 par page.</p>
         </div>
 
         {loading ? (
