@@ -1,10 +1,11 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   CartContext,
   CartContextType,
   CartItem,
+  MAX_PER_PRODUCT,
 } from "../contexts/CartContext";
 import { SERVER_URL } from "../lib/constants";
 
@@ -21,34 +22,54 @@ async function createCheckoutSession(items: {
   return (await res.json()) as { url?: string };
 }
 
+const toCartKey = (item: CartItem) =>
+  (item.documentId ?? item.id).toString();
+
 function CartPage() {
   const { cart, addToCart, removeFromCart } = useContext(
     CartContext
   ) as CartContextType;
 
-  const groups: { [key: string]: { item: CartItem; quantity: number } } = {};
-  cart.forEach((item) => {
-    const key = item.id.toString();
-    if (groups[key]) {
-      groups[key].quantity += 1;
-    } else {
-      groups[key] = { item, quantity: 1 };
-    }
-  });
+  const groups = useMemo(() => {
+    const map = new Map<string, { item: CartItem; quantity: number }>();
+
+    cart.forEach((item) => {
+      if (!item) {
+        return;
+      }
+
+      const key = toCartKey(item);
+      const entry = map.get(key);
+      if (entry) {
+        entry.quantity += 1;
+      } else {
+        map.set(key, { item, quantity: 1 });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [cart]);
 
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const map: { [key: string]: number } = {};
-    cart.forEach((item) => {
-      const key = item.id.toString();
-      map[key] = (map[key] || 0) + 1;
-    });
+    const items = groups
+      .map(({ item, quantity }) => {
+        const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
+        if (safeQuantity <= 0) {
+          return null;
+        }
 
-    const items = Object.entries(map).map(([id, quantity]) => ({
-      id,
-      quantity,
-    }));
+        return {
+          id: toCartKey(item),
+          quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
+        };
+      })
+      .filter(
+        (
+          entry
+        ): entry is { id: string; quantity: number } => entry !== null
+      );
 
     if (items.length === 0) {
       setTotal(0);
@@ -69,14 +90,31 @@ function CartPage() {
         setTotal(0);
       }
     })();
-  }, [cart]);
+  }, [groups]);
 
   const handleCheckout = async () => {
-    const items = Object.values(groups).map(({ item, quantity }) => ({
-      title: item.title,
-      price: item.price,
-      quantity,
-    }));
+    const items = groups
+      .map(({ item, quantity }) => {
+        const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
+        if (safeQuantity <= 0) {
+          return null;
+        }
+
+        return {
+          title: item.title,
+          price: item.price,
+          quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
+        };
+      })
+      .filter(
+        (
+          entry
+        ): entry is { title?: string; price?: number; quantity: number } =>
+          entry !== null
+      );
+    if (items.length === 0) {
+      return;
+    }
     const { url } = await createCheckoutSession(items);
     if (url) {
       window.location.href = url;
@@ -98,10 +136,20 @@ function CartPage() {
           ) : (
             <div className="mt-8">
               <ul className="space-y-4">
-                {Object.values(groups).map(({ item, quantity }) => (
-                  <li key={item.id} className="flex items-center gap-4">
-                    {item.banner?.url && (
-                      <img
+                {groups.map(({ item, quantity }) => {
+                  const numericQuantity = Number.isFinite(quantity)
+                    ? quantity
+                    : 0;
+                  const displayQuantity = Math.min(
+                    numericQuantity,
+                    MAX_PER_PRODUCT
+                  );
+                  const canIncrease = displayQuantity < MAX_PER_PRODUCT;
+
+                  return (
+                    <li key={toCartKey(item)} className="flex items-center gap-4">
+                      {item.banner?.url && (
+                        <img
                         src={`${SERVER_URL}${item.banner.url}`}
                         alt={item.title}
                         className="size-16 rounded-sm object-cover"
@@ -128,18 +176,24 @@ function CartPage() {
                       >
                         -
                       </button>
-                      <span className="text-sm">{quantity}</span>
+                      <span className="text-sm">{displayQuantity}</span>
                       <button
                         type="button"
-                        className="px-2 text-sm"
+                        className="px-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Increase quantity"
-                        onClick={() => addToCart(item)}
+                        onClick={() => {
+                          if (canIncrease) {
+                            addToCart(item);
+                          }
+                        }}
+                        disabled={!canIncrease}
                       >
                         +
                       </button>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
 
               <div className="mt-8 flex justify-end border-t border-gray-100 pt-8">
