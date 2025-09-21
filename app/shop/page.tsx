@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import productApi from "@/app/_utils/productApis";
+import productApi from "@/app/strapi/productApis";
 import { SERVER_URL } from "@/app/lib/constants";
 
 interface Product {

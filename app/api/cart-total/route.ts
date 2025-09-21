@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import productApi from "@/app/_utils/productApis";
+import productApi from "@/app/strapi/productApis";
 
 export async function POST(request: Request) {
   try {

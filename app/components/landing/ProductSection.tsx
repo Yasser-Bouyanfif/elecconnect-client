@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import productApi from "@/app/_utils/productApis";
+import productApi from "@/app/strapi/productApis";
 import { SERVER_URL } from "@/app/lib/constants";
 
 const responsive = {

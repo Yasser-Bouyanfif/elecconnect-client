@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
-import productApi from "@/app/_utils/productApis";
+import productApi from "@/app/strapi/productApis";
 import { useParams, useRouter } from "next/navigation";
 import { SERVER_URL } from "@/app/lib/constants";
 import { ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from "lucide-react";

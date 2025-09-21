@@ -3,7 +3,7 @@
 import { useContext, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { CartContext, CartContextType } from "../contexts/CartContext";
-import orderApis from "../_utils/orderApis";
+import orderApis from "../strapi/orderApis";
 
 function SuccessPage() {
   const { cart, clearCart } = useContext(CartContext) as CartContextType;
