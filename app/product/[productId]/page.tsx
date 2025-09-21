@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
-import productApi from "@/app/_utils/productApis";
+import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { SERVER_URL } from "@/app/lib/constants";
 import { ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from "lucide-react";
@@ -76,7 +76,7 @@ export default function ProductDetails() {
     let alive = true;
     (async () => {
       try {
-        const res = await productApi.getProductById(productId);
+        const res = await axios.get(`/api/products/${productId}`);
         const data: Product | undefined =
           res?.data?.data?.[0] ?? res?.data?.data;
         if (!alive) return;

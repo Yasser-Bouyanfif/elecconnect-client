@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   CartContext,
   CartContextType,
@@ -77,19 +78,8 @@ function CartPage() {
     (async () => {
       try {
         setLoadingTotal(true);
-        const res = await fetch("/api/cart-total", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items }),
-        });
-        if (!res.ok) {
-          console.error("Failed to calculate total", await res.text());
-          setTotal(0);
-          return;
-        }
-
-        const data = await res.json();
-        const parsedTotal = Number(data.total);
+        const res = await axios.post("/api/cart-total", { items });
+        const parsedTotal = Number(res.data?.total);
         setTotal(Number.isFinite(parsedTotal) ? parsedTotal : 0);
       } catch (err) {
         console.error("Failed to calculate total", err);

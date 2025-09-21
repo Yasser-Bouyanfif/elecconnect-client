@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import productApi from "@/app/_utils/productApis";
+import axios from "axios";
 import { SERVER_URL } from "@/app/lib/constants";
 
 const responsive = {
@@ -60,7 +60,7 @@ export default function ProductCarouselSimple() {
 
     (async () => {
       try {
-        const res = await productApi.getProducts();
+        const res = await axios.get("/api/products");
         if (!alive) return;
 
         const data = res?.data?.data;

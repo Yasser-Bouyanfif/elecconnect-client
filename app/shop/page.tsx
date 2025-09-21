@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import productApi from "@/app/_utils/productApis";
+import axios from "axios";
 import { SERVER_URL } from "@/app/lib/constants";
 
 interface Product {
@@ -28,7 +28,7 @@ export default function ShopPage() {
     let alive = true;
     (async () => {
       try {
-        const res = await productApi.getProducts();
+        const res = await axios.get("/api/products");
         if (!alive) return;
         const data = res?.data?.data;
         const items = Array.isArray(data) ? data : data ? [data] : [];

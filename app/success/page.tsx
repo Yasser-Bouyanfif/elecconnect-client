@@ -1,9 +1,9 @@
 "use client";
 
 import { useContext, useEffect } from "react";
+import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { CartContext, CartContextType } from "../contexts/CartContext";
-import orderApis from "../_utils/orderApis";
 
 function SuccessPage() {
   const { cart, clearCart } = useContext(CartContext) as CartContextType;
@@ -50,13 +50,8 @@ function SuccessPage() {
         let subtotal = 0;
         if (items.length > 0) {
           try {
-            const res = await fetch("/api/cart-total", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ items }),
-            });
-            const data = await res.json();
-            subtotal = data.total || 0;
+            const res = await axios.post("/api/cart-total", { items });
+            subtotal = res.data?.total || 0;
           } catch (err) {
             console.error("Failed to calculate subtotal", err);
           }
@@ -65,7 +60,7 @@ function SuccessPage() {
         const shipping = { carrier: "DHL", price: 9.99 };
         const total = subtotal + shipping.price;
 
-        const orderResponse = await orderApis.createOrder({
+        const orderResponse = await axios.post("/api/orders", {
           data: {
             orderNumber: crypto.randomUUID(),
             userId: user?.id,
@@ -101,7 +96,7 @@ function SuccessPage() {
           await Promise.all(
             orderLineInputs.map(
               ({ productDocumentId, quantity, unitPrice }) =>
-                orderApis.createOrderLine({
+                axios.post("/api/order-lines", {
                   data: {
                     quantity,
                     unitPrice,
