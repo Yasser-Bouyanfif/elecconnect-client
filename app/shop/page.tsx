@@ -1,12 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 const IMAGE_FALLBACK = "/borne2.png";
 
 export default function ShopPage() {
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/products', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const data = await response.json();
+
+        console.log(data)
+      } catch (err) {
+        console.error('Erreur:', err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const product = {
     id: 1,
     title: "Produit d'exemple",
@@ -14,6 +35,7 @@ export default function ShopPage() {
     description: "Description courte du produit pour l'exemple.",
     imageSrc: IMAGE_FALLBACK,
   };
+
 
   return (
     <div className="min-h-screen bg-white py-10">

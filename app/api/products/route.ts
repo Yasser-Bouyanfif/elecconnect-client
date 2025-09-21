@@ -1,10 +1,9 @@
-// app/api/products/route.js
 import { NextResponse } from 'next/server';
-import productApi from "@/app/strapi/productApis";
+import productApis from '@/app/strapi/productApis';
 
 export async function GET() {
   try {
-    const res = await productApi.getProducts();
+    const res = await productApis.getProducts();
     const data = res?.data?.data;
 
     return NextResponse.json(data);
