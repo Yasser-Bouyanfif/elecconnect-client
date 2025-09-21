@@ -1,6 +1,28 @@
 import axiosClient from "./axiosClient";
 
-const getProducts = () => axiosClient.get("/products?populate=*");
+type PaginationOptions = {
+  page?: number;
+  pageSize?: number;
+};
+
+const MAX_PAGE_SIZE = 6;
+
+const getProducts = (
+  { page = 1, pageSize = MAX_PAGE_SIZE }: PaginationOptions = {}
+) => {
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const boundedPageSize = Number.isFinite(pageSize) && pageSize > 0
+    ? Math.min(Math.floor(pageSize), MAX_PAGE_SIZE)
+    : MAX_PAGE_SIZE;
+
+  const params = new URLSearchParams({
+    "pagination[page]": String(safePage),
+    "pagination[pageSize]": String(boundedPageSize),
+    populate: "*",
+  });
+
+  return axiosClient.get(`/products?${params.toString()}`);
+};
 
 const getProductById = (id: string) =>
   axiosClient.get(
