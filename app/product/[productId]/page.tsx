@@ -138,7 +138,6 @@ export default function ProductDetails() {
       cartContext.addToCart(cartItem);
     }
 
-    alert(`${quantity} × ${product.title} a été ajouté au panier!`);
   };
 
   const sections = extractSections(product);
