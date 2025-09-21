@@ -11,8 +11,9 @@ const postJson = async (url: string, body: unknown) => {
   if (!response.ok) {
     const message =
       (typeof data === "object" && data && "error" in data && data.error) ||
+      response.statusText ||
       "Request failed";
-    throw new Error(String(message));
+    throw new Error(typeof message === "string" ? message : "Request failed");
   }
 
   return { data };
