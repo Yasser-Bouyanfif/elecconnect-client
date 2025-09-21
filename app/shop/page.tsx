@@ -252,26 +252,20 @@ export default function ShopPage() {
                 })}
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="btn btn-outline btn-sm md:btn-md"
-                  disabled={!canGoPrevious || loading}
-                >
-                  Précédent
-                </button>
-                <span className="text-sm text-slate-600">
-                  Page {page} / {pageCount}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="btn btn-outline btn-sm md:btn-md"
-                  disabled={!canGoNext || loading}
-                >
-                  Suivant
-                </button>
+              <div className="flex justify-center gap-2 mt-8 flex-wrap">
+                {Array.from({ length: pageCount }, (_, i) => i + 1).map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setPage(pageNumber)}
+                    className={`btn btn-sm md:btn-md min-w-[40px] ${
+                      page === pageNumber ? 'bg-black text-white' : 'bg-transparent text-black border border-black hover:bg-gray-100'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={loading}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
               </div>
             </>
           )}
