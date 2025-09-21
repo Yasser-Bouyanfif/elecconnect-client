@@ -8,7 +8,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { SERVER_URL } from "@/app/lib/constants";
-import productApis from "@/app/strapi/productApis";
 
 const responsive = {
   desktop: { breakpoint: { max: 3000, min: 1324 }, items: 3, slidesToSlide: 1 },
@@ -18,12 +17,20 @@ const responsive = {
 
 const IMAGE_URL = "/borne2.png";
 
+interface ProductBanner {
+  url?: string;
+  name?: string;
+  alternativeText?: string;
+  data?: { attributes?: { url?: string; name?: string; alternativeText?: string } } | null;
+}
+
 interface Product {
-  id: number;
+  id?: number | string;
   title?: string;
   price?: number;
   description?: string;
-  banner?: { url?: string; name?: string } | null;
+  banner?: ProductBanner | null;
+  attributes?: Product;
 }
 
 function Arrow({
@@ -57,30 +64,47 @@ export default function ProductCarouselSimple() {
 
   useEffect(() => {
     let alive = true;
+    const controller = new AbortController();
 
-    (async () => {
+    const loadProducts = async () => {
       try {
-        const res = await productApis.getProductsPagination({ page: 1, pageSize: 10 });
+        const response = await fetch("/api/products", {
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Statut ${response.status}`);
+        }
+
+        const payload: { data?: unknown } = await response.json();
         if (!alive) return;
 
-        const data = res?.data?.data;
-        if (Array.isArray(data)) {
-          setProducts(data);
-        } else if (data) {
-          setProducts([data]);
-        } else {
-          setProducts([]);
-        }
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : payload?.data
+            ? [payload.data]
+            : [];
+
+        setProducts(data as Product[]);
       } catch (error) {
+        if (!alive || (error as Error).name === "AbortError") {
+          return;
+        }
         console.error("Erreur lors du chargement des produits", error);
-        if (alive) setProducts([]);
+        setProducts([]);
       } finally {
-        if (alive) setLoading(false);
+        if (alive) {
+          setLoading(false);
+        }
       }
-    })();
+    };
+
+    loadProducts();
 
     return () => {
       alive = false;
+      controller.abort();
     };
   }, []);
 
@@ -117,32 +141,53 @@ export default function ProductCarouselSimple() {
               draggable
             >
               {products.map((product) => {
-                const price = Number(product.price) || 0;
-                const imageSrc = product.banner?.url
-                  ? `${SERVER_URL ?? ""}${product.banner.url}`
+                const details = product.attributes ?? product;
+                const price = Number(details?.price);
+                const banner = details?.banner ?? null;
+                const rawUrl =
+                  (typeof banner?.url === "string" && banner.url) ||
+                  banner?.data?.attributes?.url ||
+                  "";
+                const imageSrc = rawUrl
+                  ? rawUrl.startsWith("http")
+                    ? rawUrl
+                    : `${SERVER_URL ?? ""}${rawUrl}`
                   : IMAGE_URL;
-                const productTitle = product.title ?? "Produit";
-                const description = product.description
-                  ? product.description.substring(0, 80)
+                const productTitle = details?.title ?? "Produit";
+                const description = details?.description
+                  ? details.description.substring(0, 80)
                   : "";
+                const alt =
+                  banner?.name ||
+                  banner?.alternativeText ||
+                  banner?.data?.attributes?.alternativeText ||
+                  banner?.data?.attributes?.name ||
+                  productTitle;
+                const productId =
+                  (product.id ?? details?.id ?? details?.title) ?? "";
+                const numericId = Number(productId);
+                const hasPrice = Number.isFinite(price);
+                const priceLabel = hasPrice ? `${price.toLocaleString()}€` : null;
 
                 return (
-                  <div key={product.id} className="m-0 h-full min-h-[560px] flex flex-col">
+                  <div key={String(productId)} className="m-0 h-full min-h-[560px] flex flex-col">
                     <div className="relative h-[400px]">
                       <Image
                         src={imageSrc}
-                        alt={product.banner?.name || productTitle}
+                        alt={alt}
                         fill
                         unoptimized
                         sizes="(max-width: 1324px) 90vw, 20vw"
                         className="object-cover rounded-xl"
-                        priority={product.id <= 2}
+                        priority={Number.isFinite(numericId) && numericId <= 2}
                       />
                     </div>
 
-                    <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
-                      {price.toLocaleString()}€ <span className="text-xs text-slate-500">HT</span>
-                    </p>
+                    {priceLabel && (
+                      <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
+                        {priceLabel} <span className="text-xs text-slate-500">HT</span>
+                      </p>
+                    )}
                     <h3 className="text-slate-800 font-medium md:font-semibold text-[15px] md:text-base">
                       {productTitle}
                     </h3>
@@ -153,7 +198,7 @@ export default function ProductCarouselSimple() {
                     {/* Bouton DaisyUI */}
                     <div className="mt-auto pt-3">
                       <Link
-                        href={`/product/${product.id}`}
+                        href={`/product/${productId}`}
                         className="btn btn-outline md:btn-md"
                         aria-label={`Voir le produit ${productTitle}`}
                       >
