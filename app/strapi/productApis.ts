@@ -1,13 +1,35 @@
-import axiosClient from "./axiosClient";
+const handleResponse = async (response: Response) => {
+  const data = await response.json().catch(() => ({}));
 
-const getProducts = () => axiosClient.get("/products?populate=*");
+  if (!response.ok) {
+    const message =
+      (typeof data === "object" && data && "error" in data && data.error) ||
+      "Request failed";
+    throw new Error(String(message));
+  }
 
-const getProductById = (id: string) =>
-  axiosClient.get(
-    `/products?filters[id][$eq]=${id}&pagination[pageSize]=1&populate=*`
-  );
+  return { data };
+};
 
-export default {
+const getProducts = async () => {
+  const response = await fetch("/api/products", {
+    method: "GET",
+    cache: "no-store",
+  });
+  return handleResponse(response);
+};
+
+const getProductById = async (id: string) => {
+  const response = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+  return handleResponse(response);
+};
+
+const productApi = {
   getProducts,
   getProductById,
 };
+
+export default productApi;

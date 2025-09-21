@@ -1,5 +1,26 @@
 import { NextResponse } from "next/server";
-import productApi from "@/app/strapi/productApis";
+import { strapiJson } from "@/app/api/_lib/strapi";
+
+type CartItem = {
+  id: string | number;
+  quantity: number;
+};
+
+type StrapiProduct = {
+  price?: number;
+};
+
+type StrapiProductResponse = {
+  data?: StrapiProduct | StrapiProduct[];
+};
+
+const extractProduct = (payload: StrapiProductResponse) => {
+  const data = payload.data;
+  if (Array.isArray(data)) {
+    return data[0] ?? null;
+  }
+  return data ?? null;
+};
 
 export async function POST(request: Request) {
   try {
@@ -9,13 +30,27 @@ export async function POST(request: Request) {
     }
 
     const totals = await Promise.all(
-      items.map(async (item: { id: string | number; quantity: number }) => {
+      items.map(async (item: CartItem) => {
         const id = String(item.id);
         const quantity = Number(item.quantity) || 0;
-        const res = await productApi.getProductById(id);
-        const data = res?.data?.data?.[0] ?? res?.data?.data;
-        const price = data?.price ?? 0;
-        return price * quantity;
+
+        if (!id || quantity <= 0) {
+          return 0;
+        }
+
+        try {
+          const { data } = await strapiJson<StrapiProductResponse>(
+            `/products?filters[id][$eq]=${encodeURIComponent(
+              id
+            )}&pagination[pageSize]=1&populate=*`
+          );
+          const product = extractProduct(data);
+          const price = Number(product?.price) || 0;
+          return price * quantity;
+        } catch (error) {
+          console.error(`Failed to fetch product ${id}`, error);
+          return 0;
+        }
       })
     );
 
