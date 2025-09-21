@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
   '/solar-solution(.*)',
   '/shop(.*)',
   '/product(.*)',
+  '/api/products(.*)',
   '/api/cart-total(.*)',
   '/api/checkout(.*)',
 ])
