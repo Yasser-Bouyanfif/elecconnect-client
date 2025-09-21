@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   try {
-    const res = await productApis.getProducts({ page, pageSize: PAGE_SIZE });
+    const res = await productApis.getProductsPagination({ page, pageSize: PAGE_SIZE });
     const payload: ProductsResponse = res?.data ?? {};
 
     return NextResponse.json({

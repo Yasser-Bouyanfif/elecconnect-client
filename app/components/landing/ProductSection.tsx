@@ -60,7 +60,7 @@ export default function ProductCarouselSimple() {
 
     (async () => {
       try {
-        const res = await productApis.getProducts();
+        const res = await productApis.getProductsPagination({ page: 1, pageSize: 10 });
         if (!alive) return;
 
         const data = res?.data?.data;

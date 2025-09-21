@@ -7,7 +7,7 @@ type PaginationOptions = {
 
 const MAX_PAGE_SIZE = 6;
 
-const getProducts = (
+const getProductsPagination = (
   { page = 1, pageSize = MAX_PAGE_SIZE }: PaginationOptions = {}
 ) => {
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
@@ -29,7 +29,10 @@ const getProductById = (id: string) =>
     `/products?filters[id][$eq]=${id}&pagination[pageSize]=1&populate=*`
   );
 
+const getProducts = () => axiosClient.get(`/products?populate=*`);
+
 export default {
-  getProducts,
+  getProductsPagination,
   getProductById,
+  getProducts
 };
