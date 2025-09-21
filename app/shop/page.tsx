@@ -11,17 +11,16 @@ export default function ShopPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/products', {
+        const response = await fetch('/api/products', {
           headers: {
             'Content-Type': 'application/json',
           },
         });
         
         const data = await response.json();
-
-        console.log(data)
+        console.log('Produits récupérés:', data);
       } catch (err) {
-        console.error('Erreur:', err);
+        console.error('Erreur lors de la récupération des produits:', err);
       }
     };
 

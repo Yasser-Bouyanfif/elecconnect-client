@@ -7,8 +7,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import productApi from "@/app/strapi/productApis";
 import { SERVER_URL } from "@/app/lib/constants";
+import productApis from "@/app/strapi/productApis";
 
 const responsive = {
   desktop: { breakpoint: { max: 3000, min: 1324 }, items: 3, slidesToSlide: 1 },
@@ -60,7 +60,7 @@ export default function ProductCarouselSimple() {
 
     (async () => {
       try {
-        const res = await productApi.getProducts();
+        const res = await productApis.getProducts();
         if (!alive) return;
 
         const data = res?.data?.data;
