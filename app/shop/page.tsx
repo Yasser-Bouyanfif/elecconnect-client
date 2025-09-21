@@ -7,6 +7,20 @@ import Link from "next/link";
 const IMAGE_FALLBACK = "/borne2.png";
 
 export default function ShopPage() {
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        console.log("Fetched products:", data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const product = {
     id: 1,
     title: "Produit d'exemple",
