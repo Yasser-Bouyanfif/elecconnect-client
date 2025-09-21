@@ -11,6 +11,18 @@ export default function ShopPage() {
     const fetchProducts = async () => {
       try {
         const res = await fetch("/api/products");
+        const contentType = res.headers.get("content-type") ?? "";
+
+        if (!contentType.includes("application/json")) {
+          const body = await res.text();
+          console.error(
+            "Unexpected response when fetching products:",
+            res.status,
+            body
+          );
+          return;
+        }
+
         const data = await res.json();
         console.log("Fetched products:", data);
       } catch (error) {

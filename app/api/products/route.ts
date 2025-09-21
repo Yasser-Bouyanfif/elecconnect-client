@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import productApi from '@/app/strapi/productApis';
 import { productsSchema, type Product } from './schema';
 
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     const res = await productApi.getProducts();
