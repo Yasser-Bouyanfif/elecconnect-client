@@ -1,70 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import productApi from "@/app/strapi/productApis";
-import { SERVER_URL } from "@/app/lib/constants";
-
-interface Product {
-  id: number;
-  title?: string;
-  price?: number;
-  description?: string;
-  banner?: { url?: string; name?: string } | null;
-}
 
 const IMAGE_FALLBACK = "/borne2.png";
 
-const ITEMS_PER_PAGE = 6;
-
 export default function ShopPage() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Fetch all products once
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await productApi.getProducts();
-        if (!alive) return;
-        const data = res?.data?.data;
-        const items = Array.isArray(data) ? data : data ? [data] : [];
-        setAllProducts(items);
-      } catch (e) {
-        console.error("Erreur lors du chargement des produits", e);
-        if (alive) setAllProducts([]);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const totalPages = Math.max(1, Math.ceil(allProducts.length / ITEMS_PER_PAGE));
-    setCurrentPage((prev) => {
-      if (prev < 1) return 1;
-      if (prev > totalPages) return totalPages;
-      return prev;
-    });
-  }, [allProducts]);
-
-  const totalPages = Math.max(1, Math.ceil(allProducts.length / ITEMS_PER_PAGE));
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = allProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const goToPage = (page: number) => {
-    setCurrentPage((prev) => {
-      if (page < 1 || page > totalPages) {
-        return prev;
-      }
-      return page;
-    });
+  const product = {
+    id: 1,
+    title: "Produit d'exemple",
+    price: 999,
+    description: "Description courte du produit pour l'exemple.",
+    imageSrc: IMAGE_FALLBACK,
   };
 
   return (
@@ -75,74 +23,32 @@ export default function ShopPage() {
           <p className="text-slate-600">Découvrez nos produits disponibles.</p>
         </div>
 
-        {loading ? (
-          <p className="py-10 text-center text-slate-500">Chargement…</p>
-        ) : allProducts.length === 0 ? (
-          <p className="py-10 text-center text-slate-500">Aucun produit disponible pour le moment.</p>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentProducts.map((product) => {
-                const price = Number(product.price) || 0;
-                const imageSrc = product.banner?.url
-                  ? `${SERVER_URL ?? ""}${product.banner.url}`
-                  : IMAGE_FALLBACK;
-                const productTitle = product.title ?? "Produit";
-                const description = product.description
-                  ? product.description.substring(0, 100)
-                  : "";
-                return (
-                  <div key={product.id} className="m-0 h-full min-h-[560px] flex flex-col border rounded-xl overflow-hidden shadow-sm hover:shadow transition-shadow">
-                    <div className="relative h-[400px] bg-gray-50">
-                      <Image
-                        src={imageSrc}
-                        alt={product.banner?.name || productTitle}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 1024px) 50vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-4 flex flex-col">
-                      <p className="text-base font-semibold text-slate-900">
-                        {price.toLocaleString()}€ <span className="text-xs text-slate-500">TT</span>
-                      </p>
-                      <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">{productTitle}</h3>
-                      {description && (
-                        <p className="text-sm text-slate-500 mt-1 line-clamp-2">{description}</p>
-                      )}
-                      <div className="mt-auto pt-3">
-                        <Link href={`/product/${product.id}`} className="btn btn-outline btn-sm md:btn-md w-full">
-                          Voir le produit
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="m-0 h-full min-h-[560px] flex flex-col border rounded-xl overflow-hidden shadow-sm hover:shadow transition-shadow">
+            <div className="relative h-[400px] bg-gray-50">
+              <Image
+                src={product.imageSrc}
+                alt={product.title}
+                fill
+                unoptimized
+                sizes="(max-width: 1024px) 50vw, 33vw"
+                className="object-cover"
+              />
             </div>
-            {totalPages > 1 && (
-              <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
-                {Array.from({ length: totalPages }, (_, index) => {
-                  const page = index + 1;
-                  const isActive = page === currentPage;
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => goToPage(page)}
-                      disabled={isActive}
-                      aria-current={isActive ? "page" : undefined}
-                      className={`btn btn-sm ${isActive ? "btn-active" : ""}`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-              </nav>
-            )}
-          </>
-        )}
+            <div className="p-4 flex flex-col">
+              <p className="text-base font-semibold text-slate-900">
+                {product.price.toLocaleString()}€ <span className="text-xs text-slate-500">TT</span>
+              </p>
+              <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">{product.title}</h3>
+              <p className="text-sm text-slate-500 mt-1 line-clamp-2">{product.description}</p>
+              <div className="mt-auto pt-3">
+                <Link href="#" className="btn btn-outline btn-sm md:btn-md w-full">
+                  Voir le produit
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
