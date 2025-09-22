@@ -86,20 +86,11 @@ function extractPagination(meta: unknown): Pagination | null {
 }
 
 function getProductData(product: Product) {
-  const attributes = product.attributes ?? product;
-  const price = Number(attributes?.price);
-  const rawId =
-    attributes?.documentId ??
-    product.documentId ??
-    attributes?.id ??
-    product.id ??
-    "";
-
   return {
-    id: rawId ? String(rawId) : "",
-    title: attributes?.title ?? "Produit",
-    description: attributes?.description ?? "",
-    price: Number.isFinite(price) ? price : null,
+    id: product.id,
+    title: product.title,
+    description: product.description,
+    price: product.price,
   };
 }
 
@@ -226,7 +217,7 @@ export default function ShopPage() {
                       <div className="p-4 flex flex-col">
                         {formattedPrice && (
                           <p className="text-base font-semibold text-slate-900">
-                            {formattedPrice}€ <span className="text-xs text-slate-500">HT</span>
+                            {formattedPrice}€ <span className="text-xs text-slate-500">TTC</span>
                           </p>
                         )}
                         <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">

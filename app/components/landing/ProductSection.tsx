@@ -30,7 +30,6 @@ interface Product {
   price?: number;
   description?: string;
   banner?: ProductBanner | null;
-  attributes?: Product;
 }
 
 function Arrow({
@@ -141,55 +140,33 @@ export default function ProductCarouselSimple() {
               draggable
             >
               {products.map((product) => {
-                const details = product.attributes ?? product;
-                const price = Number(details?.price);
-                const banner = details?.banner ?? null;
-                const rawUrl =
-                  (typeof banner?.url === "string" && banner.url) ||
-                  banner?.data?.attributes?.url ||
-                  "";
-                const imageSrc = rawUrl
-                  ? rawUrl.startsWith("http")
-                    ? rawUrl
-                    : `${SERVER_URL ?? ""}${rawUrl}`
-                  : IMAGE_URL;
-                const productTitle = details?.title ?? "Produit";
-                const description = details?.description
-                  ? details.description.substring(0, 80)
-                  : "";
-                const alt =
-                  banner?.name ||
-                  banner?.alternativeText ||
-                  banner?.data?.attributes?.alternativeText ||
-                  banner?.data?.attributes?.name ||
-                  productTitle;
-                const productId =
-                  (product.id ?? details?.id ?? details?.title) ?? "";
-                const numericId = Number(productId);
-                const hasPrice = Number.isFinite(price);
-                const priceLabel = hasPrice ? `${price.toLocaleString()}€` : null;
+                const title = product.title || "Produit";
+                const imageSrc = `${SERVER_URL}${product.banner?.url}`
+                const imageAlt = product.title || "Produit";
+                const price = product.price ? `${product.price} €` : "Prix non défini";
+                const description = product.description || "Description non disponible";
 
+                
                 return (
-                  <div key={String(productId)} className="m-0 h-full min-h-[560px] flex flex-col">
+                  <div key={String(product.id)} className="m-0 h-full min-h-[560px] flex flex-col">
                     <div className="relative h-[400px]">
                       <Image
                         src={imageSrc}
-                        alt={alt}
+                        alt={imageAlt}
                         fill
                         unoptimized
                         sizes="(max-width: 1324px) 90vw, 20vw"
                         className="object-cover rounded-xl"
-                        priority={Number.isFinite(numericId) && numericId <= 2}
                       />
                     </div>
 
-                    {priceLabel && (
+                    {price && (
                       <p className="text-base md:text-lg font-semibold text-slate-900 mt-4">
-                        {priceLabel} <span className="text-xs text-slate-500">HT</span>
+                        {price} <span className="text-xs text-slate-500">TTC</span>
                       </p>
                     )}
                     <h3 className="text-slate-800 font-medium md:font-semibold text-[15px] md:text-base">
-                      {productTitle}
+                      {title}
                     </h3>
                     {description && (
                       <p className="text-sm text-slate-500 mt-1 line-clamp-2">{description}</p>
@@ -198,9 +175,9 @@ export default function ProductCarouselSimple() {
                     {/* Bouton DaisyUI */}
                     <div className="mt-auto pt-3">
                       <Link
-                        href={`/product/${productId}`}
+                        href={`/product/${product.id}`}
                         className="btn btn-outline md:btn-md"
-                        aria-label={`Voir le produit ${productTitle}`}
+                        aria-label={`Voir le produit ${title}`}
                       >
                         Voir le produit
                       </Link>

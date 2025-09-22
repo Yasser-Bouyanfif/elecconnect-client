@@ -36,15 +36,6 @@ export default function Header() {
             <a href="/" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Accueil
             </a>
-            <a href="/#about" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-              À propos
-            </a>
-            <a href="/#testimonials" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-              Avis
-            </a>
-            <a href="/#products" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-              Produits
-            </a>
             <a href="/solar-solution" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Solution Solaire
             </a>
