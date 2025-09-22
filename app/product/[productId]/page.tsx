@@ -15,19 +15,13 @@ import {
 
 interface Product {
   id: number;
-  documentId?: string;
+  documentId: string;
   title: string;
   description: string;
   price: number;
   weight?: string;
-  rating?: number;
-  reviews?: number;
-  inStock?: boolean;
-  banner?: { url?: string; name?: string };
-  images?: Array<{ url?: string; name?: string }>;
-  features?: string[];
-  // The API may expose sections under various keys; we'll access them dynamically
-  [key: string]: any;
+  banner?: { url?: string; };
+  productSection: []
 }
 
 // Types for ProductSection rendering (kept permissive to match API)
@@ -74,18 +68,27 @@ export default function ProductDetails() {
     if (!productId) return;
 
     let alive = true;
+    const controller = new AbortController();
+
     (async () => {
       try {
-        const res = await productApi.getProductById(productId);
-        const data: Product | undefined =
-          res?.data?.data?.[0] ?? res?.data?.data;
+        const response = await fetch(`/api/products/${productId}`, {
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            router.push("/404");
+            return;
+          }
+          throw new Error(`Statut ${response.status}`);
+        }
+
+        const {data} = await response.json();
         if (!alive) return;
 
-        if (!data?.id) {
-          router.push("/404");
-          return;
-        }
-        setProduct(data);
+        setProduct(data)
       } catch (e) {
         console.error("Erreur API:", e);
         router.push("/404");
@@ -128,7 +131,7 @@ export default function ProductDetails() {
 
     const cartItem: CartItem = {
       id: product.id,
-      documentId: product.documentId ?? String(product.id),
+      documentId: product.documentId,
       title: product.title,
       price: product.price,
       banner: product.banner?.url ? { url: product.banner.url } : undefined,
@@ -152,27 +155,12 @@ export default function ProductDetails() {
               <div className="w-full overflow-hidden rounded-lg">
                 <Image
                   src={`${SERVER_URL}${product.banner?.url}`}
-                  alt={product.banner?.name || product.title}
+                  alt={product.title}
                   width={1000}
                   height={800}
                   className="h-full w-full object-contain bg-white"
                 />
               </div>
-              {product.images && product.images.length > 0 && (
-                <div className="grid grid-cols-4 gap-3 mt-4">
-                  {product.images.map((image, index) => (
-                    <div key={index} className="border rounded-md overflow-hidden">
-                      <Image
-                        src={`${SERVER_URL}${image.url}`}
-                        alt={image.name || `${product.title} - Vue ${index + 1}`}
-                        width={200}
-                        height={200}
-                        className="h-20 w-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Détails du produit */}
@@ -235,22 +223,6 @@ export default function ProductDetails() {
                 </div>
               )}
 
-              {/* Caractéristiques */}
-              {product.features && product.features.length > 0 && (
-                <div>
-                  <h3 className="text-base font-medium text-gray-900 mb-2">Caractéristiques</h3>
-                  <ul className="space-y-1">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-600 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
 
               {/* Quantité + Bouton d'ajout au panier */}
               <div className="mt-2 space-y-3 pt-2 border-t border-gray-100">
