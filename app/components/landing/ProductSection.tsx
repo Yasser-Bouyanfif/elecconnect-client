@@ -18,17 +18,16 @@ const responsive = {
 const IMAGE_URL = "/borne2.png";
 
 interface ProductBanner {
-  url?: string;
-  name?: string;
-  alternativeText?: string;
-  data?: { attributes?: { url?: string; name?: string; alternativeText?: string } } | null;
+  url?: string | null;
+  name?: string | null;
+  alternativeText?: string | null;
 }
 
 interface Product {
-  id?: number | string;
-  title?: string;
-  price?: number;
-  description?: string;
+  id?: number | string | null;
+  title?: string | null;
+  price?: number | null;
+  description?: string | null;
   banner?: ProductBanner | null;
 }
 
@@ -79,11 +78,7 @@ export default function ProductCarouselSimple() {
         const payload: { data?: unknown } = await response.json();
         if (!alive) return;
 
-        const data = Array.isArray(payload?.data)
-          ? payload.data
-          : payload?.data
-            ? [payload.data]
-            : [];
+        const data = Array.isArray(payload?.data) ? payload.data : [];
 
         setProducts(data as Product[]);
       } catch (error) {
@@ -140,13 +135,18 @@ export default function ProductCarouselSimple() {
               draggable
             >
               {products.map((product) => {
-                const title = product.title || "Produit";
-                const imageSrc = `${SERVER_URL}${product.banner?.url}`
-                const imageAlt = product.title || "Produit";
-                const price = product.price ? `${product.price} €` : "Prix non défini";
-                const description = product.description || "Description non disponible";
+                const title = product.title?.trim() || "Produit";
+                const bannerUrl = product.banner?.url ?? null;
+                const imageSrc = bannerUrl ? `${SERVER_URL ?? ""}${bannerUrl}` : IMAGE_URL;
+                const imageAlt =
+                  product.banner?.alternativeText?.trim() ||
+                  product.banner?.name?.trim() ||
+                  title;
+                const price = Number.isFinite(product.price)
+                  ? `${product.price} €`
+                  : "Prix non défini";
+                const description = product.description?.trim() || "Description non disponible";
 
-                
                 return (
                   <div key={String(product.id)} className="m-0 h-full min-h-[560px] flex flex-col">
                     <div className="relative h-[400px]">
