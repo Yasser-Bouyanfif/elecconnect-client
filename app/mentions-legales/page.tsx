@@ -14,24 +14,25 @@ export default function MentionsLegales() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Éditeur du site</h2>
         <p className="mb-2"><strong>ElecConnect</strong></p>
-        <p className="mb-2">[Votre adresse complète]</p>
-        <p className="mb-2">Téléphone : [Votre numéro]</p>
+        <p className="mb-2">31 rue Chevalier Paul</p>
+        <p className="mb-2">83000 Toulon, France</p>
+        <p className="mb-2">Téléphone : +33 6 98 65 77 80 / +33 4 22 91 82 91</p>
         <p className="mb-2">Email : contact@elecconnect.fr</p>
-        <p className="mb-2">SIRET : [Votre numéro SIRET]</p>
-        <p className="mb-2">TVA intracommunautaire : [Votre numéro de TVA]</p>
-        <p className="mb-2">RCS : [Ville du RCS] [Numéro RCS]</p>
+        <p className="mb-2">SIRET : 928 755 412 00014</p>
+        <p className="mb-2">RCS : 928 755 412 00014</p>
+        <p className="mb-2">TVA intracommunautaire : FR30 928 755 412</p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Directeur de la publication</h2>
-        <p>[Nom du directeur de la publication]</p>
+        <p>Rodolphe AGOSSOU</p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Hébergement</h2>
-        <p className="mb-2">[Nom de l'hébergeur]</p>
-        <p className="mb-2">[Adresse de l'hébergeur]</p>
-        <p className="mb-2">Téléphone : [Téléphone de l'hébergeur]</p>
+        <p className="mb-2">Vercel Inc.</p>
+        <p className="mb-2">340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis</p>
+        <p className="mb-2">Site web : <a href="https://vercel.com" className="text-emerald-600 hover:underline">vercel.com</a></p>
       </section>
 
       <section className="mb-8">

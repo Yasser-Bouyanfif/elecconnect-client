@@ -42,10 +42,9 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">Liens utiles</h4>
             <ul className="space-y-2">
-              <li><a href="#accueil" className="text-gray-300 hover:text-emerald-400 transition-colors">Accueil</a></li>
-              <li><a href="#services" className="text-gray-300 hover:text-emerald-400 transition-colors">Services</a></li>
-              <li><a href="#produits" className="text-gray-300 hover:text-emerald-400 transition-colors">Produits</a></li>
-              <li><a href="#contact" className="text-gray-300 hover:text-emerald-400 transition-colors">Contact</a></li>
+              <li><a href="/mentions-legales" className="text-gray-300 hover:text-emerald-400 transition-colors">Mentions Légales</a></li>
+              <li><a href="/cgv" className="text-gray-300 hover:text-emerald-400 transition-colors">Conditions Générales de Vente</a></li>
+              <li><a href="/confidentialite" className="text-gray-300 hover:text-emerald-400 transition-colors">Politique de confidentialité</a></li>
             </ul>
           </div>
 
@@ -71,45 +70,32 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-start space-x-3">
-                <MapPin className="w-4 h-4 text-emerald-400 mt-1" />
+                <MapPin className="w-4 h-4 text-emerald-400 mt-1 flex-shrink-0" />
                 <div>
                   <a 
-                    href="https://www.google.com/maps/place/Provence-Alpes-Côte+d'Azur" 
+                    href="https://www.google.com/maps/place/31+Rue+Chevalier+Paul,+83000+Toulon" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="block text-gray-300 hover:text-emerald-400 transition-colors"
                   >
-                    Provence-Alpes-Côte d'Azur
+                    31 rue Chevalier Paul
                   </a>
-                  <a 
-                    href="https://www.google.com/maps/place/Île-de-France" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="block text-gray-300 hover:text-emerald-400 transition-colors mt-1"
-                  >
-                    Île-de-France
-                  </a>
+                  <span className="block text-gray-300">
+                    83000 Toulon, France
+                  </span>
                 </div>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-white text-sm font-bold">
+        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col items-center">
+          <p className="text-white text-sm font-bold mb-2">
             {year} ELEC'CONNECT. Tous droits réservés.
           </p>
-          <div className="mt-4 md:mt-0 flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <a href="/mentions-legales" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-              Mentions légales
-            </a>
-            <a href="/cgv" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-              Conditions Générales de Vente
-            </a>
-            <a href="/confidentialite" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-              Politique de confidentialité
-            </a>
-          </div>
+          <p className="text-gray-500 text-xs">
+            Propulsé par <a href="https://yasserr.dev" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">CodeVerse</a>
+          </p>
         </div>
       </div>
     </footer>

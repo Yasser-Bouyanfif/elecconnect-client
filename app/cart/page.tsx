@@ -117,7 +117,9 @@ function CartPage() {
         {cart.length === 0 ? (
           <div className="min-h-[40vh] flex flex-col items-center justify-center text-center">
             <p className="text-slate-600">Votre panier est vide.</p>
-            <Link href="/shop" className="btn btn-primary btn-md mt-4">Découvrir la boutique</Link>
+            <Link href="/shop" className="btn btn-success text-white flex items-center gap-2 mt-4">
+              Découvrir la boutique
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -242,13 +244,21 @@ function CartPage() {
                   </div>
                 </dl>
 
-                <button
-                  onClick={() => router.push("/checkout/address")}
-                  disabled={groups.length === 0}
-                  className="btn btn-primary btn-block mt-5 disabled:opacity-50"
-                >
-                  Continuer
-                </button>
+                <div className="space-y-3 mt-5">
+                  <button
+                    onClick={() => router.push("/checkout/address")}
+                    disabled={groups.length === 0}
+                    className="btn btn-soft btn-primary btn-block btn-lg disabled:opacity-50"
+                  >
+                    Continuer
+                  </button>
+                  <Link 
+                    href="/shop" 
+                    className="btn btn-outline btn-block btn-lg"
+                  >
+                    Retour à la boutique
+                  </Link>
+                </div>
               </div>
             </aside>
           </div>
