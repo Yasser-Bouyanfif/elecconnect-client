@@ -1,9 +1,9 @@
 import axiosClient from "./axiosClient";
 
 
-const getPromotionById = (id: string) =>
+const getPromotionById = (code: string) =>
     axiosClient.get(
-      `/promotions?filters[id][$eq]=${id}`
+      `/promotions?filters[code][$eq]=${code}`
     );
     
   export default {
