@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Footer from "./components/landing/Footer";
 import Header from "./components/landing/Header";
 import { CartProvider } from "./contexts/CartContext";
+import CookieBanner from "./components/ui/CookieBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Footer />
+            <CookieBanner />
           </body>
         </html>
       </CartProvider>

@@ -97,17 +97,17 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-white text-sm font-bold">
-            © {year} ELEC'CONNECT. Tous droits réservés.
+            {year} ELEC'CONNECT. Tous droits réservés.
           </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-white font-bold hover:text-emerald-400 transition-colors text-sm">
+          <div className="mt-4 md:mt-0 flex flex-wrap justify-center gap-x-6 gap-y-2">
+            <a href="/mentions-legales" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
               Mentions légales
             </a>
-            <a href="#" className="text-white font-bold hover:text-emerald-400 transition-colors text-sm">
-              Politique de confidentialité
+            <a href="/cgv" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
+              Conditions Générales de Vente
             </a>
-            <a href="#" className="text-white font-bold hover:text-emerald-400 transition-colors text-sm">
-              CGV
+            <a href="/confidentialite" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
+              Politique de confidentialité
             </a>
           </div>
         </div>
