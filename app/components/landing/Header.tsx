@@ -10,26 +10,27 @@ import Cart from "../ui/Cart";
 export default function Header() {
   const { isSignedIn } = useUser();
   const [openCart, setOpenCart] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cart } = useContext(CartContext) as CartContextType;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          {/* Bloc gauche (inchangé) */}
-          <div className="flex items-center space-x-3">
+          {/* Logo cliquable */}
+          <Link href="/" className="flex items-center space-x-3">
             <img
               src="/image01-high.webp"
               alt="ELEC'CONNECT"
               className="w-12 h-12 object-contain"
             />
-            <div>
+            <div className="hidden md:block">
               <h1 className="text-2xl font-bold text-gray-900">ELEC'CONNECT</h1>
               <p className="text-sm text-emerald-600 font-medium">
                 Solutions de recharge électrique
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Nav desktop (inchangé) */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -98,12 +99,86 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Burger mobile (inchangé) */}
-          <button className="md:hidden p-2">
-            <Menu className="w-6 h-6 text-gray-700" />
-          </button>
+          {/* Boutons pour mobile */}
+          <div className="flex items-center gap-4 md:hidden">
+            {/* Panier */}
+            <button
+              type="button"
+              className="relative p-2"
+              onClick={() => setOpenCart((v) => !v)}
+              aria-label="Ouvrir le panier"
+            >
+              <ShoppingCart className="w-6 h-6 text-gray-800" />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 rounded-full bg-emerald-600 w-5 h-5 flex items-center justify-center text-xs text-white">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+
+            {/* Bouton utilisateur */}
+            <div className="ml-2">
+              {isSignedIn ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <Link
+                  href="/sign-in"
+                  aria-label="Se connecter"
+                  className="p-2 block"
+                >
+                  <LogIn className="w-6 h-6 text-gray-800" />
+                </Link>
+              )}
+            </div>
+
+            {/* Bouton menu hamburger */}
+            <button 
+              className="p-2" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Ouvrir le menu"
+              aria-expanded={isMenuOpen}
+            >
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Menu mobile */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200">
+          <nav className="px-4 py-3 space-y-3">
+            <a 
+              href="/" 
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Accueil
+            </a>
+            <a 
+              href="/solar-solution" 
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Solution Solaire
+            </a>
+            <a 
+              href="/shop" 
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Boutique
+            </a>
+            <a
+              href="/#contact"
+              className="block px-3 py-2 text-emerald-600 hover:bg-gray-50 rounded-md font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </a>
+          </nav>
+        </div>
+      )}
 
       {/* Popover Panier */}
       {openCart && <Cart />}

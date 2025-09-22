@@ -18,14 +18,15 @@ export default function SolutionsSolaires() {
                 Découvrez comment l'énergie solaire peut révolutionner votre façon de recharger votre véhicule électrique, tout en réduisant votre empreinte carbone et vos coûts énergétiques.
               </p>
             </div>
-            <div className="lg:w-1/2">
-              <div className="relative w-full h-80 lg:h-96 group">
+            <div className="w-full lg:w-1/2 mt-8 lg:mt-0">
+              <div className="relative w-full aspect-video sm:aspect-square lg:aspect-video group">
                 <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:shadow-emerald-100/50">
                   <Image
                     src="/solaire2.png"
                     alt="Solution de recharge solaire ELEC'CONNECT"
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
                 </div>
