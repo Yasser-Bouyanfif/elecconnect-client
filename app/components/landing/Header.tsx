@@ -77,7 +77,15 @@ export default function Header() {
 
               {/* Si connecté : bouton profil Clerk ; sinon : icône Login vers /sign-in */}
               {isSignedIn ? (
-                <UserButton />
+                <UserButton >
+                <UserButton.MenuItems>
+                <UserButton.Link 
+                  label="Mes commandes" 
+                  href="/orders" 
+                  labelIcon={<ShoppingCart className="w-4 h-4 mr-2" />} 
+                />
+              </UserButton.MenuItems>
+            </UserButton>
               ) : (
                 <Link
                   href="/sign-in"
