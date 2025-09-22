@@ -76,9 +76,7 @@ export default function ProductCarouselSimple() {
           throw new Error(`Statut ${response.status}`);
         }
 
-
         const payload: { data?: unknown } = await response.json();
-
         if (!alive) return;
 
         const data = Array.isArray(payload?.data)
