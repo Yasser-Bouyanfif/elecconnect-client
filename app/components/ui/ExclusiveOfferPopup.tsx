@@ -14,37 +14,39 @@ const ExclusiveOfferPopup = ({ onClose }: ExclusiveOfferPopupProps) => {
     sessionStorage.setItem('popupShown', 'true');
   }, []);
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 overflow-y-auto">
       {/* Fond flouté */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       
       {/* Carte */}
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full relative z-10 border border-gray-100 overflow-hidden">
-        <div className="relative h-48 w-full bg-gradient-to-r from-emerald-50 to-blue-50">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-[95%] mx-auto relative z-10 border border-gray-100 overflow-hidden my-2">
+        <div className="relative h-28 sm:h-32 w-full bg-gradient-to-r from-emerald-50 to-blue-50">
           <Image 
             src="/solaire4.png" 
             alt="Offre exclusive" 
             fill
-            className="object-contain p-4"
+            className="object-contain p-2 sm:p-3"
             priority
           />
           <button 
             onClick={onClose}
-            className="absolute top-2 right-2 p-1 bg-white/80 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute top-1.5 right-1.5 p-1 bg-white/80 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Fermer"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-4 h-4 text-gray-600" />
           </button>
         </div>
         
-        <div className="p-6">
-          <div className="text-center mb-4">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              🎉 OFFRE EXCLUSIVE EN RÉGIONS PACA & IDF ! 🎉
-            </h3>
+        <div className="p-3 sm:p-4">
+          <h3 className="text-xl font-bold text-gray-800 text-center mb-3">
+            🎉 OFFRE EXCLUSIVE EN RÉGIONS PACA & IDF ! 🎉
+          </h3>
+          
+          {/* Contenu défilable */}
+          <div className="max-h-[40vh] overflow-y-auto pr-2 -mr-2">
             <div className="space-y-3 text-gray-700 text-left">
               <p className="text-lg font-semibold">
                 ELEC'CONNECT & SSP vous accompagnent dans votre transition énergétique 📗☀️
@@ -76,17 +78,17 @@ const ExclusiveOfferPopup = ({ onClose }: ExclusiveOfferPopupProps) => {
             </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-3 mt-3">
             <a
               href="/solar-solution"
               onClick={onClose}
-              className="block w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-medium py-2.5 px-4 rounded-lg text-center transition-all duration-300"
+              className="block w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-medium py-2 px-4 rounded-lg text-center transition-all duration-300 text-sm sm:text-base"
             >
               En savoir plus sur la solution solaire
             </a>
             <button
               onClick={onClose}
-              className="w-full text-gray-500 hover:text-gray-700 text-sm font-medium py-2 transition-colors"
+              className="w-full text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium py-1.5 transition-colors"
             >
               Plus tard
             </button>

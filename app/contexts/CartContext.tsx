@@ -13,6 +13,7 @@ export type CartItem = {
   documentId: string;
   title?: string;
   price?: number;
+  quantity?: number;
   banner?: {
     url: string;
   };
@@ -22,6 +23,7 @@ export type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string | number) => void;
+  updateCartItemQuantity: (id: string | number, quantity: number) => void;
   clearCart: () => void;
 };
 
@@ -143,8 +145,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("cart");
   }, []);
 
+  const updateCartItemQuantity = useCallback((id: string | number, quantity: number) => {
+    setCart(prev => {
+      const itemIndex = prev.findIndex(item => item.id === id);
+      if (itemIndex === -1) return prev;
+      
+      const updatedCart = [...prev];
+      updatedCart[itemIndex] = { ...updatedCart[itemIndex], quantity };
+      return updatedCart;
+    });
+  }, []);
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ 
+      cart, 
+      addToCart, 
+      removeFromCart, 
+      updateCartItemQuantity,
+      clearCart 
+    }}>
       {children}
     </CartContext.Provider>
   );

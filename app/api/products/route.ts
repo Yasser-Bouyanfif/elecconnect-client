@@ -4,11 +4,6 @@ import productApis from "@/app/strapi/productApis";
 
 const PAGE_SIZE = 6;
 
-type ProductsResponse = {
-  data?: unknown;
-  meta?: unknown;
-};
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   try {
@@ -19,22 +14,14 @@ export async function GET(request: Request) {
       const parsedPage = Number.parseInt(rawPage ?? "", 10);
       const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
-      const res = await productApis.getProductsPagination({ page, pageSize: PAGE_SIZE });
-      const payload: ProductsResponse = res?.data ?? {};
+      const {data} = await productApis.getProductsPagination({ page, pageSize: PAGE_SIZE });
 
-      return NextResponse.json({
-        data: payload.data ?? [],
-        meta: payload.meta ?? null,
-      });
+      return NextResponse.json(data);
     }
 
-    const res = await productApis.getProducts();
-    const payload: ProductsResponse = res?.data ?? {};
+    const {data} = await productApis.getProducts();
 
-    return NextResponse.json({
-      data: payload.data ?? [],
-      meta: payload.meta ?? null,
-    });
+    return NextResponse.json(data);
   } catch (error) {
     console.error("API Route Error:", error);
     return NextResponse.json(

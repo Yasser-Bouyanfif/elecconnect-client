@@ -147,7 +147,7 @@ function CartPage() {
                             <div className="min-w-0">
                               <h3 className="text-sm sm:text-base font-medium text-slate-900 line-clamp-1">{item.title}</h3>
                               {item.price !== undefined && (
-                                <p className="mt-0.5 text-xs text-slate-600">{unitPrice.toFixed(2)} € / unité</p>
+                                <p className="mt-0.5 text-xs text-slate-600">{unitPrice.toFixed(2)} €</p>
                               )}
                             </div>
                             <button
