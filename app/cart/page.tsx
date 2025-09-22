@@ -50,6 +50,11 @@ function CartPage() {
   >(null);
   const [promotionError, setPromotionError] = useState<string | null>(null);
   const [applyingPromotion, setApplyingPromotion] = useState(false);
+  const activePromotion = !promotionError ? appliedPromotion : null;
+  const hasActivePromotion = Boolean(activePromotion);
+  const reductionAmount = hasActivePromotion
+    ? Math.max(subtotal - total, 0)
+    : 0;
 
   const calculateTotalWithPromotion = (
     amount: number,
@@ -311,11 +316,11 @@ function CartPage() {
                 {promotionError && (
                   <p className="mt-2 text-sm text-red-600">{promotionError}</p>
                 )}
-                {appliedPromotion && !promotionError && (
+                {activePromotion && (
                   <p className="mt-2 text-sm text-emerald-600">
-                    Code {appliedPromotion.code} appliqué (-
-                    {appliedPromotion.reduction}%).
-                  </p>
+                    Code {activePromotion.code} appliqué (-
+                    {activePromotion.reduction}%).
+                    </p>
                 )}
 
                 <dl className="mt-4 space-y-2 text-sm text-slate-700">
@@ -324,8 +329,20 @@ function CartPage() {
                     <dd>{loadingTotal ? "…" : `${subtotal.toFixed(2)} €`}</dd>
                   </div>
                   <div className="flex justify-between text-slate-500">
-                    <dt>Livraison</dt>
-                    <dd>Offerte</dd>
+                    <dt>Réduction</dt>
+                    <dd
+                      className={
+                        hasActivePromotion && reductionAmount > 0
+                          ? "text-emerald-600 line-through"
+                          : "text-slate-400 line-through"
+                      }
+                    >
+                      {loadingTotal
+                        ? "…"
+                        : hasActivePromotion && reductionAmount > 0
+                          ? `-${reductionAmount.toFixed(2)} €`
+                          : "0,00 €"}
+                    </dd>
                   </div>
                   <div className="border-t border-gray-100 pt-2 flex justify-between text-base font-semibold text-slate-900">
                     <dt>Total</dt>
