@@ -350,7 +350,7 @@ function CartPage() {
                   </div>
                 </dl>
 
-                <div className="space-y-3 mt-5">
+                <div className="mt-5">
                   <button
                     onClick={() => router.push("/checkout/address")}
                     disabled={groups.length === 0}
@@ -358,12 +358,6 @@ function CartPage() {
                   >
                     Continuer
                   </button>
-                  <Link 
-                    href="/shop" 
-                    className="btn btn-outline btn-block btn-lg"
-                  >
-                    Retour à la boutique
-                  </Link>
                 </div>
               </div>
             </aside>

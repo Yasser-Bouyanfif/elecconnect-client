@@ -17,8 +17,9 @@ export async function POST(request: Request) {
     }
 
     const { data } = await promotionApi.getPromotionById(code);
+    const promotion = data.data[0];
 
-    if (!data?.code) {
+    if (!promotion?.code) {
       return NextResponse.json(
         { error: "Code promotionnel invalide" },
         { status: 400 }
@@ -27,8 +28,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      reduction: data.reduction,
-      code: data.code
+      reduction: promotion.reduction,
+      code: promotion.code
     });
 
   } catch (error) {
