@@ -89,7 +89,7 @@ function CartEmptyState() {
 }
 
 // --- Main Cart ---
-function Cart() {
+function Cart({ onClose }: { onClose?: () => void }) {
   const { cart, removeFromCart } = useContext(CartContext) as CartContextType;
 
   // Logique de regroupement comme dans ton deuxième composant
@@ -181,12 +181,13 @@ function Cart() {
               )}
             </a>
 
-            <a 
-              href="/shop" 
+            <button
+              type="button"
+              onClick={onClose}
               className="block w-full text-center text-sm text-gray-600 hover:text-emerald-700 font-medium py-2.5 px-4 rounded-lg border border-gray-200 hover:border-emerald-200 bg-white transition-colors"
             >
               Continuer mes achats
-            </a>
+            </button>
           </div>
         </div>
       </div>
