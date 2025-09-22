@@ -41,9 +41,32 @@ function CartPage() {
     return Array.from(map.values());
   }, [cart]);
 
+  const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [loadingTotal, setLoadingTotal] = useState(false);
   const [coupon, setCoupon] = useState("");
+  const [appliedPromotion, setAppliedPromotion] = useState<
+    { code: string; reduction: number } | null
+  >(null);
+  const [promotionError, setPromotionError] = useState<string | null>(null);
+  const [applyingPromotion, setApplyingPromotion] = useState(false);
+
+  const calculateTotalWithPromotion = (
+    amount: number,
+    promotion: { reduction: number } | null
+  ) => {
+    if (!promotion) {
+      return amount;
+    }
+
+    const reduction = Number(promotion.reduction);
+    if (!Number.isFinite(reduction) || reduction <= 0) {
+      return amount;
+    }
+
+    const discounted = amount * (1 - reduction / 100);
+    return discounted >= 0 ? discounted : 0;
+  };
 
   useEffect(() => {
     const items = groups
@@ -70,7 +93,7 @@ function CartPage() {
       );
 
     if (items.length === 0) {
-      setTotal(0);
+      setSubtotal(0);
       return;
     }
 
@@ -84,21 +107,71 @@ function CartPage() {
         });
         if (!res.ok) {
           console.error("Failed to calculate total", await res.text());
-          setTotal(0);
+          setSubtotal(0);
           return;
         }
 
         const data = await res.json();
         const parsedTotal = Number(data.total);
-        setTotal(Number.isFinite(parsedTotal) ? parsedTotal : 0);
+        setSubtotal(Number.isFinite(parsedTotal) ? parsedTotal : 0);
       } catch (err) {
         console.error("Failed to calculate total", err);
-        setTotal(0);
+        setSubtotal(0);
       } finally {
         setLoadingTotal(false);
       }
     })();
   }, [groups]);
+
+  useEffect(() => {
+    setTotal(calculateTotalWithPromotion(subtotal, appliedPromotion));
+  }, [appliedPromotion, subtotal]);
+
+  const handleApplyPromotion = async () => {
+    const trimmedCode = coupon.trim();
+    if (!trimmedCode) {
+      setPromotionError("Veuillez entrer un code promotionnel.");
+      setAppliedPromotion(null);
+      return;
+    }
+
+    try {
+      setApplyingPromotion(true);
+      setPromotionError(null);
+
+      const response = await fetch("/api/promotion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: trimmedCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        setPromotionError(
+          typeof data?.error === "string"
+            ? data.error
+            : "Code promotionnel invalide."
+        );
+        setAppliedPromotion(null);
+        return;
+      }
+
+      const reduction = Number(data.reduction);
+      setAppliedPromotion({
+        code: data.code,
+        reduction: Number.isFinite(reduction) ? reduction : 0,
+      });
+    } catch (error) {
+      console.error("Failed to apply promotion", error);
+      setPromotionError(
+        "Une erreur est survenue lors de l'application du code promotionnel."
+      );
+      setAppliedPromotion(null);
+    } finally {
+      setApplyingPromotion(false);
+    }
+  };
 
 
   return (
@@ -216,23 +289,39 @@ function CartPage() {
                       type="text"
                       placeholder="Code promo"
                       value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
+                      onChange={(e) => {
+                        setCoupon(e.target.value);
+                        if (promotionError) {
+                          setPromotionError(null);
+                        }
+                      }}
                       className="w-full pl-8 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-slate-200"
                     />
                   </div>
                   <button
                     type="button"
                     className="btn btn-outline btn-sm"
-                    onClick={() => {/* placeholder apply */}}
+                    onClick={handleApplyPromotion}
+                    disabled={applyingPromotion}
                   >
-                    Appliquer
+                    {applyingPromotion ? "…" : "Appliquer"}
                   </button>
                 </div>
+
+                {promotionError && (
+                  <p className="mt-2 text-sm text-red-600">{promotionError}</p>
+                )}
+                {appliedPromotion && !promotionError && (
+                  <p className="mt-2 text-sm text-emerald-600">
+                    Code {appliedPromotion.code} appliqué (-
+                    {appliedPromotion.reduction}%).
+                  </p>
+                )}
 
                 <dl className="mt-4 space-y-2 text-sm text-slate-700">
                   <div className="flex justify-between">
                     <dt>Sous-total</dt>
-                    <dd>{loadingTotal ? "…" : `${total.toFixed(2)} €`}</dd>
+                    <dd>{loadingTotal ? "…" : `${subtotal.toFixed(2)} €`}</dd>
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <dt>Livraison</dt>
