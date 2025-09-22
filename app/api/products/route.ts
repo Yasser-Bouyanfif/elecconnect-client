@@ -13,7 +13,6 @@ export async function GET(request: Request) {
     if (hasPageParam) {
       const parsedPage = Number.parseInt(rawPage ?? "", 10);
       const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-
       const {data} = await productApis.getProductsPagination({ page, pageSize: PAGE_SIZE });
 
       return NextResponse.json(data);
