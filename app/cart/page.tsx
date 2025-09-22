@@ -320,7 +320,7 @@ function CartPage() {
                   <p className="mt-2 text-sm text-emerald-600">
                     Code {activePromotion.code} appliqué (-
                     {activePromotion.reduction}%).
-                  </p>
+                    </p>
                 )}
 
                 <dl className="mt-4 space-y-2 text-sm text-slate-700">
