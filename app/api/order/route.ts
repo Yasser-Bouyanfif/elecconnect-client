@@ -1,0 +1,173 @@
+import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
+
+import orderApis from "@/app/strapi/orderApis";
+import productApis from "@/app/strapi/productApis";
+
+type CartItemPayload = {
+  id?: string | number;
+  documentId?: string;
+};
+
+type RequestBody = {
+  cart?: CartItemPayload[];
+  userId?: string | null;
+  userEmail?: string | null;
+};
+
+type OrderLineInput = {
+  productDocumentId: string;
+  quantity: number;
+  unitPrice: number;
+};
+
+const SHIPPING_DETAILS = { carrier: "DHL", price: 9.99 } as const;
+
+const toStringId = (value: string | number) => String(value);
+
+async function buildOrderLines(
+  items: Array<[string, { documentId?: string; quantity: number }]>
+): Promise<{ orderLines: OrderLineInput[]; subtotal: number }> {
+  const orderLines: OrderLineInput[] = [];
+  let subtotal = 0;
+
+  for (const [id, { documentId, quantity }] of items) {
+    try {
+      const response = await productApis.getProductById(id);
+      const productData = (response?.data?.data?.[0] ?? response?.data?.data) as
+        | { documentId?: string; id?: string; price?: number }
+        | undefined;
+
+      const unitPrice = Number(productData?.price ?? 0) || 0;
+      const resolvedDocumentId =
+        documentId ??
+        productData?.documentId ??
+        (typeof productData?.id === "string" ? productData.id : undefined);
+
+      if (!resolvedDocumentId) {
+        console.warn(`Missing documentId for product ${id}`);
+        continue;
+      }
+
+      subtotal += unitPrice * quantity;
+      orderLines.push({
+        productDocumentId: resolvedDocumentId,
+        quantity,
+        unitPrice,
+      });
+    } catch (error) {
+      console.error(`Failed to fetch product ${id}`, error);
+    }
+  }
+
+  return { orderLines, subtotal };
+}
+
+export async function POST(request: Request) {
+  try {
+    const { cart, userId, userEmail }: RequestBody = await request.json();
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return NextResponse.json(
+        { error: "Cart is empty" },
+        { status: 400 }
+      );
+    }
+
+    const productMap = new Map<
+      string,
+      { documentId?: string; quantity: number }
+    >();
+
+    cart.forEach((item) => {
+      if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+        return;
+      }
+
+      const key = toStringId(item.id);
+      const existing = productMap.get(key);
+      const quantity = (existing?.quantity ?? 0) + 1;
+
+      productMap.set(key, {
+        documentId: existing?.documentId ?? item.documentId,
+        quantity,
+      });
+    });
+
+    if (productMap.size === 0) {
+      return NextResponse.json(
+        { error: "Cart is empty" },
+        { status: 400 }
+      );
+    }
+
+    const entries = Array.from(productMap.entries());
+    const { orderLines, subtotal } = await buildOrderLines(entries);
+
+    if (orderLines.length === 0) {
+      return NextResponse.json(
+        { error: "Unable to prepare order lines" },
+        { status: 500 }
+      );
+    }
+
+    const total = subtotal + SHIPPING_DETAILS.price;
+
+    const orderResponse = await orderApis.createOrder({
+      data: {
+        orderNumber: randomUUID(),
+        userId,
+        userEmail,
+        address: {
+          fullName: "Jean Dupont",
+          company: "Ma Société",
+          address1: "12 rue des Fleurs",
+          address2: "Appartement 34",
+          postalCode: 75001,
+          city: "Paris",
+          country: "France",
+          phone: 33123456789,
+        },
+        shipping: SHIPPING_DETAILS,
+        subtotal,
+        total,
+        orderStatus: "pending",
+      },
+    });
+
+    const orderDocumentId =
+      orderResponse?.data?.data?.documentId ??
+      orderResponse?.data?.data?.id ??
+      orderResponse?.data?.documentId ??
+      orderResponse?.data?.id;
+
+    if (!orderDocumentId) {
+      console.error("Order created without documentId", orderResponse?.data);
+      return NextResponse.json(
+        { error: "Order creation failed" },
+        { status: 500 }
+      );
+    }
+
+    await Promise.all(
+      orderLines.map(({ productDocumentId, quantity, unitPrice }) =>
+        orderApis.createOrderLine({
+          data: {
+            quantity,
+            unitPrice,
+            order: { connect: [orderDocumentId] },
+            product: { connect: [productDocumentId] },
+          },
+        })
+      )
+    );
+
+    return NextResponse.json({ success: true, subtotal, total });
+  } catch (error) {
+    console.error("Failed to process order", error);
+    return NextResponse.json(
+      { error: "Failed to process order" },
+      { status: 500 }
+    );
+  }
+}
