@@ -181,7 +181,7 @@ export default function Header() {
       )}
 
       {/* Popover Panier */}
-      {openCart && <Cart />}
+      {openCart && <Cart onClose={() => setOpenCart(false)} />}
     </header>
   );
 }
