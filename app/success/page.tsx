@@ -15,10 +15,9 @@ function SuccessPage() {
         const response = await fetch("/api/order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             cart: cart.map(({ id, documentId }) => ({ id, documentId })),
-            userId: user?.id ?? null,
-            userEmail: user?.primaryEmailAddress?.emailAddress ?? null,
           }),
         });
 
