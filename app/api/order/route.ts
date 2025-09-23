@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
@@ -86,6 +86,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const user = await clerkClient.users
+      .getUser(userId)
+      .catch((error) => {
+        console.error("Failed to load authenticated user", error);
+        return null;
+      });
+
+    if (!user || user.id !== userId) {
+      return NextResponse.json(
+        { error: "User is not authenticated" },
+        { status: 401 }
+      );
+    }
+
     const { cart }: RequestBody = await request.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
@@ -130,14 +144,13 @@ export async function POST(request: Request) {
 
     const total = subtotal + SHIPPING_DETAILS.price;
 
-    const user = await currentUser();
     const userEmail =
-      user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null;
+      user.primaryEmailAddress?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
 
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId,
+        userId: user.id,
         userEmail,
         address: {
           fullName: "Jean Dupont",
