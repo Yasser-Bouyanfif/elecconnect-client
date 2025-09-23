@@ -141,7 +141,7 @@ export default function ProductCarouselSimple() {
             >
               {products.map((product) => {
                 const title = product.title || "Produit";
-                const imageSrc = `${SERVER_URL}${product.banner?.url}`
+                const imageSrc = `${SERVER_URL}${product.banner?.url}`;
                 const imageAlt = product.title || "Produit";
                 const price = product.price ? `${product.price} €` : "Prix non défini";
                 const description = product.description || "Description non disponible";
