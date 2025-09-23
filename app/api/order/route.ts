@@ -86,6 +86,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const user = await currentUser();
+
+    if (!user || user.id !== userId) {
+      return NextResponse.json(
+        { error: "User is not authenticated" },
+        { status: 401 }
+      );
+    }
+
     const { cart }: RequestBody = await request.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
@@ -130,14 +139,13 @@ export async function POST(request: Request) {
 
     const total = subtotal + SHIPPING_DETAILS.price;
 
-    const user = await currentUser();
     const userEmail =
-      user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null;
+      user.primaryEmailAddress?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
 
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId,
+        userId: user.id,
         userEmail,
         address: {
           fullName: "Jean Dupont",
