@@ -12,6 +12,8 @@ type CartItemPayload = {
 
 type RequestBody = {
   cart?: CartItemPayload[];
+  userId?: string;
+  userEmail?: string;
 };
 
 type OrderLineInput = {
@@ -77,25 +79,7 @@ async function buildOrderLines(
 
 export async function POST(request: Request) {
   try {
-    const { userId, sessionId } = auth();
-
-    if (!userId || !sessionId) {
-      return NextResponse.json(
-        { error: "User is not authenticated" },
-        { status: 401 }
-      );
-    }
-
-    const user = await currentUser();
-
-    if (!user || user.id !== userId) {
-      return NextResponse.json(
-        { error: "User is not authenticated" },
-        { status: 401 }
-      );
-    }
-
-    const { cart }: RequestBody = await request.json();
+    const { cart, userId, userEmail }: RequestBody = await request.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -139,13 +123,10 @@ export async function POST(request: Request) {
 
     const total = subtotal + SHIPPING_DETAILS.price;
 
-    const userEmail =
-      user.primaryEmailAddress?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
-
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId: user.id,
+        userId,
         userEmail,
         address: {
           fullName: "Jean Dupont",
