@@ -12,8 +12,6 @@ type CartItemPayload = {
 
 type RequestBody = {
   cart?: CartItemPayload[];
-  userId?: string;
-  userEmail?: string;
 };
 
 type OrderLineInput = {
@@ -79,7 +77,13 @@ async function buildOrderLines(
 
 export async function POST(request: Request) {
   try {
-    const { cart, userId, userEmail }: RequestBody = await request.json();
+    const user = await currentUser(); // Récupère les infos de l'utilisateur
+    
+    if (!user) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
+    const { cart }: RequestBody = await request.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -126,8 +130,8 @@ export async function POST(request: Request) {
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId,
-        userEmail,
+        userId: user.id,
+        userEmail: user?.emailAddresses[0]?.emailAddress,
         address: {
           fullName: "Jean Dupont",
           company: "Ma Société",
