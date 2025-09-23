@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
@@ -11,8 +12,6 @@ type CartItemPayload = {
 
 type RequestBody = {
   cart?: CartItemPayload[];
-  userId?: string | null;
-  userEmail?: string | null;
 };
 
 type OrderLineInput = {
@@ -78,7 +77,16 @@ async function buildOrderLines(
 
 export async function POST(request: Request) {
   try {
-    const { cart, userId, userEmail }: RequestBody = await request.json();
+    const { userId, sessionId } = auth();
+
+    if (!userId || !sessionId) {
+      return NextResponse.json(
+        { error: "User is not authenticated" },
+        { status: 401 }
+      );
+    }
+
+    const { cart }: RequestBody = await request.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -87,21 +95,21 @@ export async function POST(request: Request) {
       );
     }
 
-  const productMap = new Map<string, { quantity: number }>();
+    const productMap = new Map<string, { quantity: number }>();
 
-  cart.forEach((item) => {
-    if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
-      return;
-    }
+    cart.forEach((item) => {
+      if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+        return;
+      }
 
-    const key = toStringId(item.id);
-    const existing = productMap.get(key);
-    const quantity = (existing?.quantity ?? 0) + 1;
+      const key = toStringId(item.id);
+      const existing = productMap.get(key);
+      const quantity = (existing?.quantity ?? 0) + 1;
 
-    productMap.set(key, {
-      quantity,
+      productMap.set(key, {
+        quantity,
+      });
     });
-  });
 
     if (productMap.size === 0) {
       return NextResponse.json(
@@ -121,6 +129,10 @@ export async function POST(request: Request) {
     }
 
     const total = subtotal + SHIPPING_DETAILS.price;
+
+    const user = await currentUser();
+    const userEmail =
+      user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null;
 
     const orderResponse = await orderApis.createOrder({
       data: {
