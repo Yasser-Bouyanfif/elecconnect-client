@@ -89,7 +89,7 @@ export default function Header() {
             </UserButton>
               ) : (
                 <Link
-                  href="/sign-in"
+                  href="/account"
                   aria-label="Se connecter"
                   className="inline-flex items-center justify-center rounded-md p-1.5 hover:bg-gray-100 transition-colors"
                 >
@@ -122,7 +122,7 @@ export default function Header() {
                 <UserButton afterSignOutUrl="/" />
               ) : (
                 <Link
-                  href="/sign-in"
+                  href="/account"
                   aria-label="Se connecter"
                   className="p-2 block"
                 >

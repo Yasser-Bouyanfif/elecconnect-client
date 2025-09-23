@@ -7,6 +7,7 @@ import Footer from "./components/landing/Footer";
 import Header from "./components/landing/Header";
 import { CartProvider } from "./contexts/CartContext";
 import CookieBanner from "./components/ui/CookieBanner";
+import { frFR } from "@clerk/localizations/fr-FR";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +29,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={frFR}>
       <CartProvider>
-        <html lang="en" data-theme="emerald">
+        <html lang="fr" data-theme="emerald">
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <Header />
             {children}

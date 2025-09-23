@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/elements": "^0.23.59",
+    "@clerk/localizations": "^3.25.3",
     "@clerk/nextjs": "^6.31.5",
     "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/line-clamp": "^0.4.4",
