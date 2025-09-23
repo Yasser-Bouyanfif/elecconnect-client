@@ -140,6 +140,15 @@ function CartPage() {
       return;
     }
 
+    const parts = trimmedCode.split(/\s+/).filter(Boolean);
+    if (parts.length !== 1) {
+      setPromotionError("Un seul code promotionnel peut être utilisé à la fois.");
+      setAppliedPromotion(null);
+      return;
+    }
+
+    const sanitizedCode = parts[0];
+
     try {
       setApplyingPromotion(true);
       setPromotionError(null);
@@ -147,7 +156,7 @@ function CartPage() {
       const response = await fetch("/api/promotion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: trimmedCode }),
+        body: JSON.stringify({ code: sanitizedCode }),
       });
 
       const data = await response.json();
