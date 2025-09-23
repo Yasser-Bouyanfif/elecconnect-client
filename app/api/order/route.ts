@@ -26,12 +26,12 @@ const SHIPPING_DETAILS = { carrier: "DHL", price: 9.99 } as const;
 const toStringId = (value: string | number) => String(value);
 
 async function buildOrderLines(
-  items: Array<[string, { documentId?: string; quantity: number }]>
+  items: Array<[string, { quantity: number }]>
 ): Promise<{ orderLines: OrderLineInput[]; subtotal: number }> {
   const orderLines: OrderLineInput[] = [];
   let subtotal = 0;
 
-  for (const [id, { documentId, quantity }] of items) {
+  for (const [id, { quantity }] of items) {
     try {
       const response = await productApis.getProductById(id);
       const productData = (response?.data?.data?.[0] ?? response?.data?.data) as
@@ -40,9 +40,22 @@ async function buildOrderLines(
 
       const unitPrice = Number(productData?.price ?? 0) || 0;
       const resolvedDocumentId =
-        documentId ??
         productData?.documentId ??
         (typeof productData?.id === "string" ? productData.id : undefined);
+
+      const strapiProductId =
+        typeof productData?.id !== "undefined"
+          ? toStringId(productData.id)
+          : undefined;
+
+      if (!productData || (strapiProductId && strapiProductId !== toStringId(id))) {
+        console.warn(
+          `Product lookup mismatch for cart item ${id}: ${JSON.stringify(
+            productData
+          )}`
+        );
+        continue;
+      }
 
       if (!resolvedDocumentId) {
         console.warn(`Missing documentId for product ${id}`);
@@ -74,25 +87,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const productMap = new Map<
-      string,
-      { documentId?: string; quantity: number }
-    >();
+  const productMap = new Map<string, { quantity: number }>();
 
-    cart.forEach((item) => {
-      if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
-        return;
-      }
+  cart.forEach((item) => {
+    if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+      return;
+    }
 
-      const key = toStringId(item.id);
-      const existing = productMap.get(key);
-      const quantity = (existing?.quantity ?? 0) + 1;
+    const key = toStringId(item.id);
+    const existing = productMap.get(key);
+    const quantity = (existing?.quantity ?? 0) + 1;
 
-      productMap.set(key, {
-        documentId: existing?.documentId ?? item.documentId,
-        quantity,
-      });
+    productMap.set(key, {
+      quantity,
     });
+  });
 
     if (productMap.size === 0) {
       return NextResponse.json(
