@@ -13,14 +13,13 @@ export default function MentionsLegales() {
       
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Éditeur du site</h2>
-        <p className="mb-2"><strong>ElecConnect</strong></p>
-        <p className="mb-2">31 rue Chevalier Paul</p>
-        <p className="mb-2">83000 Toulon, France</p>
-        <p className="mb-2">Téléphone : +33 6 98 65 77 80 / +33 4 22 91 82 91</p>
-        <p className="mb-2">Email : contact@elecconnect.fr</p>
-        <p className="mb-2">SIRET : 928 755 412 00014</p>
-        <p className="mb-2">RCS : 928 755 412 00014</p>
-        <p className="mb-2">TVA intracommunautaire : FR30 928 755 412</p>
+        <p className="mb-2">Entreprise : <b>ElecConnect</b></p>
+        <p className="mb-2">Adresse : <b>31 rue Chevalier Paul, 83000 Toulon, France</b></p>
+        <p className="mb-2">Téléphone : <b>+33 6 98 65 77 80 / +33 4 22 91 82 91</b></p>
+        <p className="mb-2">Email : <b>contact@elecconnect.fr</b></p>
+        <p className="mb-2">SIRET : <b>928 755 412 00014</b></p>
+        <p className="mb-2">RCS : <b>928 755 412 00014</b></p>
+        <p className="mb-2">TVA intracommunautaire : <b>FR30 928 755 412</b></p>
       </section>
 
       <section className="mb-8">

@@ -17,7 +17,7 @@ export default function Confidentialite() {
         <article className="mb-6">
           <h3 className="text-xl font-semibold text-gray-700 mb-3">1.1 Responsable du traitement</h3>
           <p className="mb-4">
-            ElecConnect, dont le siège social est situé 123 Avenue de la République, 83000 Toulon, France, est responsable du traitement des données à caractère personnel collectées sur le site internet www.elecconnect.fr.
+            ElecConnect, dont le siège social est situé 31 rue Chevalier Paul, 83000 Toulon, France, est responsable du traitement des données à caractère personnel collectées sur le site internet www.elecconnect.fr.
           </p>
         </article>
 
@@ -74,7 +74,7 @@ export default function Confidentialite() {
             <li>Définir des directives relatives au sort de vos données après votre décès</li>
           </ul>
           <p className="mb-4">
-            Pour exercer ces droits, vous pouvez nous contacter à l'adresse suivante : dpo@elecconnect.fr ou par courrier à l'adresse du siège social.
+            Pour exercer ces droits, vous pouvez nous contacter à l'adresse suivante : contact@elecconnect.fr ou par courrier à l'adresse du siège social.
           </p>
           <p className="mb-4">
             Vous avez également le droit d'introduire une réclamation auprès de la CNIL (www.cnil.fr) si vous estimez que vos droits ne sont pas respectés.
@@ -154,8 +154,8 @@ export default function Confidentialite() {
           Pour toute question relative à la présente politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-2">
-          <li>Par email : admin@elecconnect.fr</li>
-          <li>Par courrier : 123 Avenue de la République, 83000 Toulon, France</li>
+          <li>Par email : <b>admin@elecconnect.fr</b></li>
+          <li>Par courrier : <b>31 rue Chevalier Paul, 83000 Toulon, France</b></li>
         </ul>
       </section>
 
