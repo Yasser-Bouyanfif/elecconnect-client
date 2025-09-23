@@ -17,8 +17,6 @@ function SuccessPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             cart: cart.map(({ id, documentId }) => ({ id, documentId })),
-            userId: user?.id ?? null,
-            userEmail: user?.primaryEmailAddress?.emailAddress ?? null,
           }),
         });
 
