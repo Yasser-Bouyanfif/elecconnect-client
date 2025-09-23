@@ -1,18 +1,16 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
 
 type CartItemPayload = {
   id?: string | number;
-  documentId?: string;
 };
 
 type RequestBody = {
   cart?: CartItemPayload[];
-  userId?: string | null;
-  userEmail?: string | null;
 };
 
 type OrderLineInput = {
@@ -21,32 +19,50 @@ type OrderLineInput = {
   unitPrice: number;
 };
 
+type ProductRecord = {
+  documentId?: string;
+  id?: string | number;
+  price?: number | string;
+  attributes?: {
+    documentId?: string;
+    price?: number | string;
+  };
+};
+
 const SHIPPING_DETAILS = { carrier: "DHL", price: 9.99 } as const;
 
 const toStringId = (value: string | number) => String(value);
 
 async function buildOrderLines(
-  items: Array<[string, { documentId?: string; quantity: number }]>
+  items: Array<[string, { quantity: number }]>
 ): Promise<{ orderLines: OrderLineInput[]; subtotal: number }> {
   const orderLines: OrderLineInput[] = [];
   let subtotal = 0;
+  const failedProductIds: string[] = [];
 
-  for (const [id, { documentId, quantity }] of items) {
+  for (const [id, { quantity }] of items) {
     try {
       const response = await productApis.getProductById(id);
-      const productData = (response?.data?.data?.[0] ?? response?.data?.data) as
-        | { documentId?: string; id?: string; price?: number }
-        | undefined;
+      const productData = (response?.data?.data?.[0] ??
+        response?.data?.data) as ProductRecord | undefined;
 
-      const unitPrice = Number(productData?.price ?? 0) || 0;
-      const resolvedDocumentId =
-        documentId ??
+      const resolvedDocumentIdValue =
         productData?.documentId ??
-        (typeof productData?.id === "string" ? productData.id : undefined);
+        productData?.attributes?.documentId ??
+        productData?.id;
+      const resolvedDocumentId =
+        typeof resolvedDocumentIdValue === "string"
+          ? resolvedDocumentIdValue
+          : typeof resolvedDocumentIdValue === "number"
+          ? String(resolvedDocumentIdValue)
+          : undefined;
 
-      if (!resolvedDocumentId) {
-        console.warn(`Missing documentId for product ${id}`);
-        continue;
+      const unitPriceValue =
+        productData?.price ?? productData?.attributes?.price ?? null;
+      const unitPrice = Number(unitPriceValue);
+
+      if (!resolvedDocumentId || !Number.isFinite(unitPrice) || unitPrice < 0) {
+        throw new Error("Invalid product payload");
       }
 
       subtotal += unitPrice * quantity;
@@ -57,7 +73,14 @@ async function buildOrderLines(
       });
     } catch (error) {
       console.error(`Failed to fetch product ${id}`, error);
+      failedProductIds.push(id);
     }
+  }
+
+  if (failedProductIds.length > 0 || orderLines.length !== items.length) {
+    throw new Error(
+      `Unable to resolve order lines for products: ${failedProductIds.join(", ")}`
+    );
   }
 
   return { orderLines, subtotal };
@@ -65,7 +88,19 @@ async function buildOrderLines(
 
 export async function POST(request: Request) {
   try {
-    const { cart, userId, userEmail }: RequestBody = await request.json();
+    const { userId: authenticatedUserId, sessionId } = auth();
+
+    if (!authenticatedUserId || !sessionId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = (await request.json().catch(() => null)) as RequestBody | null;
+
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const { cart }: RequestBody = body;
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -74,13 +109,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const productMap = new Map<
-      string,
-      { documentId?: string; quantity: number }
-    >();
+    const productMap = new Map<string, { quantity: number }>();
+
+    let invalidCartItem = false;
 
     cart.forEach((item) => {
       if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
+        invalidCartItem = true;
         return;
       }
 
@@ -88,11 +123,15 @@ export async function POST(request: Request) {
       const existing = productMap.get(key);
       const quantity = (existing?.quantity ?? 0) + 1;
 
-      productMap.set(key, {
-        documentId: existing?.documentId ?? item.documentId,
-        quantity,
-      });
+      productMap.set(key, { quantity });
     });
+
+    if (invalidCartItem) {
+      return NextResponse.json(
+        { error: "Invalid cart contents" },
+        { status: 400 }
+      );
+    }
 
     if (productMap.size === 0) {
       return NextResponse.json(
@@ -102,22 +141,33 @@ export async function POST(request: Request) {
     }
 
     const entries = Array.from(productMap.entries());
-    const { orderLines, subtotal } = await buildOrderLines(entries);
+    let orderLinesResult: { orderLines: OrderLineInput[]; subtotal: number };
 
-    if (orderLines.length === 0) {
+    try {
+      orderLinesResult = await buildOrderLines(entries);
+    } catch (error) {
+      console.error("Failed to prepare order lines", error);
       return NextResponse.json(
-        { error: "Unable to prepare order lines" },
-        { status: 500 }
+        { error: "Invalid cart contents" },
+        { status: 400 }
       );
     }
 
+    const { orderLines, subtotal } = orderLinesResult;
+
     const total = subtotal + SHIPPING_DETAILS.price;
+
+    const user = await currentUser();
+    const emailAddress =
+      user?.primaryEmailAddress?.emailAddress ??
+      user?.emailAddresses?.[0]?.emailAddress ??
+      undefined;
 
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId,
-        userEmail,
+        userId: authenticatedUserId,
+        userEmail: emailAddress,
         address: {
           fullName: "Jean Dupont",
           company: "Ma Société",
@@ -149,18 +199,31 @@ export async function POST(request: Request) {
       );
     }
 
-    await Promise.all(
-      orderLines.map(({ productDocumentId, quantity, unitPrice }) =>
-        orderApis.createOrderLine({
+    try {
+      for (const { productDocumentId, quantity, unitPrice } of orderLines) {
+        await orderApis.createOrderLine({
           data: {
             quantity,
             unitPrice,
             order: { connect: [orderDocumentId] },
             product: { connect: [productDocumentId] },
           },
-        })
-      )
-    );
+        });
+      }
+    } catch (orderLineError) {
+      console.error("Failed to create order lines", orderLineError);
+
+      try {
+        await orderApis.deleteOrder(orderDocumentId);
+      } catch (deleteError) {
+        console.error("Failed to rollback order", deleteError);
+      }
+
+      return NextResponse.json(
+        { error: "Order creation failed" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, subtotal, total });
   } catch (error) {

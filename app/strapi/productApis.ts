@@ -24,10 +24,13 @@ const getProductsPagination = (
   return axiosClient.get(`/products?${params.toString()}`);
 };
 
-const getProductById = (id: string) =>
-  axiosClient.get(
-    `/products?filters[id][$eq]=${id}&pagination[pageSize]=1&populate=*`
+const getProductById = (id: string | number) => {
+  const safeId = encodeURIComponent(String(id));
+
+  return axiosClient.get(
+    `/products?filters[id][$eq]=${safeId}&pagination[pageSize]=1&populate=*`
   );
+};
 
 const getProducts = () => axiosClient.get(`/products?populate=*`);
 
