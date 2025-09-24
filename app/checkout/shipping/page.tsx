@@ -17,7 +17,7 @@ function groupCart(cart: (CartItem | null | undefined)[]) {
   return Array.from(map.values());
 }
 
-async function createCheckoutSession(items: { title?: string; price?: number; quantity: number }[]) {
+async function createCheckoutSession(items: { title?: string; price: number; quantity: number }[]) {
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -44,22 +44,29 @@ export default function ShippingStepPage() {
 
   const handleProceedToPayment = async () => {
     // Build line items from cart
-    type CheckoutItem = { title?: string; price?: number; quantity: number };
-    const items: CheckoutItem[] = groups
-      .map(({ item, quantity }) => {
-        const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
-        if (safeQuantity <= 0) return null;
-        return {
-          title: item.title,
-          price: Number(item.price) || 0,
-          quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
-        } satisfies CheckoutItem;
-      })
-      .filter((x): x is CheckoutItem => x !== null);
+    type CheckoutItem = { title?: string; price: number; quantity: number };
+    const items = groups.reduce<CheckoutItem[]>((acc, { item, quantity }) => {
+      const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
+      if (safeQuantity <= 0) {
+        return acc;
+      }
+
+      const checkoutItem: CheckoutItem = {
+        price: Number(item.price) || 0,
+        quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
+      };
+
+      if (item.title !== undefined) {
+        checkoutItem.title = item.title;
+      }
+
+      acc.push(checkoutItem);
+      return acc;
+    }, []);
 
     // Add shipping fee if needed
     if (shippingMethod === "express") {
-      items.push({ title: "Livraison express", price: 9.9, quantity: 1 });
+      items.push({ title: "Livraison express", price: 12.9, quantity: 1 });
     }
 
     const { url } = await createCheckoutSession(items);
@@ -77,7 +84,7 @@ export default function ShippingStepPage() {
   );
   const hasSyncedTotals = cartTotalsUpdatedAt > 0;
   const subtotal = hasSyncedTotals ? cartSubtotal : computedSubtotal;
-  const shippingCost = shippingMethod === "express" ? 9.9 : 0;
+  const shippingCost = shippingMethod === "express" ? 12.9 : 0;
   const totalBeforeShipping = hasSyncedTotals ? cartTotal : subtotal;
   const reductionAmount = Math.max(subtotal - totalBeforeShipping, 0);
   const total = totalBeforeShipping + shippingCost;
@@ -121,7 +128,7 @@ export default function ShippingStepPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-slate-900">Chronopost Express (le lendemain avant 13h)</span>
-                    <span className="text-slate-900 font-semibold">9,90 €</span>
+                    <span className="text-slate-900 font-semibold">12,90 €</span>
                   </div>
                   <p className="text-sm text-slate-600">Livraison rapide avec supplément.</p>
                 </div>
