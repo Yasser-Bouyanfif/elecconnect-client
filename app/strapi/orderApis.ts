@@ -5,7 +5,7 @@ const createOrderLine = (data: unknown) =>
   axiosClient.post("/order-lines", data);
 const getOrdersByUser = (userId: string) => axiosClient.get(`/orders?filters[userId][$eq]=${userId}&sort=createdAt:desc&pagination[page]=1&pagination[pageSize]=25`);
 const getOrderByStripeSession = (stripeSessionId: string) => 
-  axiosClient.get(`/orders?filters[stripe_session_id][$eq]=${stripeSessionId}`);
+  axiosClient.get(`/orders?filters[stripeSessionId][$eq]=${stripeSessionId}`);
 
 export default {
   createOrder,

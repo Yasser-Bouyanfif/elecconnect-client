@@ -36,11 +36,12 @@ function SuccessPage() {
           router.push("/cart");
           return;
         }
+
+        clearCart();
       } catch (error) {
         console.error("Failed to create order", error);
         router.push("/cart");
       } finally {
-        clearCart();
         setIsLoading(false);
       }
     };

@@ -199,6 +199,7 @@ export async function POST(request: Request) {
         subtotal,
         total,
         orderStatus: "pending",
+        stripeSessionId,
       },
     });
 
