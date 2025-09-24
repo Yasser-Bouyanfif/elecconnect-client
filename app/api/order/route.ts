@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
@@ -10,9 +10,13 @@ type CartItemPayload = {
   documentId?: string;
 };
 
+type ShippingMethod = "standard" | "express";
+
 type RequestBody = {
   cart?: CartItemPayload[];
   stripeSessionId?: string;
+  shippingMethod?: ShippingMethod;
+  userEmail?: string;
 };
 
 type OrderLineInput = {
@@ -21,7 +25,10 @@ type OrderLineInput = {
   unitPrice: number;
 };
 
-const SHIPPING_DETAILS = { carrier: "DHL", price: 9.99 } as const;
+const SHIPPING_OPTIONS: Record<ShippingMethod, { carrier: string; price: number }> = {
+  standard: { carrier: "Colissimo Standard", price: 0 },
+  express: { carrier: "Chronopost Express", price: 12.9 },
+};
 
 const toStringId = (value: string | number) => String(value);
 
@@ -84,7 +91,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { cart, stripeSessionId, userEmail } = await request.json();
+    const {
+      cart,
+      stripeSessionId,
+      userEmail,
+      shippingMethod,
+    }: RequestBody = await request.json();
+
+    const selectedShippingMethod:
+      | ShippingMethod
+      | undefined = shippingMethod;
+    const resolvedShippingMethod: ShippingMethod =
+      selectedShippingMethod === "express" || selectedShippingMethod === "standard"
+        ? selectedShippingMethod
+        : "standard";
+    const shippingDetails = SHIPPING_OPTIONS[resolvedShippingMethod];
 
         // Vérification CRITIQUE de la session Stripe
         if (!stripeSessionId) {
@@ -163,7 +184,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const total = subtotal + SHIPPING_DETAILS.price;
+    const total = subtotal + shippingDetails.price;
 
     const orderResponse = await orderApis.createOrder({
       data: {
@@ -190,7 +211,7 @@ export async function POST(request: Request) {
           country: "France",
           phone: 33123456789,
         },
-        shipping: SHIPPING_DETAILS,
+        shipping: shippingDetails,
         subtotal,
         total,
         orderStatus: "pending",

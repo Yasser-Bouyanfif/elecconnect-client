@@ -19,11 +19,15 @@ export type CartItem = {
   };
 };
 
+export type ShippingMethod = "standard" | "express";
+
 export type CartContextType = {
   cart: CartItem[];
   cartSubtotal: number;
   cartTotal: number;
   cartTotalsUpdatedAt: number;
+  shippingMethod: ShippingMethod;
+  setShippingMethod: (method: ShippingMethod) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string | number) => void;
   updateCartItemQuantity: (id: string | number, quantity: number) => void;
@@ -106,6 +110,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartSubtotal, setCartSubtotal] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
   const [cartTotalsUpdatedAt, setCartTotalsUpdatedAt] = useState(0);
+  const [shippingMethod, setShippingMethodState] = useState<ShippingMethod>(
+    "standard"
+  );
+
+  const updateShippingMethod = useCallback((method: ShippingMethod) => {
+    setShippingMethodState(method);
+    localStorage.setItem("shippingMethod", method);
+  }, []);
 
   const clearCartTotals = useCallback(() => {
     setCartSubtotal(0);
@@ -127,8 +139,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
+    const storedShippingMethod = localStorage.getItem("shippingMethod");
 
     if (!storedCart) {
+      if (storedShippingMethod === "standard" || storedShippingMethod === "express") {
+        setShippingMethodState(storedShippingMethod);
+      }
       return;
     }
 
@@ -141,6 +157,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     } catch {
       // ignore malformed data
+    }
+
+    if (storedShippingMethod === "standard" || storedShippingMethod === "express") {
+      setShippingMethodState(storedShippingMethod);
     }
   }, []);
 
@@ -170,6 +190,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart([]);
     localStorage.removeItem("cart");
     clearCartTotals();
+    setShippingMethodState("standard");
+    localStorage.removeItem("shippingMethod");
   }, [clearCartTotals]);
 
   const updateCartItemQuantity = useCallback((id: string | number, quantity: number) => {
@@ -189,6 +211,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       cartSubtotal,
       cartTotal,
       cartTotalsUpdatedAt,
+      shippingMethod,
+      setShippingMethod: updateShippingMethod,
       addToCart,
       removeFromCart,
       updateCartItemQuantity,
