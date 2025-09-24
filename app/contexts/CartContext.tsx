@@ -21,10 +21,15 @@ export type CartItem = {
 
 export type CartContextType = {
   cart: CartItem[];
+  cartSubtotal: number;
+  cartTotal: number;
+  cartTotalsUpdatedAt: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string | number) => void;
   updateCartItemQuantity: (id: string | number, quantity: number) => void;
   clearCart: () => void;
+  syncCartTotals: (totals: { subtotal: number; total: number }) => void;
+  clearCartTotals: () => void;
 };
 
 export const CartContext = createContext<CartContextType | undefined>(
@@ -98,10 +103,31 @@ const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartSubtotal, setCartSubtotal] = useState(0);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [cartTotalsUpdatedAt, setCartTotalsUpdatedAt] = useState(0);
+
+  const clearCartTotals = useCallback(() => {
+    setCartSubtotal(0);
+    setCartTotal(0);
+    setCartTotalsUpdatedAt(0);
+  }, []);
+
+  const syncCartTotals = useCallback(
+    (totals: { subtotal: number; total: number }) => {
+      const sanitize = (value: number) =>
+        Number.isFinite(value) ? Math.max(value, 0) : 0;
+
+      setCartSubtotal(sanitize(totals.subtotal));
+      setCartTotal(sanitize(totals.total));
+      setCartTotalsUpdatedAt(Date.now());
+    },
+    []
+  );
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    
+
     if (!storedCart) {
       return;
     }
@@ -143,13 +169,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => {
     setCart([]);
     localStorage.removeItem("cart");
-  }, []);
+    clearCartTotals();
+  }, [clearCartTotals]);
 
   const updateCartItemQuantity = useCallback((id: string | number, quantity: number) => {
     setCart(prev => {
       const itemIndex = prev.findIndex(item => item.id === id);
       if (itemIndex === -1) return prev;
-      
+
       const updatedCart = [...prev];
       updatedCart[itemIndex] = { ...updatedCart[itemIndex], quantity };
       return updatedCart;
@@ -157,12 +184,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      addToCart, 
-      removeFromCart, 
+    <CartContext.Provider value={{
+      cart,
+      cartSubtotal,
+      cartTotal,
+      cartTotalsUpdatedAt,
+      addToCart,
+      removeFromCart,
       updateCartItemQuantity,
-      clearCart 
+      clearCart,
+      syncCartTotals,
+      clearCartTotals
     }}>
       {children}
     </CartContext.Provider>
