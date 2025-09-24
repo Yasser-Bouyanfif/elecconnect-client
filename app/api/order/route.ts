@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { cart, stripeSessionId }: RequestBody = await request.json();
+    const { cart, stripeSessionId, userEmail } = await request.json();
 
         // Vérification CRITIQUE de la session Stripe
         if (!stripeSessionId) {
@@ -164,9 +164,6 @@ export async function POST(request: Request) {
     }
 
     const total = subtotal + SHIPPING_DETAILS.price;
-    
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses[0]?.emailAddress || null;
 
     const orderResponse = await orderApis.createOrder({
       data: {

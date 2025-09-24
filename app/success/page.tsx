@@ -66,7 +66,8 @@ function SuccessPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             cart: cart.map(({ id, documentId }) => ({ id, documentId })),
-            stripeSessionId
+            stripeSessionId,
+            userEmail: user?.emailAddresses?.[0]?.emailAddress
           }),
         });
 
@@ -102,10 +103,6 @@ function SuccessPage() {
       createOrder();
     }
   }, [cart, clearCart, router, user]);
-  
-  useEffect(() => {
-    console.log(order);
-  }, [order]);
 
   if (isLoading) {
     return (
@@ -176,12 +173,6 @@ function SuccessPage() {
                         <CalendarDays className="h-4 w-4" />
                         {orderDate}
                       </p>
-                      {order.orderStatus !== 'pending' && (
-                        <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
-                          <span className="size-2 rounded-full bg-emerald-500" aria-hidden />
-                          {order.orderStatus}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -193,7 +184,7 @@ function SuccessPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Montant total</p>
-                      <p className="mt-2 text-2xl font-semibold text-slate-900">{order.total.toFixed(2)} €</p>
+                      <p className="mt-2 text-2xl font-semibold text-slate-900">{order.total} €</p>
                       <p className="mt-1 text-sm text-slate-500">TVA incluse et frais éventuels déjà calculés.</p>
                     </div>
                   </div>
@@ -211,7 +202,7 @@ function SuccessPage() {
                           {order.shipping.carrier || "Livraison standard"}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          Frais de port : {order.shipping.price ? `${order.shipping.price.toFixed(2)} €` : "Offerts"}
+                          Frais de port : {order.shipping.price ? `${order.shipping.price} €` : "Offerts"}
                         </p>
                       </div>
                     </div>

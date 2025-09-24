@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import orderApis from "@/app/strapi/orderApis";
 import { currentUser } from "@clerk/nextjs/server";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
+import { useUser } from "@clerk/nextjs";
 
 type User = {
     id: string;
@@ -48,22 +49,23 @@ export async function POST(request: Request) {
     }
 
     const order = {
-      orderNumber: fullOrder.attributes.orderNumber,
-      total: fullOrder.attributes.total,
-      createdAt: fullOrder.attributes.createdAt,
+      orderNumber: fullOrder.orderNumber,
+      total: fullOrder.total,
+      userEmail: fullOrder.userEmail,
+      createdAt: fullOrder.createdAt,
       address: {
-        fullName: fullOrder.attributes.address?.fullName,
-        company: fullOrder.attributes.address?.company,
-        address1: fullOrder.attributes.address?.address1,
-        address2: fullOrder.attributes.address?.address2,
-        postalCode: fullOrder.attributes.address?.postalCode,
-        city: fullOrder.attributes.address?.city,
-        country: fullOrder.attributes.address?.country,
-        phone: fullOrder.attributes.address?.phone,
+        fullName: fullOrder.address?.fullName,
+        company: fullOrder.address?.company,
+        address1: fullOrder.address?.address1,
+        address2: fullOrder.address?.address2,
+        postalCode: fullOrder.address?.postalCode,
+        city: fullOrder.address?.city,
+        country: fullOrder.address?.country,
+        phone: fullOrder.address?.phone,
       },
       shipping: {
-        carrier: fullOrder.attributes.shipping?.carrier,
-        price: fullOrder.attributes.shipping?.price,
+        carrier: fullOrder.shipping?.carrier,
+        price: fullOrder.shipping?.price,
       }
     };
     
