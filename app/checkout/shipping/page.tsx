@@ -103,7 +103,7 @@ export default function ShippingStepPage() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-slate-900">Standard (3-5 jours)</span>
+                    <span className="font-medium text-slate-900">Colissimo Standard (2 à 3 jours ouvrés)</span>
                     <span className="text-emerald-600 font-semibold">Offerte</span>
                   </div>
                   <p className="text-sm text-slate-600">Livraison sans frais supplémentaires.</p>
@@ -120,7 +120,7 @@ export default function ShippingStepPage() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-slate-900">Express (24-48h)</span>
+                    <span className="font-medium text-slate-900">Chronopost Express (le lendemain avant 13h)</span>
                     <span className="text-slate-900 font-semibold">9,90 €</span>
                   </div>
                   <p className="text-sm text-slate-600">Livraison rapide avec supplément.</p>
