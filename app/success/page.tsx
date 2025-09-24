@@ -135,134 +135,157 @@ function SuccessPage() {
   });
 
   return (
-    <section className="relative min-h-screen bg-[radial-gradient(circle_at_top,_#dcfce7,_#f8fafc)] py-16 px-4 sm:px-8">
-      <div className="absolute inset-x-0 top-10 -z-10 h-[420px] bg-gradient-to-b from-emerald-200/60 via-white to-transparent blur-3xl" />
-      <div className="max-w-5xl mx-auto">
-        <div className="relative overflow-hidden rounded-3xl border border-emerald-100/70 bg-white/80 shadow-2xl shadow-emerald-200/40 backdrop-blur">
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2">
-            <div className="rounded-full border border-white/60 bg-gradient-to-br from-emerald-500 via-emerald-400 to-emerald-600 p-[1px] shadow-2xl">
-              <div className="flex size-28 items-center justify-center rounded-full bg-white text-emerald-600 shadow-lg shadow-emerald-200/60">
-                <CheckCircle2 className="h-14 w-14" strokeWidth={1.8} />
+    <div className="min-h-screen bg-white">
+      {/* En-tête avec fond bleu */}
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
+            <CheckCircle2 className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            Commande confirmée
+          </h1>
+          <p className="text-lg text-emerald-100 max-w-2xl mx-auto">
+            Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}
+          </p>
+        </div>
+      </div>
+
+      {/* Contenu principal */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          {/* En-tête de la commande */}
+          <div className="px-6 py-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">Récapitulatif de la commande</h2>
+              <p className="mt-1 text-sm text-gray-500">
+                N° de commande: <span className="font-medium">{order.orderNumber}</span>
+              </p>
+            </div>
+            <div className="mt-3 sm:mt-0 sm:ml-4">
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                Paiement confirmé
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-t-3xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-emerald-400 px-8 pb-16 pt-32 text-center text-white">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em]">
-              Commande validée
-            </span>
-            <h1 className="mt-6 text-3xl font-semibold leading-tight sm:text-4xl">
-              Merci pour votre confiance !
-            </h1>
-            <p className="mt-4 text-base text-emerald-50/90 sm:text-lg">
-              Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}. Vous recevrez une notification dès que votre commande sera expédiée.
-            </p>
-          </div>
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h3 className="text-base font-medium text-gray-900 mb-4">Détails de la commande</h3>
+            
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 bg-emerald-100 rounded-md p-3">
+                  <PackageCheck className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-900">Préparation en cours</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Votre commande est en cours de préparation. Vous recevrez une notification lorsqu'elle sera expédiée.
+                  </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Date de commande: {orderDate}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          <div className="px-6 pb-12 pt-10 sm:px-10 sm:pb-14 sm:pt-12">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-6">
-                <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
-                  <div className="flex items-start gap-4">
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                      <PackageCheck className="h-6 w-6" />
+            {/* Adresse de livraison */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <MapPin className="h-5 w-5 text-gray-400" />
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Commande #{order.orderNumber}</p>
-                      <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-                        <CalendarDays className="h-4 w-4" />
-                        {orderDate}
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">{order.address?.fullName}</p>
+                      {order.address?.company && (
+                        <p className="text-sm text-gray-500">{order.address.company}</p>
+                      )}
+                      <p className="text-sm text-gray-500">{order.address?.address1}</p>
+                      {order.address?.address2 && (
+                        <p className="text-sm text-gray-500">{order.address.address2}</p>
+                      )}
+                      <p className="text-sm text-gray-500">
+                        {order.address?.postalCode} {order.address?.city}
                       </p>
+                      <p className="text-sm text-gray-500">{order.address?.country}</p>
+                      {order.address?.phone && (
+                        <p className="mt-2 text-sm text-gray-500">Tél: {order.address.phone}</p>
+                      )}
                     </div>
                   </div>
                 </div>
-
-                <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
-                  <div className="flex items-start gap-4">
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                      <Wallet className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Montant total</p>
-                      <p className="mt-2 text-2xl font-semibold text-slate-900">{order.total} €</p>
-                      <p className="mt-1 text-sm text-slate-500">TVA incluse et frais éventuels déjà calculés.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {order.shipping && (
-                  <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
-                    <div className="flex items-start gap-4">
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                        <Truck className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Livraison</p>
-                        <p className="mt-2 text-base font-semibold text-slate-900">
-                          {order.shipping.carrier || "Livraison standard"}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-500">
-                          Frais de port : {order.shipping.price ? `${order.shipping.price} €` : "Offerts"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {order.address && (
-                <div className="flex h-full flex-col justify-between gap-6 rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-lg shadow-emerald-100/30">
-                  <div>
-                    <div className="flex items-start gap-4">
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                        <MapPin className="h-6 w-6" />
+              {/* Méthode de livraison */}
+              {order.shipping && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Méthode de livraison</h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <Truck className="h-5 w-5 text-gray-400" />
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Adresse de livraison</p>
-                        <div className="mt-3 space-y-1 text-sm text-slate-600">
-                          <p className="font-semibold text-slate-900">{order.address.fullName}</p>
-                          {order.address.company && <p className="text-slate-500">{order.address.company}</p>}
-                          <p>{order.address.address1}</p>
-                          {order.address.address2 && <p>{order.address.address2}</p>}
-                          <p>
-                            {order.address.postalCode} {order.address.city}
-                          </p>
-                          <p>{order.address.country}</p>
-                          {order.address.phone && (
-                            <p className="pt-2 text-xs uppercase tracking-wide text-slate-400">Tél : <span className="font-medium text-slate-600 normal-case">{order.address.phone}</span></p>
-                          )}
-                        </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">
+                          {order.shipping.carrier || 'Livraison standard'}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Frais de port: {order.shipping.price ? `${order.shipping.price.toFixed(2)} €` : 'Offerts'}
+                        </p>
+                        <p className="mt-2 text-xs text-gray-500">
+                          Délai de livraison estimé: 2-5 jours ouvrés
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+          </div>
 
-            <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-emerald-100/70 bg-emerald-50/60 px-6 py-8 text-center shadow-inner">
-            <p className="max-w-2xl text-sm text-slate-600 sm:text-base">
-                Une question sur votre commande ? Notre équipe est à votre écoute pour vous accompagner dans l&apos;installation et le suivi de votre solution de recharge.
-            </p>
-              <div className="flex flex-col items-center gap-4 sm:flex-row">
-                <a
-                  href="mailto:contact@elecconnect.com"
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:text-emerald-800"
-                >
-                  <Mail className="h-4 w-4" /> contact@elecconnect.com
-                </a>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800"
-                >
-                  Retour à l&apos;accueil
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+          {/* Récapitulatif */}
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h3 className="text-base font-medium text-gray-900 mb-4">Récapitulatif</h3>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex justify-between py-2 text-sm">
+                <span className="text-gray-500">Sous-total</span>
+                <span className="font-medium text-gray-900">{(order.total - (order.shipping?.price || 0)).toFixed(2)} €</span>
+              </div>
+              {order.shipping?.price && (
+                <div className="flex justify-between py-2 text-sm">
+                  <span className="text-gray-500">Frais de livraison</span>
+                  <span className="font-medium text-gray-900">{order.shipping.price.toFixed(2)} €</span>
+                </div>
+              )}
+              <div className="flex justify-between py-2 text-base font-medium text-gray-900 border-t border-gray-200 mt-3 pt-3">
+                <span>Total TTC</span>
+                <span>{order.total.toFixed(2)} €</span>
               </div>
             </div>
           </div>
+
+          {/* Pied de page */}
+          <div className="px-6 py-5 bg-gray-50 text-center sm:px-6">
+            <p className="text-sm text-gray-500 mb-4">
+              Un problème avec votre commande ? Contactez-nous à{' '}
+              <a href="mailto:contact@elecconnect.com" className="font-medium text-emerald-600 hover:text-emerald-500">
+                contact@elecconnect.com
+              </a>
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+            >
+              Retour à l'accueil
+            </Link>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
