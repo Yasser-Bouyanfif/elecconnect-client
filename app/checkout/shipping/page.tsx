@@ -17,7 +17,7 @@ function groupCart(cart: (CartItem | null | undefined)[]) {
   return Array.from(map.values());
 }
 
-async function createCheckoutSession(items: { title?: string; price?: number; quantity: number }[]) {
+async function createCheckoutSession(items: { title?: string; price: number; quantity: number }[]) {
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -44,18 +44,25 @@ export default function ShippingStepPage() {
 
   const handleProceedToPayment = async () => {
     // Build line items from cart
-    type CheckoutItem = { title?: string; price?: number; quantity: number };
-    const items: CheckoutItem[] = groups
-      .map(({ item, quantity }) => {
-        const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
-        if (safeQuantity <= 0) return null;
-        return {
-          title: item.title,
-          price: Number(item.price) || 0,
-          quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
-        } satisfies CheckoutItem;
-      })
-      .filter((x): x is CheckoutItem => x !== null);
+    type CheckoutItem = { title?: string; price: number; quantity: number };
+    const items = groups.reduce<CheckoutItem[]>((acc, { item, quantity }) => {
+      const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
+      if (safeQuantity <= 0) {
+        return acc;
+      }
+
+      const checkoutItem: CheckoutItem = {
+        price: Number(item.price) || 0,
+        quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
+      };
+
+      if (item.title !== undefined) {
+        checkoutItem.title = item.title;
+      }
+
+      acc.push(checkoutItem);
+      return acc;
+    }, []);
 
     // Add shipping fee if needed
     if (shippingMethod === "express") {
