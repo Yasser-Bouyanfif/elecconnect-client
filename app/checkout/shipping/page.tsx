@@ -66,7 +66,7 @@ export default function ShippingStepPage() {
 
     // Add shipping fee if needed
     if (shippingMethod === "express") {
-      items.push({ title: "Livraison express", price: 9.9, quantity: 1 });
+      items.push({ title: "Livraison express", price: 12.9, quantity: 1 });
     }
 
     const { url } = await createCheckoutSession(items);
@@ -84,7 +84,7 @@ export default function ShippingStepPage() {
   );
   const hasSyncedTotals = cartTotalsUpdatedAt > 0;
   const subtotal = hasSyncedTotals ? cartSubtotal : computedSubtotal;
-  const shippingCost = shippingMethod === "express" ? 9.9 : 0;
+  const shippingCost = shippingMethod === "express" ? 12.9 : 0;
   const totalBeforeShipping = hasSyncedTotals ? cartTotal : subtotal;
   const reductionAmount = Math.max(subtotal - totalBeforeShipping, 0);
   const total = totalBeforeShipping + shippingCost;
@@ -128,7 +128,7 @@ export default function ShippingStepPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-slate-900">Chronopost Express (le lendemain avant 13h)</span>
-                    <span className="text-slate-900 font-semibold">9,90 €</span>
+                    <span className="text-slate-900 font-semibold">12,90 €</span>
                   </div>
                   <p className="text-sm text-slate-600">Livraison rapide avec supplément.</p>
                 </div>
