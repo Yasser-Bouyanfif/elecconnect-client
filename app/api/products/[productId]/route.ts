@@ -7,14 +7,14 @@ type ProductResponse = {
 };
 
 type RouteParams = {
-  params: {
+  params: Promise<{
     productId?: string;
-  };
+  }>;
 };
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, route: RouteParams) {
   try {
-    const productId = params?.productId;
+    const { productId } = await route.params;
 
     if (!productId) {
       return NextResponse.json(
