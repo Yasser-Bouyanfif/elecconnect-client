@@ -17,7 +17,7 @@ const toCartKey = (item: CartItem) =>
 
 function CartPage() {
   const router = useRouter();
-  const { cart, addToCart, removeFromCart } = useContext(
+  const { cart, addToCart, removeFromCart, syncCartTotals } = useContext(
     CartContext
   ) as CartContextType;
 
@@ -118,7 +118,10 @@ function CartPage() {
 
         const data = await res.json();
         const parsedTotal = Number(data.total);
-        setSubtotal(Number.isFinite(parsedTotal) ? parsedTotal : 0);
+        const sanitizedSubtotal = Number.isFinite(parsedTotal)
+          ? parsedTotal
+          : 0;
+        setSubtotal(sanitizedSubtotal);
       } catch (err) {
         console.error("Failed to calculate total", err);
         setSubtotal(0);
@@ -131,6 +134,10 @@ function CartPage() {
   useEffect(() => {
     setTotal(calculateTotalWithPromotion(subtotal, appliedPromotion));
   }, [appliedPromotion, subtotal]);
+
+  useEffect(() => {
+    syncCartTotals({ subtotal, total });
+  }, [subtotal, total, syncCartTotals]);
 
   const handleApplyPromotion = async () => {
     const trimmedCode = coupon.trim();

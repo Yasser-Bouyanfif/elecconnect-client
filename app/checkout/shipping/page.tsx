@@ -29,7 +29,9 @@ async function createCheckoutSession(items: { title?: string; price?: number; qu
 
 export default function ShippingStepPage() {
   const router = useRouter();
-  const { cart } = useContext(CartContext) as CartContextType;
+  const { cart, cartSubtotal, cartTotal, cartTotalsUpdatedAt } = useContext(
+    CartContext
+  ) as CartContextType;
   const groups = useMemo(() => groupCart(cart), [cart]);
 
   useEffect(() => {
@@ -64,9 +66,21 @@ export default function ShippingStepPage() {
     if (url) window.location.href = url;
   };
 
-  const subtotal = groups.reduce((sum, { item, quantity }) => sum + (Number(item.price) || 0) * quantity, 0);
+  const computedSubtotal = useMemo(
+    () =>
+      groups.reduce(
+        (sum, { item, quantity }) =>
+          sum + (Number(item.price) || 0) * quantity,
+        0
+      ),
+    [groups]
+  );
+  const hasSyncedTotals = cartTotalsUpdatedAt > 0;
+  const subtotal = hasSyncedTotals ? cartSubtotal : computedSubtotal;
   const shippingCost = shippingMethod === "express" ? 9.9 : 0;
-  const total = subtotal + shippingCost;
+  const totalBeforeShipping = hasSyncedTotals ? cartTotal : subtotal;
+  const reductionAmount = Math.max(subtotal - totalBeforeShipping, 0);
+  const total = totalBeforeShipping + shippingCost;
 
   return (
     <section className="bg-gray-50">
@@ -122,6 +136,20 @@ export default function ShippingStepPage() {
               <div className="flex justify-between">
                 <dt>Sous-total</dt>
                 <dd>{subtotal.toFixed(2)} €</dd>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <dt>Réduction</dt>
+                <dd
+                  className={
+                    reductionAmount > 0
+                      ? "text-emerald-600 line-through"
+                      : "text-slate-400 line-through"
+                  }
+                >
+                  {reductionAmount > 0
+                    ? `-${reductionAmount.toFixed(2)} €`
+                    : "0,00 €"}
+                </dd>
               </div>
               <div className="flex justify-between">
                 <dt>Livraison</dt>
