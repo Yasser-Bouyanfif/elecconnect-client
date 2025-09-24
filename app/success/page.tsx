@@ -45,7 +45,9 @@ interface Order {
 }
 
 function SuccessPage() {
-  const { cart, clearCart } = useContext(CartContext) as CartContextType;
+  const { cart, clearCart, shippingMethod } = useContext(
+    CartContext
+  ) as CartContextType;
   const { user } = useUser();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +70,8 @@ function SuccessPage() {
           body: JSON.stringify({
             cart: cart.map(({ id, documentId }) => ({ id, documentId })),
             stripeSessionId,
-            userEmail: user?.emailAddresses?.[0]?.emailAddress
+            userEmail: user?.emailAddresses?.[0]?.emailAddress,
+            shippingMethod,
           }),
         });
 
@@ -103,7 +106,7 @@ function SuccessPage() {
     if (user && cart.length > 0) {
       createOrder();
     }
-  }, [cart, clearCart, router, user]);
+  }, [cart, clearCart, router, shippingMethod, user]);
 
   if (isLoading) {
     return (
