@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -48,14 +48,15 @@ function SuccessPage() {
   const { cart, clearCart } = useContext(CartContext) as CartContextType;
   const { user } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const stripeSessionId = searchParams.get("session_id");
   const [isLoading, setIsLoading] = useState(true);
   const [order, setOrder] = useState<Order | null>(null);
 
 
   useEffect(() => {
-    const stripeSessionId = new URLSearchParams(window.location.search).get("session_id");
     if (!stripeSessionId) {
-      router.push("/cart");
+      router.replace("/cart");
       return;
     }
 
@@ -103,7 +104,7 @@ function SuccessPage() {
     if (user && cart.length > 0) {
       createOrder();
     }
-  }, [cart, clearCart, router, user]);
+  }, [cart, clearCart, router, stripeSessionId, user]);
 
   if (isLoading) {
     return (
