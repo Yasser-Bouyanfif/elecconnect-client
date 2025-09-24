@@ -83,7 +83,7 @@ async function buildOrderLines(
 }
 
 export async function POST(request: Request) {
-  const user = await currentUser() as unknown as User;
+  const user = await currentUser() as User;
 
   try {    
     if (!user.id) {
