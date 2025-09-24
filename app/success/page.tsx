@@ -106,19 +106,22 @@ function SuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[#fdf8f3] via-[#f6ede4] to-[#fdf8f3] flex items-center justify-center">
+        <div className="h-14 w-14 rounded-full border-2 border-[#d7b9a5]/40 border-t-[#c38b66] animate-spin" />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Commande non trouvée</h2>
-          <p className="text-gray-600 mb-6">Nous n&apos;avons pas pu récupérer les détails de votre commande.</p>
-          <Link href="/" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+      <div className="min-h-screen bg-gradient-to-br from-[#fef9f5] via-white to-[#f4ebe4] flex items-center justify-center px-6">
+        <div className="max-w-xl w-full rounded-[32px] border border-[#f1dfd3] bg-white/80 p-10 text-center shadow-[0_30px_80px_-60px_rgba(104,72,51,0.65)] backdrop-blur">
+          <h2 className="text-2xl font-semibold text-[#6b4a37]">Commande introuvable</h2>
+          <p className="mt-3 text-sm text-[#8c6a55]">Nous n&apos;avons pas pu récupérer les détails de votre commande. Réessayez depuis votre espace client ou contactez-nous pour obtenir de l&apos;aide.</p>
+          <Link
+            href="/"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-[#2f2a28] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2f2a28]/20 transition hover:-translate-y-0.5 hover:bg-[#1f1c1a]"
+          >
             Retour à l&apos;accueil
           </Link>
         </div>
@@ -135,73 +138,77 @@ function SuccessPage() {
   });
 
   return (
-    <section className="relative min-h-screen bg-[radial-gradient(circle_at_top,_#dcfce7,_#f8fafc)] py-16 px-4 sm:px-8">
-      <div className="absolute inset-x-0 top-10 -z-10 h-[420px] bg-gradient-to-b from-emerald-200/60 via-white to-transparent blur-3xl" />
-      <div className="max-w-5xl mx-auto">
-        <div className="relative overflow-hidden rounded-3xl border border-emerald-100/70 bg-white/80 shadow-2xl shadow-emerald-200/40 backdrop-blur">
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2">
-            <div className="rounded-full border border-white/60 bg-gradient-to-br from-emerald-500 via-emerald-400 to-emerald-600 p-[1px] shadow-2xl">
-              <div className="flex size-28 items-center justify-center rounded-full bg-white text-emerald-600 shadow-lg shadow-emerald-200/60">
-                <CheckCircle2 className="h-14 w-14" strokeWidth={1.8} />
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#fdf8f3] via-[#f7ede4] to-[#f9f1ea] py-20">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full bg-[#f1e0d5] blur-3xl" />
+        <div className="absolute -left-24 bottom-16 h-64 w-64 rounded-full bg-[#f6e9df] blur-3xl" />
+        <div className="absolute -right-10 top-1/3 h-80 w-80 rounded-full bg-[#f2dfd2]/70 blur-3xl" />
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 sm:px-8">
+        <div className="relative overflow-hidden rounded-[36px] border border-[#f0dfd3]/80 bg-white/70 shadow-[0_40px_120px_-60px_rgba(106,64,35,0.65)] backdrop-blur">
+          <div className="absolute -right-10 -top-16 hidden sm:block">
+            <div className="rounded-full border border-white/50 bg-gradient-to-br from-[#f1dacc] via-[#f6e7db] to-white p-[1px] shadow-[0_30px_60px_rgba(94,57,31,0.18)]">
+              <div className="flex size-32 items-center justify-center rounded-full bg-white text-[#be8256] shadow-[0_15px_40px_-20px_rgba(82,46,22,0.4)]">
+                <CheckCircle2 className="h-14 w-14" strokeWidth={1.6} />
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-t-3xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-emerald-400 px-8 pb-16 pt-32 text-center text-white">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em]">
-              Commande validée
-            </span>
-            <h1 className="mt-6 text-3xl font-semibold leading-tight sm:text-4xl">
-              Merci pour votre confiance !
-            </h1>
-            <p className="mt-4 text-base text-emerald-50/90 sm:text-lg">
-              Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}. Vous recevrez une notification dès que votre commande sera expédiée.
-            </p>
-          </div>
+          <div className="relative grid gap-12 p-8 sm:p-12">
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+              <div className="relative overflow-hidden rounded-[28px] border border-[#f2e1d6]/80 bg-gradient-to-br from-[#f8ede3] via-[#fff8f1] to-white p-10 text-center sm:text-left text-[#6c4c38] shadow-[0_25px_60px_-45px_rgba(104,72,51,0.55)]">
+                <span className="inline-flex items-center justify-center rounded-full bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[#b6794f]">Commande validée</span>
+                <h1 className="mt-6 text-3xl font-semibold leading-tight text-[#3f2d22] sm:text-4xl">Merci pour votre confiance !</h1>
+                <p className="mt-4 text-sm text-[#87614a] sm:text-base">
+                  Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}. Vous serez averti dès que votre commande quittera notre atelier.
+                </p>
+              </div>
 
-          <div className="px-6 pb-12 pt-10 sm:px-10 sm:pb-14 sm:pt-12">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-6">
-                <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
-                  <div className="flex items-start gap-4">
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                      <PackageCheck className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Commande #{order.orderNumber}</p>
-                      <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-                        <CalendarDays className="h-4 w-4" />
-                        {orderDate}
-                      </p>
-                    </div>
+              <div className="rounded-[28px] border border-[#efded2]/70 bg-white/75 p-8 text-[#775640] shadow-[0_20px_50px_-40px_rgba(104,72,51,0.55)]">
+                <div className="flex items-start gap-4">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-[#f2dfd2]/70 text-[#b6794f]">
+                    <PackageCheck className="h-6 w-6" />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#b6794f]">Commande #{order.orderNumber}</p>
+                    <p className="flex items-center gap-2 text-sm text-[#8c6a55]">
+                      <CalendarDays className="h-4 w-4" />
+                      {orderDate}
+                    </p>
+                    <p className="text-sm text-[#9e7b63]">Statut : <span className="font-medium text-[#5c4130]">{order.orderStatus}</span></p>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="space-y-6">
+                <div className="rounded-3xl border border-[#f1e0d5] bg-white/70 p-7 text-[#5c4130] shadow-[0_20px_60px_-50px_rgba(94,57,31,0.6)]">
                   <div className="flex items-start gap-4">
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-[#f2dfd2]/70 text-[#b6794f]">
                       <Wallet className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Montant total</p>
-                      <p className="mt-2 text-2xl font-semibold text-slate-900">{order.total} €</p>
-                      <p className="mt-1 text-sm text-slate-500">TVA incluse et frais éventuels déjà calculés.</p>
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#b6794f]">Montant total</p>
+                      <p className="mt-2 text-3xl font-semibold text-[#2c211b]">{order.total} €</p>
+                      <p className="mt-2 text-sm text-[#8c6a55]">TVA incluse et frais additionnels déjà pris en compte.</p>
                     </div>
                   </div>
                 </div>
 
                 {order.shipping && (
-                  <div className="rounded-2xl border border-emerald-100/80 bg-white/80 p-6 shadow-sm shadow-emerald-100/40">
+                  <div className="rounded-3xl border border-[#f3e5d9] bg-white/70 p-7 text-[#5c4130] shadow-[0_20px_60px_-50px_rgba(94,57,31,0.6)]">
                     <div className="flex items-start gap-4">
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                      <div className="flex size-12 items-center justify-center rounded-2xl bg-[#f2dfd2]/70 text-[#b6794f]">
                         <Truck className="h-6 w-6" />
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Livraison</p>
-                        <p className="mt-2 text-base font-semibold text-slate-900">
+                      <div className="space-y-2">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#b6794f]">Livraison</p>
+                        <p className="text-base font-semibold text-[#2c211b]">
                           {order.shipping.carrier || "Livraison standard"}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="text-sm text-[#8c6a55]">
                           Frais de port : {order.shipping.price ? `${order.shipping.price} €` : "Offerts"}
                         </p>
                       </div>
@@ -211,27 +218,27 @@ function SuccessPage() {
               </div>
 
               {order.address && (
-                <div className="flex h-full flex-col justify-between gap-6 rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-lg shadow-emerald-100/30">
-                  <div>
-                    <div className="flex items-start gap-4">
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                        <MapPin className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Adresse de livraison</p>
-                        <div className="mt-3 space-y-1 text-sm text-slate-600">
-                          <p className="font-semibold text-slate-900">{order.address.fullName}</p>
-                          {order.address.company && <p className="text-slate-500">{order.address.company}</p>}
-                          <p>{order.address.address1}</p>
-                          {order.address.address2 && <p>{order.address.address2}</p>}
-                          <p>
-                            {order.address.postalCode} {order.address.city}
+                <div className="flex h-full flex-col justify-between gap-6 rounded-[28px] border border-[#efded2] bg-gradient-to-br from-white/80 via-white/70 to-white/60 p-7 text-[#5c4130] shadow-[0_20px_60px_-50px_rgba(94,57,31,0.55)]">
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-[#f2dfd2]/70 text-[#b6794f]">
+                      <MapPin className="h-6 w-6" />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#b6794f]">Adresse de livraison</p>
+                      <div className="space-y-1 text-sm text-[#8c6a55]">
+                        <p className="font-semibold text-[#2c211b]">{order.address.fullName}</p>
+                        {order.address.company && <p>{order.address.company}</p>}
+                        <p>{order.address.address1}</p>
+                        {order.address.address2 && <p>{order.address.address2}</p>}
+                        <p>
+                          {order.address.postalCode} {order.address.city}
+                        </p>
+                        <p>{order.address.country}</p>
+                        {order.address.phone && (
+                          <p className="pt-2 text-xs uppercase tracking-[0.2em] text-[#b69780]">
+                            Tél : <span className="font-medium text-[#5c4130] normal-case">{order.address.phone}</span>
                           </p>
-                          <p>{order.address.country}</p>
-                          {order.address.phone && (
-                            <p className="pt-2 text-xs uppercase tracking-wide text-slate-400">Tél : <span className="font-medium text-slate-600 normal-case">{order.address.phone}</span></p>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -239,20 +246,20 @@ function SuccessPage() {
               )}
             </div>
 
-            <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-emerald-100/70 bg-emerald-50/60 px-6 py-8 text-center shadow-inner">
-            <p className="max-w-2xl text-sm text-slate-600 sm:text-base">
-                Une question sur votre commande ? Notre équipe est à votre écoute pour vous accompagner dans l&apos;installation et le suivi de votre solution de recharge.
-            </p>
-              <div className="flex flex-col items-center gap-4 sm:flex-row">
+            <div className="rounded-[28px] border border-[#f1e0d5]/80 bg-gradient-to-r from-white/80 via-[#fdf6f1] to-white/80 px-6 py-8 text-center text-[#6c4c38] shadow-inner">
+              <p className="mx-auto max-w-2xl text-sm text-[#8c6a55] sm:text-base">
+                Une question sur votre commande ? Notre équipe vous accompagne pour la mise en service et le suivi de votre solution de recharge.
+              </p>
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
                   href="mailto:contact@elecconnect.com"
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:text-emerald-800"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#e4cdbf] bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#b6794f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#d7b9a5] hover:text-[#a36a44]"
                 >
                   <Mail className="h-4 w-4" /> contact@elecconnect.com
                 </a>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#2f2a28] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2f2a28]/20 transition hover:-translate-y-0.5 hover:bg-[#1f1c1a]"
                 >
                   Retour à l&apos;accueil
                   <ArrowRight className="h-4 w-4" />
