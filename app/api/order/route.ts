@@ -170,7 +170,17 @@ export async function POST(request: Request) {
         orderNumber: randomUUID(),
         userId,
         userEmail,
-        address: {
+        shippingAddress: {
+          fullName: "Jean Dupont",
+          company: "Ma Société",
+          address1: "12 rue des Fleurs",
+          address2: "Appartement 34",
+          postalCode: 75001,
+          city: "Paris",
+          country: "France",
+          phone: 33123456789,
+        },
+        billingAddress: {
           fullName: "Jean Dupont",
           company: "Ma Société",
           address1: "12 rue des Fleurs",

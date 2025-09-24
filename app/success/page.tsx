@@ -39,7 +39,8 @@ interface Order {
   subtotal: number;
   orderStatus: string;
   createdAt: string;
-  address?: Address;
+  shippingAddress?: Address;
+  billingAddress?: Address;
   shipping?: Shipping;
 }
 
@@ -190,31 +191,63 @@ function SuccessPage() {
               </div>
             </div>
 
-            {/* Adresse de livraison */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <MapPin className="h-5 w-5 text-gray-400" />
+            {/* Adresses et méthode de livraison */}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {/* Adresse de livraison */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 h-full">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <Truck className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">{order.shippingAddress?.fullName}</p>
+                        {order.shippingAddress?.company && (
+                          <p className="text-sm text-gray-500">{order.shippingAddress.company}</p>
+                        )}
+                        <p className="text-sm text-gray-500">{order.shippingAddress?.address1}</p>
+                        {order.shippingAddress?.address2 && (
+                          <p className="text-sm text-gray-500">{order.shippingAddress.address2}</p>
+                        )}
+                        <p className="text-sm text-gray-500">
+                          {order.shippingAddress?.postalCode} {order.shippingAddress?.city}
+                        </p>
+                        <p className="text-sm text-gray-500">{order.shippingAddress?.country}</p>
+                        {order.shippingAddress?.phone && (
+                          <p className="mt-2 text-sm text-gray-500">Tél: {order.shippingAddress.phone}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">{order.address?.fullName}</p>
-                      {order.address?.company && (
-                        <p className="text-sm text-gray-500">{order.address.company}</p>
-                      )}
-                      <p className="text-sm text-gray-500">{order.address?.address1}</p>
-                      {order.address?.address2 && (
-                        <p className="text-sm text-gray-500">{order.address.address2}</p>
-                      )}
-                      <p className="text-sm text-gray-500">
-                        {order.address?.postalCode} {order.address?.city}
-                      </p>
-                      <p className="text-sm text-gray-500">{order.address?.country}</p>
-                      {order.address?.phone && (
-                        <p className="mt-2 text-sm text-gray-500">Tél: {order.address.phone}</p>
-                      )}
+                  </div>
+                </div>
+
+                {/* Adresse de facturation */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de facturation</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 h-full">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <MapPin className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">{order.billingAddress?.fullName}</p>
+                        {order.billingAddress?.company && (
+                          <p className="text-sm text-gray-500">{order.billingAddress.company}</p>
+                        )}
+                        <p className="text-sm text-gray-500">{order.billingAddress?.address1}</p>
+                        {order.billingAddress?.address2 && (
+                          <p className="text-sm text-gray-500">{order.billingAddress.address2}</p>
+                        )}
+                        <p className="text-sm text-gray-500">
+                          {order.billingAddress?.postalCode} {order.billingAddress?.city}
+                        </p>
+                        <p className="text-sm text-gray-500">{order.billingAddress?.country}</p>
+                        {order.billingAddress?.phone && (
+                          <p className="mt-2 text-sm text-gray-500">Tél: {order.billingAddress.phone}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -222,12 +255,12 @@ function SuccessPage() {
 
               {/* Méthode de livraison */}
               {order.shipping && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Méthode de livraison</h4>
-                  <div className="bg-gray-50 rounded-lg p-4">
+                <div className="mt-8">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Méthode de livraison</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 w-full">
                     <div className="flex">
                       <div className="flex-shrink-0">
-                        <Truck className="h-5 w-5 text-gray-400" />
+                        <PackageCheck className="h-5 w-5 text-gray-400" />
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900">
@@ -271,17 +304,8 @@ function SuccessPage() {
           {/* Pied de page */}
           <div className="px-6 py-5 bg-gray-50 text-center sm:px-6">
             <p className="text-sm text-gray-500 mb-4">
-              Un problème avec votre commande ? Contactez-nous à{' '}
-              <a href="mailto:contact@elecconnect.com" className="font-medium text-emerald-600 hover:text-emerald-500">
-                contact@elecconnect.com
-              </a>
+              Un problème avec votre commande ?<a href="/#contact" className="font-medium text-emerald-600 hover:text-emerald-500"> Contactez-nous{' '}</a>
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              Retour à l'accueil
-            </Link>
           </div>
         </div>
       </div>
