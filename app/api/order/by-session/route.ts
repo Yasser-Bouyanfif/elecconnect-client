@@ -4,28 +4,20 @@ import orderApis from "@/app/strapi/orderApis";
 import { currentUser } from "@clerk/nextjs/server";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
 
-type RouteParams = {
-  params: {
-    stripeSessionId: string;
-  };
-};
-
 type User = {
     id: string;
     emailAddresses: Array<{ emailAddress: string }>;
   };
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function POST(request: Request) {
   try {
-  const user = await currentUser() as User;
-  const userId = user.id
-  const userEmail = user.emailAddresses[0].emailAddress
+    const {userId} = await auth()
     
     if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { stripeSessionId } = params;
+    const { stripeSessionId } = await request.json();
 
     if (!stripeSessionId) {
       return NextResponse.json(
@@ -38,19 +30,9 @@ export async function GET(request: Request, { params }: RouteParams) {
     const stripe = require('stripe')(STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
-    // Vérifier que l'utilisateur a le droit de voir cette commande
-
-    if (session.customer_email && session.customer_email !== userEmail) {
-      return NextResponse.json(
-        { error: "Accès non autorisé à cette commande" },
-        { status: 403 }
-      );
-    }
 
     // Récupérer la commande
     const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
-
-    console.log(orderResponse)
     
     if (!orderResponse?.data?.data || orderResponse.data.data.length === 0) {
       return NextResponse.json(
@@ -59,15 +41,32 @@ export async function GET(request: Request, { params }: RouteParams) {
       );
     }
 
-    const order = orderResponse.data.data[0];
+    const fullOrder = orderResponse.data.data[0];
 
-    // Vérifier que la commande appartient bien à l'utilisateur
-    if (order.attributes.userId !== userId) {
-      return NextResponse.json(
-        { error: "Accès non autorisé" },
-        { status: 403 }
-      );
+    if (fullOrder.userId !== userId) {
+      return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
     }
+
+    const order = {
+      orderNumber: fullOrder.attributes.orderNumber,
+      total: fullOrder.attributes.total,
+      createdAt: fullOrder.attributes.createdAt,
+      address: {
+        fullName: fullOrder.attributes.address?.fullName,
+        company: fullOrder.attributes.address?.company,
+        address1: fullOrder.attributes.address?.address1,
+        address2: fullOrder.attributes.address?.address2,
+        postalCode: fullOrder.attributes.address?.postalCode,
+        city: fullOrder.attributes.address?.city,
+        country: fullOrder.attributes.address?.country,
+        phone: fullOrder.attributes.address?.phone,
+      },
+      shipping: {
+        carrier: fullOrder.attributes.shipping?.carrier,
+        price: fullOrder.attributes.shipping?.price,
+      }
+    };
+    
 
     return NextResponse.json({ order });
   } catch (error) {

@@ -1,12 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
-
-type User = {
-  id: string;
-  emailAddresses: Array<{ emailAddress: string }>;
-};
-
+import { auth, currentUser } from "@clerk/nextjs/server";
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
@@ -83,10 +77,10 @@ async function buildOrderLines(
 }
 
 export async function POST(request: Request) {
-  const user = await currentUser() as User;
+  const {userId} = await auth()
 
   try {    
-    if (!user.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
@@ -116,15 +110,6 @@ export async function POST(request: Request) {
           return NextResponse.json(
             { error: "Session Stripe incomplète" },
             { status: 400 }
-          );
-        }
-    
-        // Optionnel : vérifier que l'email match (mais pas toujours nécessaire)
-        const userEmail = user.emailAddresses[0]?.emailAddress;
-        if (session.customer_email && session.customer_email !== userEmail) {
-          return NextResponse.json(
-            { error: "Session Stripe ne correspond pas à l'utilisateur" },
-            { status: 403 }
           );
         }
     
@@ -179,12 +164,15 @@ export async function POST(request: Request) {
     }
 
     const total = subtotal + SHIPPING_DETAILS.price;
+    
+    const user = await currentUser();
+    const userEmail = user?.emailAddresses[0]?.emailAddress || null;
 
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
-        userId: user.id,
-        userEmail: user?.emailAddresses[0]?.emailAddress,
+        userId,
+        userEmail,
         address: {
           fullName: "Jean Dupont",
           company: "Ma Société",
@@ -241,13 +229,14 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const user = await currentUser() as unknown as User;
+  const { userId } = await auth(); 
+
   try {    
-    if (!user.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const response = await orderApis.getOrdersByUser(user.id);
+    const response = await orderApis.getOrdersByUser(userId);
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Failed to fetch orders", error);
