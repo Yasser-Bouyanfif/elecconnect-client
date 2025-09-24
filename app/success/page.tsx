@@ -128,106 +128,118 @@ function SuccessPage() {
   });
 
   return (
-    <section className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* En-tête */}
-          <div className="bg-green-50 px-6 py-8 text-center border-b border-green-100">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+    <section className="min-h-screen bg-gradient-to-br from-stone-100 via-white to-rose-50 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="relative inline-flex items-center justify-center">
+            <span className="absolute inset-0 rounded-full bg-emerald-200/40 blur-2xl" aria-hidden />
+            <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-200/40">
               <svg
-                className="w-10 h-10 text-green-600"
+                className="h-10 w-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-green-800 mb-2">Commande confirmée !</h1>
-            <p className="text-green-600 text-lg mb-2">Merci pour votre commande !</p>
-            <p className="text-gray-600">Un email de confirmation vous a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}</p>
+            </span>
           </div>
+          <h1 className="mt-8 text-4xl font-semibold tracking-tight text-stone-900 sm:text-5xl">
+            Commande confirmée !
+          </h1>
+          <p className="mt-3 text-lg text-stone-600 sm:text-xl">
+            Merci pour votre confiance. Votre commande est en cours de préparation.
+          </p>
+          <p className="mt-2 text-sm text-stone-500">
+            Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}
+          </p>
+        </div>
 
-          {/* Détails de la commande */}
-          <div className="p-6 md:p-8">
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Récapitulatif de la commande</h2>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">N° de commande</span>
-                  <span className="font-medium">{order.orderNumber}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Date</span>
-                  <span>{orderDate}</span>
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-8">
+            <div className="rounded-3xl border border-stone-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-stone-900">Récapitulatif</h2>
+                  <p className="mt-1 text-sm text-stone-500">Retrouvez l'essentiel de votre commande.</p>
                 </div>
                 {order.orderStatus !== 'pending' && (
-                  <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">Statut</span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {order.orderStatus}
-                    </span>
-                  </div>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-700">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    {order.orderStatus}
+                  </span>
                 )}
+              </div>
+
+              <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl bg-stone-100/70 px-5 py-4">
+                  <dt className="text-xs uppercase tracking-wide text-stone-500">N° de commande</dt>
+                  <dd className="mt-1 font-medium text-stone-900">{order.orderNumber}</dd>
+                </div>
+                <div className="rounded-2xl bg-stone-100/70 px-5 py-4">
+                  <dt className="text-xs uppercase tracking-wide text-stone-500">Date</dt>
+                  <dd className="mt-1 font-medium text-stone-900">{orderDate}</dd>
+                </div>
+              </dl>
+
+              <div className="mt-6 rounded-2xl border border-dashed border-stone-200 px-5 py-6">
+                <div className="flex items-center justify-between text-base font-medium text-stone-900">
+                  <span>Total TTC</span>
+                  <span>{order.total.toFixed(2)} €</span>
+                </div>
+                <p className="mt-1 text-xs text-stone-500">TVA incluse — payable à la livraison.</p>
               </div>
             </div>
 
-            {/* Adresse de livraison */}
             {order.address && (
-              <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Adresse de livraison</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="font-medium">{order.address.fullName}</p>
+              <div className="rounded-3xl border border-stone-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+                <h3 className="text-lg font-medium text-stone-900">Adresse de livraison</h3>
+                <div className="mt-4 space-y-1 text-sm text-stone-600">
+                  <p className="font-medium text-stone-800">{order.address.fullName}</p>
                   {order.address.company && <p>{order.address.company}</p>}
                   <p>{order.address.address1}</p>
                   {order.address.address2 && <p>{order.address.address2}</p>}
                   <p>{order.address.postalCode} {order.address.city}</p>
                   <p>{order.address.country}</p>
-                  {order.address.phone && <p className="mt-2">Tél: {order.address.phone}</p>}
+                  {order.address.phone && <p className="pt-2 text-sm text-stone-500">Tél : {order.address.phone}</p>}
                 </div>
               </div>
             )}
 
-            {/* Livraison */}
             {order.shipping && (
-              <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Livraison</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="font-medium">{order.shipping.carrier || 'Livraison standard'}</p>
-                  <p>Frais de port: {order.shipping.price ? `${order.shipping.price.toFixed(2)} €` : 'Offerts'}</p>
-                </div>
+              <div className="rounded-3xl border border-stone-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+                <h3 className="text-lg font-medium text-stone-900">Livraison</h3>
+                <p className="mt-3 text-sm text-stone-600">
+                  {order.shipping.carrier || 'Livraison standard'}
+                </p>
+                <p className="mt-1 text-sm font-medium text-stone-700">
+                  Frais de port : {order.shipping.price ? `${order.shipping.price.toFixed(2)} €` : 'Offerts'}
+                </p>
               </div>
             )}
-
-            {/* Total */}
-            <div className="border-t border-gray-200 pt-6">
-              <div className="flex justify-between text-lg font-medium text-gray-900 mb-4">
-                <span>Total</span>
-                <span>{order.total.toFixed(2)} €</span>
-              </div>
-              <p className="text-sm text-gray-500">TVA incluse</p>
-            </div>
           </div>
 
-          {/* Pied de page */}
-          <div className="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
-            <p className="text-gray-600 mb-4">
-              Vous avez des questions concernant votre commande ?<br />
-              Contactez-nous à <a href="mailto:contact@elecconnect.com" className="text-blue-600 hover:underline">contact@elecconnect.com</a>
-            </p>
+          <aside className="flex h-full flex-col justify-between gap-6 rounded-3xl border border-stone-200/70 bg-white/80 p-6 text-center shadow-sm backdrop-blur-sm sm:p-8">
+            <div>
+              <h3 className="text-lg font-semibold text-stone-900">Besoin d'aide ?</h3>
+              <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                Notre équipe est disponible pour répondre à toutes vos questions concernant votre commande ou son suivi.
+              </p>
+              <a
+                href="mailto:contact@elecconnect.com"
+                className="mt-6 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
+              >
+                contact@elecconnect.com
+              </a>
+            </div>
             <Link
               href="/"
-              className="inline-flex items-center px-6 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-stone-400/30 transition hover:-translate-y-0.5 hover:bg-stone-800"
             >
               Retour à l'accueil
             </Link>
-          </div>
+          </aside>
         </div>
       </div>
     </section>
