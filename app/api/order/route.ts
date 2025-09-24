@@ -1,9 +1,15 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
+
+type User = {
+  id: string;
+  emailAddresses: Array<{ emailAddress: string }>;
+};
 
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
+import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
 
 type CartItemPayload = {
   id?: string | number;
@@ -12,6 +18,7 @@ type CartItemPayload = {
 
 type RequestBody = {
   cart?: CartItemPayload[];
+  stripeSessionId?: string;
 };
 
 type OrderLineInput = {
@@ -76,14 +83,60 @@ async function buildOrderLines(
 }
 
 export async function POST(request: Request) {
-  try {
-    const user = await currentUser(); // Récupère les infos de l'utilisateur
-    
-    if (!user) {
+  const user = await currentUser() as unknown as User;
+
+  try {    
+    if (!user.id) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { cart }: RequestBody = await request.json();
+    const { cart, stripeSessionId }: RequestBody = await request.json();
+
+        // Vérification CRITIQUE de la session Stripe
+        if (!stripeSessionId) {
+          return NextResponse.json(
+            { error: "Session Stripe manquante" },
+            { status: 400 }
+          );
+        }
+    
+        // Vérifier la session Stripe
+        const stripe = require('stripe')(STRIPE_SECRET_KEY);
+        const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+    
+        // Vérifications importantes
+        if (session.payment_status !== 'paid') {
+          return NextResponse.json(
+            { error: "Paiement non confirmé" },
+            { status: 402 }
+          );
+        }
+    
+        if (session.status !== 'complete') {
+          return NextResponse.json(
+            { error: "Session Stripe incomplète" },
+            { status: 400 }
+          );
+        }
+    
+        // Optionnel : vérifier que l'email match (mais pas toujours nécessaire)
+        const userEmail = user.emailAddresses[0]?.emailAddress;
+        if (session.customer_email && session.customer_email !== userEmail) {
+          return NextResponse.json(
+            { error: "Session Stripe ne correspond pas à l'utilisateur" },
+            { status: 403 }
+          );
+        }
+    
+        // IMPORTANT : éviter les doubles créations de commande
+        // Vérifier si une commande existe déjà pour cette session Stripe
+        const existingOrder = await orderApis.getOrderByStripeSession(stripeSessionId);
+        if (existingOrder.data && existingOrder.data.length > 0) {
+          return NextResponse.json(
+            { error: "Commande déjà créée pour cette session" },
+            { status: 409 }
+          );
+        }
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -183,5 +236,20 @@ export async function POST(request: Request) {
       { error: "Failed to process order" },
       { status: 500 }
     );
+  }
+}
+
+export async function GET() {
+  const user = await currentUser() as unknown as User;
+  try {    
+    if (!user.id) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
+    const response = await orderApis.getOrdersByUser(user.id);
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error("Failed to fetch orders", error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
