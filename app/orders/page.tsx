@@ -4,25 +4,19 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShoppingBag, 
-  Package, 
-  CheckCircle2, 
-  Clock as ClockIcon, 
-  Truck, 
-  ArrowRight, 
+import {
+  ShoppingBag,
+  Package,
+  CheckCircle2,
+  Truck,
   Loader2,
-  ArrowLeft,
   Home,
   ChevronRight,
   Calendar,
-  CreditCard,
-  PackageCheck,
   RefreshCw,
   Info,
   PackageOpen,
   Box,
-  Check,
   CircleDashed,
   Wallet,
   ReceiptText
@@ -49,11 +43,140 @@ type Order = {
   total: number;
   createdAt: string;
   shipping?: {
-    price: number;
-    carrier: string;
+    price?: number;
+    carrier?: string;
   };
   shippingAddress?: Address;
   billingAddress?: Address;
+};
+
+const normalizeAddress = (address: unknown): Address | undefined => {
+  if (!address || typeof address !== 'object') {
+    return undefined;
+  }
+
+  const source =
+    'attributes' in (address as Record<string, unknown>) &&
+    (address as { attributes?: Record<string, unknown> }).attributes
+      ? ((address as { attributes: Record<string, unknown> }).attributes)
+      : (address as Record<string, unknown>);
+
+  const address1 = typeof source.address1 === 'string' ? source.address1 : '';
+  const city = typeof source.city === 'string' ? source.city : '';
+  const postalCode = typeof source.postalCode === 'string' ? source.postalCode : '';
+  const country = typeof source.country === 'string' ? source.country : '';
+
+  if (!address1 && !city && !postalCode && !country) {
+    return undefined;
+  }
+
+  return {
+    fullName: typeof source.fullName === 'string' ? source.fullName : undefined,
+    company: typeof source.company === 'string' ? source.company : undefined,
+    address1,
+    address2: typeof source.address2 === 'string' ? source.address2 : undefined,
+    city,
+    postalCode,
+    country,
+    phone: typeof source.phone === 'string' ? source.phone : undefined
+  };
+};
+
+const normalizeShipping = (shipping: unknown): Order['shipping'] => {
+  if (!shipping || typeof shipping !== 'object') {
+    return undefined;
+  }
+
+  const source =
+    'attributes' in (shipping as Record<string, unknown>) &&
+    (shipping as { attributes?: Record<string, unknown> }).attributes
+      ? ((shipping as { attributes: Record<string, unknown> }).attributes)
+      : (shipping as Record<string, unknown>);
+
+  const priceValue =
+    typeof source.price === 'number'
+      ? source.price
+      : typeof source.price === 'string'
+        ? Number.parseFloat(source.price)
+        : undefined;
+
+  if (
+    (typeof source.carrier !== 'string' || source.carrier.trim() === '') &&
+    (typeof priceValue !== 'number' || Number.isNaN(priceValue))
+  ) {
+    return undefined;
+  }
+
+  return {
+    carrier: typeof source.carrier === 'string' ? source.carrier : undefined,
+    price: typeof priceValue === 'number' && Number.isFinite(priceValue) ? priceValue : 0
+  };
+};
+
+const normalizeOrder = (order: unknown): Order | null => {
+  if (!order || typeof order !== 'object') {
+    return null;
+  }
+
+  const rawOrder = order as Record<string, unknown>;
+  const attributes =
+    'attributes' in rawOrder && rawOrder.attributes
+      ? (rawOrder.attributes as Record<string, unknown>)
+      : rawOrder;
+
+  const idCandidate = rawOrder.id ?? attributes.id;
+  const id = typeof idCandidate === 'number' ? idCandidate : Number.parseInt(String(idCandidate ?? ''), 10);
+
+  if (!Number.isFinite(id)) {
+    return null;
+  }
+
+  const createdAtRaw = attributes.createdAt;
+  const createdAt =
+    typeof createdAtRaw === 'string'
+      ? createdAtRaw
+      : createdAtRaw instanceof Date
+        ? createdAtRaw.toISOString()
+        : new Date().toISOString();
+
+  const status = attributes.orderStatus;
+  const orderStatus: OrderStatus =
+    status === 'paid' ||
+    status === 'processing' ||
+    status === 'shipped' ||
+    status === 'delivered' ||
+    status === 'canceled' ||
+    status === 'refunded'
+      ? status
+      : 'processing';
+
+  const subtotalRaw = attributes.subtotal;
+  const totalRaw = attributes.total;
+
+  return {
+    id,
+    orderNumber:
+      typeof attributes.orderNumber === 'string'
+        ? attributes.orderNumber
+        : String(attributes.orderNumber ?? id),
+    orderStatus,
+    subtotal:
+      typeof subtotalRaw === 'number'
+        ? subtotalRaw
+        : typeof subtotalRaw === 'string'
+          ? Number.parseFloat(subtotalRaw)
+          : 0,
+    total:
+      typeof totalRaw === 'number'
+        ? totalRaw
+        : typeof totalRaw === 'string'
+          ? Number.parseFloat(totalRaw)
+          : 0,
+    createdAt,
+    shipping: normalizeShipping(attributes.shipping ?? rawOrder.shipping),
+    shippingAddress: normalizeAddress(attributes.shippingAddress ?? rawOrder.shippingAddress),
+    billingAddress: normalizeAddress(attributes.billingAddress ?? rawOrder.billingAddress)
+  };
 };
 
 const getStatusDetails = (status: Order['orderStatus']) => {
@@ -143,9 +266,9 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
-const fetchUserOrders = async (userId: string): Promise<Order[]> => {
+const fetchUserOrders = async (): Promise<Order[]> => {
   try {
-    const response = await fetch('/api/orders', {
+    const response = await fetch('/api/order', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -154,7 +277,16 @@ const fetchUserOrders = async (userId: string): Promise<Order[]> => {
     if (!response.ok) {
       throw new Error('Erreur lors de la récupération des commandes');
     }
-    return await response.json();
+    const payload = await response.json();
+    const rawOrders = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
+
+    return rawOrders
+      .map((order) => normalizeOrder(order))
+      .filter((order): order is Order => order !== null);
   } catch (error) {
     console.error('Erreur:', error);
     throw error;
@@ -173,7 +305,7 @@ export default function OrdersPage() {
       
       try {
         setLoading(true);
-        const data = await fetchUserOrders(user.id);
+        const data = await fetchUserOrders();
         setOrders(data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des commandes');
@@ -220,7 +352,7 @@ export default function OrdersPage() {
                 Mes commandes
               </h1>
               <p className="mt-2 text-lg text-stone-600 max-w-2xl">
-                Retrouvez l'historique et le suivi de vos commandes passées sur ElecConnect
+                Retrouvez l&apos;historique et le suivi de vos commandes passées sur ElecConnect
               </p>
             </div>
             <Link 
@@ -288,7 +420,7 @@ export default function OrdersPage() {
             </div>
             <h3 className="text-2xl md:text-3xl font-bold text-stone-900 mb-4">Aucune commande pour le moment</h3>
             <p className="text-stone-600 mb-8 max-w-md mx-auto text-lg leading-relaxed">
-              Votre historique de commandes est vide. Découvrez nos produits et trouvez l'équipement qui vous correspond.
+              Votre historique de commandes est vide. Découvrez nos produits et trouvez l&apos;équipement qui vous correspond.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
