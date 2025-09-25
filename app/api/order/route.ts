@@ -96,15 +96,7 @@ async function buildOrderLines(
 
       if (!productData || (strapiProductId && strapiProductId !== toStringId(id))) {
         console.warn(
-          `Product lookup mismatch for cart item ${id}: ${JSON.stringify(
-            productData
-          )}`
-        );
-        continue;
-      }
-
-      if (!resolvedDocumentId) {
-        console.warn(`Missing documentId for product ${id}`);
+        async function buildOrderLines(
         continue;
       }
 
@@ -172,34 +164,7 @@ export async function POST(request: Request) {
           return NextResponse.json(
             { error: "Session Stripe incomplète" },
             { status: 400 }
-          );
-        }
-    
-        // IMPORTANT : éviter les doubles créations de commande
-        // Vérifier si une commande existe déjà pour cette session Stripe
-        const existingOrder = await orderApis.getOrderByStripeSession(stripeSessionId);
-        if (existingOrder.data && existingOrder.data.length > 0) {
-          return NextResponse.json(
-            { error: "Commande déjà créée pour cette session" },
-            { status: 409 }
-          );
-        }
-
-    if (!Array.isArray(cart) || cart.length === 0) {
-      return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
-      );
-    }
-
-    const productMap = new Map<string, { quantity: number }>();
-
-    cart.forEach((item) => {
-      if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
-        return;
-      }
-
-      const key = toStringId(item.id);
+      export async function POST(request: Request) {
       const existing = productMap.get(key);
       const quantity = (existing?.quantity ?? 0) + 1;
 

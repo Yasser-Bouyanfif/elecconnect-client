@@ -52,9 +52,7 @@ function SuccessPage() {
     shippingAddress,
     billingAddress,
     useSameAddressForBilling,
-  } = useContext(
-    CartContext
-  ) as CartContextType;
+  } = useContext(CartContext) as CartContextType;
   const { user } = useUser();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);

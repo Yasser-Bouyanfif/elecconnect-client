@@ -102,21 +102,7 @@ const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
     if (typeof id !== "string" && typeof id !== "number") {
       return acc;
     }
-
-    const key = getCartKey(current);
-    const existing = counts.get(key) ?? 0;
-    if (existing >= MAX_PER_PRODUCT) {
-      return acc;
-    }
-
-    const { quantity: rawQuantity, ...rest } = current as CartItem & {
-      quantity?: unknown;
-    };
-
-    const parsedQuantity =
-      rawQuantity !== undefined ? clampStoredQuantity(rawQuantity) : null;
-
-    if (parsedQuantity === 0) {
+    const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
       return acc;
     }
 
