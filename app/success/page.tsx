@@ -290,7 +290,9 @@ function SuccessPage() {
                           {order.shipping.carrier || 'Livraison standard'}
                         </p>
                         <p className="mt-1 text-sm text-gray-500">
-                          Frais de port: {order.shipping.price ? `${order.shipping.price.toFixed(2)} €` : 'Offerts'}
+                          Frais de port: {order.shipping.price !== undefined && order.shipping.price > 0 
+                            ? `${order.shipping.price.toFixed(2)} €` 
+                            : 'Offerts'}
                         </p>
                         <p className="mt-2 text-xs text-gray-500">
                           Délai de livraison estimé: 2-5 jours ouvrés

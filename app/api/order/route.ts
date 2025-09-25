@@ -239,7 +239,7 @@ export async function POST(request: Request) {
         shipping: shippingDetails,
         subtotal,
         total,
-        orderStatus: "pending",
+        orderStatus: "paid",
         stripeSessionId,
       },
     });

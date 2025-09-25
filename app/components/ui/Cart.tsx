@@ -166,7 +166,7 @@ function Cart({ onClose }: { onClose?: () => void }) {
           </div>
 
           <div className="text-xs text-gray-500 text-center">
-            Frais de livraison et taxes calculés à la validation
+            Frais de livraison calculés à la validation
           </div>
 
           <div className="space-y-2">

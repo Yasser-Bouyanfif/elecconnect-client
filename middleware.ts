@@ -10,8 +10,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/products(.*)',
   '/api/cart-total(.*)',
   '/api/checkout(.*)',
-  '/api/promotions(.*)',
-  '/api/orders(.*)',
+  '/api/promotion(.*)',
+  '/api/order(.*)',
   '/404(.*)',
   '/success(.*)',
 ])
