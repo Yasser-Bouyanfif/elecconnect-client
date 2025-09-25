@@ -79,102 +79,10 @@ function buildPaymentEmail(orderNumber: string) {
   return { subject, text, html };
 }
 
-export async function POST(request: Request) {
-  const payload: Partial<RequestPayload> & { type?: EmailType } =
-    await request.json();
-
-  const type = payload.type;
-
-  if (!type) {
-    return NextResponse.json(
-      { error: "Merci de préciser le type de confirmation à envoyer." },
-      { status: 400 },
-    );
-  }
-
-  if (!RESEND_API_KEY) {
-    return NextResponse.json(
-      {
-        error:
-          "La clé API Resend est manquante. Merci de définir la variable RESEND_API_KEY.",
-      },
-      { status: 500 },
-    );
-  }
-
-  let to = payload.to?.trim();
-  let emailContent: ReturnType<typeof buildRegistrationEmail>;
-
-  if (type === "registration") {
-    const user = (payload as RegistrationPayload).user;
-
-    if (!user) {
-      return NextResponse.json(
-        {
-          error:
-            "Merci de fournir les informations de l’utilisateur pour la confirmation d’inscription.",
-        },
-        { status: 400 },
-      );
-    }
-
-    if (!to) {
-      const candidate = user.email?.trim();
-      if (candidate) {
-        to = candidate;
-      }
-    }
-
-    if (!to) {
-      return NextResponse.json(
-        {
-          error:
-            "Merci de renseigner l’adresse e-mail du destinataire pour la confirmation d’inscription.",
-        },
-        { status: 400 },
-      );
-    }
-
-    emailContent = buildRegistrationEmail(user);
-  } else if (type === "payment") {
-    const { orderNumber, email } = payload as PaymentPayload;
-    const cleanOrderNumber = orderNumber?.trim();
-
-    if (!cleanOrderNumber) {
-      return NextResponse.json(
-        {
-          error:
-            "Merci de renseigner le numéro de commande pour la confirmation de paiement.",
-        },
-        { status: 400 },
-      );
-    }
-
-    if (!to) {
-      const candidate = email?.trim();
-      if (candidate) {
-        to = candidate;
-      }
-    }
-
-    if (!to) {
-      return NextResponse.json(
-        {
-          error:
-            "Merci de renseigner l’adresse e-mail du destinataire pour la confirmation de paiement.",
-        },
-        { status: 400 },
-      );
-    }
-
-    emailContent = buildPaymentEmail(cleanOrderNumber);
-  } else {
-    return NextResponse.json(
-      { error: "Type de confirmation inconnu." },
-      { status: 400 },
-    );
-  }
-
+async function sendEmail(
+  to: string,
+  emailContent: ReturnType<typeof buildRegistrationEmail>,
+) {
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -217,4 +125,99 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+async function sendRegistrationConfirmation(payload: RegistrationPayload) {
+  const user = payload.user;
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        error:
+          "Merci de fournir les informations de l’utilisateur pour la confirmation d’inscription.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const to = payload.to?.trim() || user.email?.trim();
+
+  if (!to) {
+    return NextResponse.json(
+      {
+        error:
+          "Merci de renseigner l’adresse e-mail du destinataire pour la confirmation d’inscription.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const emailContent = buildRegistrationEmail(user);
+  return sendEmail(to, emailContent);
+}
+
+async function sendPaymentConfirmation(payload: PaymentPayload) {
+  const cleanOrderNumber = payload.orderNumber?.trim();
+
+  if (!cleanOrderNumber) {
+    return NextResponse.json(
+      {
+        error:
+          "Merci de renseigner le numéro de commande pour la confirmation de paiement.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const to = payload.to?.trim() || payload.email?.trim();
+
+  if (!to) {
+    return NextResponse.json(
+      {
+        error:
+          "Merci de renseigner l’adresse e-mail du destinataire pour la confirmation de paiement.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const emailContent = buildPaymentEmail(cleanOrderNumber);
+  return sendEmail(to, emailContent);
+}
+
+export async function POST(request: Request) {
+  const payload: Partial<RequestPayload> & { type?: EmailType } =
+    await request.json();
+
+  const type = payload.type;
+
+  if (!type) {
+    return NextResponse.json(
+      { error: "Merci de préciser le type de confirmation à envoyer." },
+      { status: 400 },
+    );
+  }
+
+  if (!RESEND_API_KEY) {
+    return NextResponse.json(
+      {
+        error:
+          "La clé API Resend est manquante. Merci de définir la variable RESEND_API_KEY.",
+      },
+      { status: 500 },
+    );
+  }
+
+  if (type === "registration") {
+    return sendRegistrationConfirmation(payload as RegistrationPayload);
+  }
+
+  if (type === "payment") {
+    return sendPaymentConfirmation(payload as PaymentPayload);
+  }
+
+  return NextResponse.json(
+    { error: "Type de confirmation inconnu." },
+    { status: 400 },
+  );
 }
