@@ -102,10 +102,7 @@ const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
     if (typeof id !== "string" && typeof id !== "number") {
       return acc;
     }
-    const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
-      return acc;
-    }
-
+    
     const desired = parsedQuantity ?? 1;
     const remaining = MAX_PER_PRODUCT - existing;
     const copies = Math.min(remaining, desired);
