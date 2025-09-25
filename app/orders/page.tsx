@@ -42,7 +42,7 @@ interface OrderLine {
 }
 
 type OrderStatus = 'paid' | 'processing' | 'shipped' | 'delivered' | 'canceled' | 'refunded';
-
+//
 type Order = {
   id: number;
   orderNumber: string;
