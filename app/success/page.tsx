@@ -45,9 +45,14 @@ interface Order {
 }
 
 function SuccessPage() {
-  const { cart, clearCart, shippingMethod } = useContext(
-    CartContext
-  ) as CartContextType;
+  const {
+    cart,
+    clearCart,
+    shippingMethod,
+    shippingAddress,
+    billingAddress,
+    useSameAddressForBilling,
+  } = useContext(CartContext) as CartContextType;
   const { user } = useUser();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -72,6 +77,10 @@ function SuccessPage() {
             stripeSessionId,
             userEmail: user?.emailAddresses?.[0]?.emailAddress,
             shippingMethod,
+            shippingAddress,
+            billingAddress: useSameAddressForBilling
+              ? shippingAddress
+              : billingAddress,
           }),
         });
 
@@ -106,7 +115,16 @@ function SuccessPage() {
     if (user && cart.length > 0) {
       createOrder();
     }
-  }, [cart, clearCart, router, shippingMethod, user]);
+  }, [
+    billingAddress,
+    cart,
+    clearCart,
+    router,
+    shippingAddress,
+    shippingMethod,
+    useSameAddressForBilling,
+    user,
+  ]);
 
   if (isLoading) {
     return (

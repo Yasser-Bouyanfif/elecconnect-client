@@ -12,11 +12,26 @@ type CartItemPayload = {
 
 type ShippingMethod = "standard" | "express";
 
+type CheckoutAddress = {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+};
+
 type RequestBody = {
   cart?: CartItemPayload[];
   stripeSessionId?: string;
   shippingMethod?: ShippingMethod;
   userEmail?: string;
+  shippingAddress?: CheckoutAddress;
+  billingAddress?: CheckoutAddress;
 };
 
 type OrderLineInput = {
@@ -31,6 +46,30 @@ const SHIPPING_OPTIONS: Record<ShippingMethod, { carrier: string; price: number 
 };
 
 const toStringId = (value: string | number) => String(value);
+
+const sanitizeText = (value: unknown) =>
+  typeof value === "string" ? value.trim() : undefined;
+
+const formatAddress = (address?: CheckoutAddress) => {
+  if (!address) {
+    return undefined;
+  }
+
+  const firstName = sanitizeText(address.firstName) ?? "";
+  const lastName = sanitizeText(address.lastName) ?? "";
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  return {
+    fullName: fullName || undefined,
+    company: sanitizeText(address.company),
+    address1: sanitizeText(address.address1),
+    address2: sanitizeText(address.address2),
+    postalCode: sanitizeText(address.postalCode),
+    city: sanitizeText(address.city),
+    country: sanitizeText(address.country),
+    phone: sanitizeText(address.phone),
+  };
+};
 
 async function buildOrderLines(
   items: Array<[string, { quantity: number }]>
@@ -57,15 +96,7 @@ async function buildOrderLines(
 
       if (!productData || (strapiProductId && strapiProductId !== toStringId(id))) {
         console.warn(
-          `Product lookup mismatch for cart item ${id}: ${JSON.stringify(
-            productData
-          )}`
-        );
-        continue;
-      }
-
-      if (!resolvedDocumentId) {
-        console.warn(`Missing documentId for product ${id}`);
+        async function buildOrderLines(
         continue;
       }
 
@@ -96,6 +127,8 @@ export async function POST(request: Request) {
       stripeSessionId,
       userEmail,
       shippingMethod,
+      shippingAddress: shippingAddressPayload,
+      billingAddress: billingAddressPayload,
     }: RequestBody = await request.json();
 
     const selectedShippingMethod:
@@ -131,34 +164,7 @@ export async function POST(request: Request) {
           return NextResponse.json(
             { error: "Session Stripe incomplète" },
             { status: 400 }
-          );
-        }
-    
-        // IMPORTANT : éviter les doubles créations de commande
-        // Vérifier si une commande existe déjà pour cette session Stripe
-        const existingOrder = await orderApis.getOrderByStripeSession(stripeSessionId);
-        if (existingOrder.data && existingOrder.data.length > 0) {
-          return NextResponse.json(
-            { error: "Commande déjà créée pour cette session" },
-            { status: 409 }
-          );
-        }
-
-    if (!Array.isArray(cart) || cart.length === 0) {
-      return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
-      );
-    }
-
-    const productMap = new Map<string, { quantity: number }>();
-
-    cart.forEach((item) => {
-      if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
-        return;
-      }
-
-      const key = toStringId(item.id);
+      export async function POST(request: Request) {
       const existing = productMap.get(key);
       const quantity = (existing?.quantity ?? 0) + 1;
 
@@ -191,26 +197,10 @@ export async function POST(request: Request) {
         orderNumber: randomUUID(),
         userId,
         userEmail,
-        shippingAddress: {
-          fullName: "Jean Dupont",
-          company: "Ma Société",
-          address1: "12 rue des Fleurs",
-          address2: "Appartement 34",
-          postalCode: 75001,
-          city: "Paris",
-          country: "France",
-          phone: 33123456789,
-        },
-        billingAddress: {
-          fullName: "Jean Dupont",
-          company: "Ma Société",
-          address1: "12 rue des Fleurs",
-          address2: "Appartement 34",
-          postalCode: 75001,
-          city: "Paris",
-          country: "France",
-          phone: 33123456789,
-        },
+        shippingAddress: formatAddress(shippingAddressPayload),
+        billingAddress: formatAddress(
+          billingAddressPayload ?? shippingAddressPayload
+        ),
         shipping: shippingDetails,
         subtotal,
         total,

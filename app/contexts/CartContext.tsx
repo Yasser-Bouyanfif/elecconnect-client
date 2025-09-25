@@ -21,6 +21,19 @@ export type CartItem = {
 
 export type ShippingMethod = "standard" | "express";
 
+export type CheckoutAddress = {
+  firstName: string;
+  lastName: string;
+  company: string;
+  address1: string;
+  address2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  email: string;
+};
+
 export type CartContextType = {
   cart: CartItem[];
   cartSubtotal: number;
@@ -28,6 +41,12 @@ export type CartContextType = {
   cartTotalsUpdatedAt: number;
   shippingMethod: ShippingMethod;
   setShippingMethod: (method: ShippingMethod) => void;
+  shippingAddress: CheckoutAddress;
+  billingAddress: CheckoutAddress;
+  useSameAddressForBilling: boolean;
+  updateShippingAddress: (updates: Partial<CheckoutAddress>) => void;
+  updateBillingAddress: (updates: Partial<CheckoutAddress>) => void;
+  setUseSameAddressForBilling: (useSame: boolean) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string | number) => void;
   updateCartItemQuantity: (id: string | number, quantity: number) => void;
@@ -44,6 +63,19 @@ export const MAX_PER_PRODUCT = 4;
 
 const getCartKey = (item: Pick<CartItem, "id" | "documentId">) =>
   (item.documentId ?? item.id).toString();
+
+const createEmptyAddress = (): CheckoutAddress => ({
+  firstName: "",
+  lastName: "",
+  company: "",
+  address1: "",
+  address2: "",
+  city: "",
+  postalCode: "",
+  country: "",
+  phone: "",
+  email: "",
+});
 
 const clampStoredQuantity = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -70,21 +102,7 @@ const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
     if (typeof id !== "string" && typeof id !== "number") {
       return acc;
     }
-
-    const key = getCartKey(current);
-    const existing = counts.get(key) ?? 0;
-    if (existing >= MAX_PER_PRODUCT) {
-      return acc;
-    }
-
-    const { quantity: rawQuantity, ...rest } = current as CartItem & {
-      quantity?: unknown;
-    };
-
-    const parsedQuantity =
-      rawQuantity !== undefined ? clampStoredQuantity(rawQuantity) : null;
-
-    if (parsedQuantity === 0) {
+    const sanitizeCartItems = (items: Array<CartItem & { quantity?: unknown }>): Car
       return acc;
     }
 
@@ -113,11 +131,52 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [shippingMethod, setShippingMethodState] = useState<ShippingMethod>(
     "standard"
   );
+  const [shippingAddress, setShippingAddress] = useState<CheckoutAddress>(
+    () => createEmptyAddress()
+  );
+  const [billingAddress, setBillingAddress] = useState<CheckoutAddress>(() =>
+    createEmptyAddress()
+  );
+  const [useSameAddressForBilling, setUseSameAddressForBillingState] =
+    useState(true);
 
   const updateShippingMethod = useCallback((method: ShippingMethod) => {
     setShippingMethodState(method);
     localStorage.setItem("shippingMethod", method);
   }, []);
+
+  const updateShippingAddress = useCallback(
+    (updates: Partial<CheckoutAddress>) => {
+      setShippingAddress((prev) => {
+        const next = { ...prev, ...updates };
+
+        if (useSameAddressForBilling) {
+          setBillingAddress({ ...next });
+        }
+
+        return next;
+      });
+    },
+    [setBillingAddress, useSameAddressForBilling]
+  );
+
+  const updateBillingAddress = useCallback(
+    (updates: Partial<CheckoutAddress>) => {
+      setBillingAddress((prev) => ({ ...prev, ...updates }));
+    },
+    []
+  );
+
+  const setUseSameAddressForBilling = useCallback(
+    (useSame: boolean) => {
+      setUseSameAddressForBillingState(useSame);
+
+      if (useSame) {
+        setBillingAddress({ ...shippingAddress });
+      }
+    },
+    [shippingAddress]
+  );
 
   const clearCartTotals = useCallback(() => {
     setCartSubtotal(0);
@@ -140,10 +199,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
     const storedShippingMethod = localStorage.getItem("shippingMethod");
+    const storedAddressesRaw = localStorage.getItem("checkoutAddresses");
 
     if (!storedCart) {
       if (storedShippingMethod === "standard" || storedShippingMethod === "express") {
         setShippingMethodState(storedShippingMethod);
+      }
+      if (storedAddressesRaw) {
+        try {
+          const parsed = JSON.parse(storedAddressesRaw);
+          if (parsed?.shipping && typeof parsed.shipping === "object") {
+            setShippingAddress((prev) => ({ ...prev, ...parsed.shipping }));
+          }
+          if (parsed?.billing && typeof parsed.billing === "object") {
+            setBillingAddress((prev) => ({ ...prev, ...parsed.billing }));
+          }
+          if (typeof parsed?.useSameForBilling === "boolean") {
+            setUseSameAddressForBillingState(parsed.useSameForBilling);
+          }
+        } catch {
+          // ignore malformed data
+        }
       }
       return;
     }
@@ -162,11 +238,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (storedShippingMethod === "standard" || storedShippingMethod === "express") {
       setShippingMethodState(storedShippingMethod);
     }
+
+    if (storedAddressesRaw) {
+      try {
+        const parsedAddresses = JSON.parse(storedAddressesRaw);
+        if (parsedAddresses?.shipping && typeof parsedAddresses.shipping === "object") {
+          setShippingAddress((prev) => ({ ...prev, ...parsedAddresses.shipping }));
+        }
+        if (parsedAddresses?.billing && typeof parsedAddresses.billing === "object") {
+          setBillingAddress((prev) => ({ ...prev, ...parsedAddresses.billing }));
+        }
+        if (typeof parsedAddresses?.useSameForBilling === "boolean") {
+          setUseSameAddressForBillingState(parsedAddresses.useSameForBilling);
+        }
+      } catch {
+        // ignore malformed data
+      }
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    const payload = {
+      shipping: shippingAddress,
+      billing: useSameAddressForBilling ? shippingAddress : billingAddress,
+      useSameForBilling: useSameAddressForBilling,
+    };
+
+    localStorage.setItem("checkoutAddresses", JSON.stringify(payload));
+  }, [billingAddress, shippingAddress, useSameAddressForBilling]);
 
   const addToCart = useCallback((item: CartItem) => {
     if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
@@ -192,6 +295,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearCartTotals();
     setShippingMethodState("standard");
     localStorage.removeItem("shippingMethod");
+    setShippingAddress(createEmptyAddress());
+    setBillingAddress(createEmptyAddress());
+    setUseSameAddressForBillingState(true);
+    localStorage.removeItem("checkoutAddresses");
   }, [clearCartTotals]);
 
   const updateCartItemQuantity = useCallback((id: string | number, quantity: number) => {
@@ -213,6 +320,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       cartTotalsUpdatedAt,
       shippingMethod,
       setShippingMethod: updateShippingMethod,
+      shippingAddress,
+      billingAddress,
+      useSameAddressForBilling,
+      updateShippingAddress,
+      updateBillingAddress,
+      setUseSameAddressForBilling,
       addToCart,
       removeFromCart,
       updateCartItemQuantity,
