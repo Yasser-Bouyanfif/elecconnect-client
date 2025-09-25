@@ -1,40 +1,65 @@
+import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import orderApis from "@/app/strapi/orderApis";
-import { currentUser } from "@clerk/nextjs/server";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
-import { useUser } from "@clerk/nextjs";
 
-type User = {
-    id: string;
-    emailAddresses: Array<{ emailAddress: string }>;
+const stripe = new Stripe(STRIPE_SECRET_KEY as string);
+
+type OrderPayload = {
+  orderNumber: string;
+  total: number;
+  userEmail?: string;
+  createdAt: string;
+  shippingAddress?: {
+    fullName?: string;
+    company?: string;
+    address1?: string;
+    address2?: string;
+    postalCode?: string;
+    city?: string;
+    country?: string;
+    phone?: string;
   };
+  billingAddress?: {
+    fullName?: string;
+    company?: string;
+    address1?: string;
+    address2?: string;
+    postalCode?: string;
+    city?: string;
+    country?: string;
+    phone?: string;
+  };
+  shipping?: {
+    carrier?: string;
+    price?: number;
+  };
+};
 
 export async function POST(request: Request) {
-  try {
-    const {userId} = await auth()
-    
-    if (!userId) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
+  const { userId } = await auth();
 
+  if (!userId) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  try {
     const { stripeSessionId } = await request.json();
 
-    if (!stripeSessionId) {
+    if (typeof stripeSessionId !== "string" || !stripeSessionId) {
       return NextResponse.json(
         { error: "Session Stripe manquante" },
         { status: 400 }
       );
     }
 
-    // Vérifier d'abord la session Stripe pour la sécurité
-    const stripe = require('stripe')(STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+    await stripe.checkout.sessions.retrieve(stripeSessionId);
 
+    const orderResponse = await orderApis.getOrderByStripeSession(
+      stripeSessionId
+    );
 
-    // Récupérer la commande
-    const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
-    
     if (!orderResponse?.data?.data || orderResponse.data.data.length === 0) {
       return NextResponse.json(
         { error: "Commande non trouvée" },
@@ -48,7 +73,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
     }
 
-    const order = {
+    const order: OrderPayload = {
       orderNumber: fullOrder.orderNumber,
       total: fullOrder.total,
       userEmail: fullOrder.userEmail,
@@ -76,9 +101,8 @@ export async function POST(request: Request) {
       shipping: {
         carrier: fullOrder.shipping?.carrier,
         price: fullOrder.shipping?.price,
-      }
+      },
     };
-    
 
     return NextResponse.json({ order });
   } catch (error) {

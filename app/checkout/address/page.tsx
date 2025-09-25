@@ -1,133 +1,211 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useContext, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CartContext, type CheckoutAddress } from "@/app/contexts/CartContext";
 
-type Address = {
-  firstName: string;
-  lastName: string;
-  company?: string;
-  address1: string;
-  address2?: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  phone?: string;
-  email?: string;
-};
+const addressFields: Array<{
+  key: keyof CheckoutAddress;
+  name: string;
+  autoComplete: string;
+  placeholder: string;
+  type?: string;
+  span?: boolean;
+}> = [
+  {
+    key: "firstName",
+    name: "given-name",
+    autoComplete: "given-name",
+    placeholder: "Prénom",
+  },
+  {
+    key: "lastName",
+    name: "family-name",
+    autoComplete: "family-name",
+    placeholder: "Nom",
+  },
+  {
+    key: "company",
+    name: "organization",
+    autoComplete: "organization",
+    placeholder: "Société (optionnel)",
+    span: true,
+  },
+  {
+    key: "address1",
+    name: "address-line1",
+    autoComplete: "address-line1",
+    placeholder: "Adresse",
+    span: true,
+  },
+  {
+    key: "address2",
+    name: "address-line2",
+    autoComplete: "address-line2",
+    placeholder: "Complément d'adresse (optionnel)",
+    span: true,
+  },
+  {
+    key: "city",
+    name: "address-level2",
+    autoComplete: "address-level2",
+    placeholder: "Ville",
+  },
+  {
+    key: "postalCode",
+    name: "postal-code",
+    autoComplete: "postal-code",
+    placeholder: "Code postal",
+  },
+  {
+    key: "country",
+    name: "country",
+    autoComplete: "country",
+    placeholder: "Pays",
+  },
+  {
+    key: "phone",
+    name: "tel",
+    autoComplete: "tel",
+    placeholder: "Téléphone (optionnel)",
+  },
+  {
+    key: "email",
+    name: "email",
+    autoComplete: "email",
+    placeholder: "Email (optionnel)",
+    type: "email",
+    span: true,
+  },
+];
+
+type ChangeHandler = (
+  field: keyof CheckoutAddress
+) => (event: ChangeEvent<HTMLInputElement>) => void;
+
+function AddressFields({
+  address,
+  onChange,
+  idPrefix,
+}: {
+  address: CheckoutAddress;
+  onChange: ChangeHandler;
+  idPrefix: string;
+}) {
+  return (
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {addressFields.map(({ key, name, autoComplete, placeholder, type, span }) => (
+        <input
+          key={key}
+          id={`${idPrefix}-${name}`}
+          name={`${idPrefix}-${name}`}
+          type={type ?? "text"}
+          autoComplete={autoComplete}
+          className={`input input-bordered w-full${span ? " sm:col-span-2" : ""}`}
+          placeholder={placeholder}
+          value={address[key]}
+          onChange={onChange(key)}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function AddressStepPage() {
   const router = useRouter();
-  const [shipping, setShipping] = useState<Address>({
-    firstName: "",
-    lastName: "",
-    company: "",
-    address1: "",
-    address2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    phone: "",
-    email: "",
-  });
+  const cartContext = useContext(CartContext);
 
-  const [useSameForBilling, setUseSameForBilling] = useState(true);
-  const [billing, setBilling] = useState<Address>({
-    firstName: "",
-    lastName: "",
-    company: "",
-    address1: "",
-    address2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    phone: "",
-    email: "",
-  });
+  if (!cartContext) {
+    throw new Error("Cart context is unavailable");
+  }
 
-  // Load any saved data
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("checkoutAddresses");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed?.shipping) setShipping(parsed.shipping);
-        if (typeof parsed?.useSameForBilling === "boolean") setUseSameForBilling(parsed.useSameForBilling);
-        if (parsed?.billing) setBilling(parsed.billing);
-      }
-    } catch {}
-  }, []);
+  const {
+    shippingAddress,
+    billingAddress,
+    useSameAddressForBilling,
+    updateShippingAddress,
+    updateBillingAddress,
+    setUseSameAddressForBilling,
+  } = cartContext;
+
+  const handleChangeFactory = (
+    updater: (updates: Partial<CheckoutAddress>) => void
+  ): ChangeHandler =>
+    (field) =>
+      (event) => {
+        updater({ [field]: event.target.value });
+      };
 
   const saveAndContinue = () => {
-    const payload = { shipping, billing: useSameForBilling ? shipping : billing, useSameForBilling };
-    localStorage.setItem("checkoutAddresses", JSON.stringify(payload));
     router.push("/checkout/shipping");
   };
-
-  const onChangeFactory = (
-    setter: React.Dispatch<React.SetStateAction<Address>>
-  ) =>
-    (field: keyof Address) =>
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        setter((prev) => ({ ...prev, [field]: e.target.value }));
-
-  const s = onChangeFactory(setShipping);
-  const b = onChangeFactory(setBilling);
 
   return (
     <section className="bg-gray-50">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Étape 1 : Adresse(s)</h1>
-        <p className="mt-1 text-slate-600">Saisissez votre adresse de livraison et, si nécessaire, une adresse de facturation différente.</p>
+        <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
+          Étape 1 : Adresse(s)
+        </h1>
+        <p className="mt-1 text-slate-600">
+          Saisissez votre adresse de livraison et, si nécessaire, une adresse de facturation différente.
+        </p>
 
         <div className="mt-8 grid grid-cols-1 gap-6">
-          {/* Shipping address */}
-          <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
-            <h2 className="text-base font-semibold text-slate-900">Adresse de livraison</h2>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input className="input input-bordered w-full" name="given-name" autoComplete="given-name" placeholder="Prénom" value={shipping.firstName} onChange={s("firstName")} />
-              <input className="input input-bordered w-full" name="family-name" autoComplete="family-name" placeholder="Nom" value={shipping.lastName} onChange={s("lastName")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="organization" autoComplete="organization" placeholder="Société (optionnel)" value={shipping.company} onChange={s("company")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="address-line1" autoComplete="address-line1" placeholder="Adresse" value={shipping.address1} onChange={s("address1")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="address-line2" autoComplete="address-line2" placeholder="Complément d'adresse (optionnel)" value={shipping.address2} onChange={s("address2")} />
-              <input className="input input-bordered w-full" name="address-level2" autoComplete="address-level2" placeholder="Ville" value={shipping.city} onChange={s("city")} />
-              <input className="input input-bordered w-full" name="postal-code" autoComplete="postal-code" placeholder="Code postal" value={shipping.postalCode} onChange={s("postalCode")} />
-              <input className="input input-bordered w-full" name="country" autoComplete="country" placeholder="Pays" value={shipping.country} onChange={s("country")} />
-              <input className="input input-bordered w-full" name="tel" autoComplete="tel" placeholder="Téléphone (optionnel)" value={shipping.phone} onChange={s("phone")} />
-              <input className="input input-bordered w-full sm:col-span-2" type="email" name="email" autoComplete="email" placeholder="Email (optionnel)" value={shipping.email} onChange={s("email")} />
-            </div>
+          <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">
+              Adresse de livraison
+            </h2>
+            <AddressFields
+              address={shippingAddress}
+              onChange={handleChangeFactory(updateShippingAddress)}
+              idPrefix="shipping"
+            />
           </div>
 
-          {/* Billing toggle */}
-          <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
+          <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
             <label className="flex items-center gap-2">
-              <input type="checkbox" className="checkbox checkbox-sm" checked={useSameForBilling} onChange={(e) => setUseSameForBilling(e.target.checked)} />
-              <span className="text-slate-800">Utiliser la même adresse pour la facturation</span>
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={useSameAddressForBilling}
+                onChange={(event) =>
+                  setUseSameAddressForBilling(event.target.checked)
+                }
+              />
+              <span className="text-slate-800">
+                Utiliser la même adresse pour la facturation
+              </span>
             </label>
-            {!useSameForBilling && (
+
+            {!useSameAddressForBilling && (
               <div className="mt-4">
-                <h2 className="text-base font-semibold text-slate-900">Adresse de facturation</h2>
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input className="input input-bordered w-full" name="billing-given-name" autoComplete="given-name" placeholder="Prénom" value={billing.firstName} onChange={b("firstName")} />
-                  <input className="input input-bordered w-full" name="billing-family-name" autoComplete="family-name" placeholder="Nom" value={billing.lastName} onChange={b("lastName")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-organization" autoComplete="organization" placeholder="Société (optionnel)" value={billing.company} onChange={b("company")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-address-line1" autoComplete="address-line1" placeholder="Adresse" value={billing.address1} onChange={b("address1")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-address-line2" autoComplete="address-line2" placeholder="Complément d'adresse (optionnel)" value={billing.address2} onChange={b("address2")} />
-                  <input className="input input-bordered w-full" name="billing-address-level2" autoComplete="address-level2" placeholder="Ville" value={billing.city} onChange={b("city")} />
-                  <input className="input input-bordered w-full" name="billing-postal-code" autoComplete="postal-code" placeholder="Code postal" value={billing.postalCode} onChange={b("postalCode")} />
-                  <input className="input input-bordered w-full" name="billing-country" autoComplete="country" placeholder="Pays" value={billing.country} onChange={b("country")} />
-                  <input className="input input-bordered w-full" name="billing-tel" autoComplete="tel" placeholder="Téléphone (optionnel)" value={billing.phone} onChange={b("phone")} />
-                  <input className="input input-bordered w-full sm:col-span-2" type="email" name="billing-email" autoComplete="email" placeholder="Email (optionnel)" value={billing.email} onChange={b("email")} />
-                </div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  Adresse de facturation
+                </h2>
+                <AddressFields
+                  address={billingAddress}
+                  onChange={handleChangeFactory(updateBillingAddress)}
+                  idPrefix="billing"
+                />
               </div>
             )}
           </div>
 
-          {/* Actions (no payment button here as requested) */}
           <div className="flex items-center justify-between">
-            <Link href="/cart" className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800">Retour au panier</Link>
-            <button type="button" onClick={saveAndContinue} className="btn btn-primary">Continuer</button>
+            <Link
+              href="/cart"
+              className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800"
+            >
+              Retour au panier
+            </Link>
+            <button
+              type="button"
+              onClick={saveAndContinue}
+              className="btn btn-primary"
+            >
+              Continuer
+            </button>
           </div>
         </div>
       </div>
