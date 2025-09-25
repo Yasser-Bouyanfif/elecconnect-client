@@ -50,16 +50,44 @@ type Order = {
   billingAddress?: Address;
 };
 
-const normalizeAddress = (address: unknown): Address | undefined => {
-  if (!address || typeof address !== 'object') {
+const toPlainRecord = (input: unknown): Record<string, unknown> | undefined => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return undefined;
   }
 
-  const source =
-    'attributes' in (address as Record<string, unknown>) &&
-    (address as { attributes?: Record<string, unknown> }).attributes
-      ? ((address as { attributes: Record<string, unknown> }).attributes)
-      : (address as Record<string, unknown>);
+  const entity = input as Record<string, unknown>;
+
+  if (
+    'data' in entity &&
+    entity.data &&
+    typeof entity.data === 'object' &&
+    !Array.isArray(entity.data)
+  ) {
+    return toPlainRecord(entity.data);
+  }
+
+  if (
+    'attributes' in entity &&
+    entity.attributes &&
+    typeof entity.attributes === 'object' &&
+    !Array.isArray(entity.attributes)
+  ) {
+    const attributes = entity.attributes as Record<string, unknown>;
+    return {
+      ...attributes,
+      id: entity.id ?? attributes.id
+    };
+  }
+
+  return entity;
+};
+
+const normalizeAddress = (address: unknown): Address | undefined => {
+  const source = toPlainRecord(address);
+
+  if (!source) {
+    return undefined;
+  }
 
   const address1 = typeof source.address1 === 'string' ? source.address1 : '';
   const city = typeof source.city === 'string' ? source.city : '';
@@ -83,15 +111,11 @@ const normalizeAddress = (address: unknown): Address | undefined => {
 };
 
 const normalizeShipping = (shipping: unknown): Order['shipping'] => {
-  if (!shipping || typeof shipping !== 'object') {
+  const source = toPlainRecord(shipping);
+
+  if (!source) {
     return undefined;
   }
-
-  const source =
-    'attributes' in (shipping as Record<string, unknown>) &&
-    (shipping as { attributes?: Record<string, unknown> }).attributes
-      ? ((shipping as { attributes: Record<string, unknown> }).attributes)
-      : (shipping as Record<string, unknown>);
 
   const priceValue =
     typeof source.price === 'number'
@@ -119,19 +143,16 @@ const normalizeOrder = (order: unknown): Order | null => {
   }
 
   const rawOrder = order as Record<string, unknown>;
-  const attributes =
-    'attributes' in rawOrder && rawOrder.attributes
-      ? (rawOrder.attributes as Record<string, unknown>)
-      : rawOrder;
+  const flattened = toPlainRecord(order) ?? rawOrder;
 
-  const idCandidate = rawOrder.id ?? attributes.id;
+  const idCandidate = rawOrder.id ?? flattened.id;
   const id = typeof idCandidate === 'number' ? idCandidate : Number.parseInt(String(idCandidate ?? ''), 10);
 
   if (!Number.isFinite(id)) {
     return null;
   }
 
-  const createdAtRaw = attributes.createdAt;
+  const createdAtRaw = flattened.createdAt ?? rawOrder.createdAt;
   const createdAt =
     typeof createdAtRaw === 'string'
       ? createdAtRaw
@@ -139,7 +160,7 @@ const normalizeOrder = (order: unknown): Order | null => {
         ? createdAtRaw.toISOString()
         : new Date().toISOString();
 
-  const status = attributes.orderStatus;
+  const status = flattened.orderStatus ?? rawOrder.orderStatus;
   const orderStatus: OrderStatus =
     status === 'paid' ||
     status === 'processing' ||
@@ -150,15 +171,15 @@ const normalizeOrder = (order: unknown): Order | null => {
       ? status
       : 'processing';
 
-  const subtotalRaw = attributes.subtotal;
-  const totalRaw = attributes.total;
+  const subtotalRaw = flattened.subtotal ?? rawOrder.subtotal;
+  const totalRaw = flattened.total ?? rawOrder.total;
 
   return {
     id,
     orderNumber:
-      typeof attributes.orderNumber === 'string'
-        ? attributes.orderNumber
-        : String(attributes.orderNumber ?? id),
+      typeof flattened.orderNumber === 'string'
+        ? flattened.orderNumber
+        : String(flattened.orderNumber ?? id),
     orderStatus,
     subtotal:
       typeof subtotalRaw === 'number'
@@ -173,9 +194,9 @@ const normalizeOrder = (order: unknown): Order | null => {
           ? Number.parseFloat(totalRaw)
           : 0,
     createdAt,
-    shipping: normalizeShipping(attributes.shipping ?? rawOrder.shipping),
-    shippingAddress: normalizeAddress(attributes.shippingAddress ?? rawOrder.shippingAddress),
-    billingAddress: normalizeAddress(attributes.billingAddress ?? rawOrder.billingAddress)
+    shipping: normalizeShipping(flattened.shipping ?? rawOrder.shipping),
+    shippingAddress: normalizeAddress(flattened.shippingAddress ?? rawOrder.shippingAddress),
+    billingAddress: normalizeAddress(flattened.billingAddress ?? rawOrder.billingAddress)
   };
 };
 
