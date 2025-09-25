@@ -89,8 +89,14 @@ export default function AddressStepPage() {
 
           {/* Actions (no payment button here as requested) */}
           <div className="flex items-center justify-between">
-            <Link href="/cart" className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800">Retour au panier</Link>
-            <button type="button" onClick={saveAndContinue} className="btn btn-primary">Continuer</button>
+            <Link href="/cart" className="text-sm text-slate-600 hover:text-slate-800">Retour au panier</Link>
+            <button 
+              type="button" 
+              onClick={saveAndContinue} 
+              className="btn btn-soft btn-primary"
+            >
+              Continuer
+            </button>
           </div>
         </div>
       </div>

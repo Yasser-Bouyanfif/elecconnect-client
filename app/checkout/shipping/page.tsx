@@ -178,7 +178,7 @@ export default function ShippingStepPage() {
 
             <div className="mt-5 flex items-center justify-between">
               <Link href="/checkout/address" className="text-sm text-slate-600 hover:text-slate-800">Retour aux adresses</Link>
-              <button onClick={handleProceedToPayment} className="btn btn-primary">Procéder au paiement</button>
+              <button onClick={handleProceedToPayment} className="btn btn-soft btn-primary">Procéder au paiement</button>
             </div>
           </div>
         </div>
