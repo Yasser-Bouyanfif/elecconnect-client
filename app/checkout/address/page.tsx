@@ -1,79 +1,42 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-type Address = {
-  firstName: string;
-  lastName: string;
-  company?: string;
-  address1: string;
-  address2?: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  phone?: string;
-  email?: string;
-};
+import {
+  CartContext,
+  CartContextType,
+  CheckoutAddress,
+} from "@/app/contexts/CartContext";
 
 export default function AddressStepPage() {
   const router = useRouter();
-  const [shipping, setShipping] = useState<Address>({
-    firstName: "",
-    lastName: "",
-    company: "",
-    address1: "",
-    address2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    phone: "",
-    email: "",
-  });
-
-  const [useSameForBilling, setUseSameForBilling] = useState(true);
-  const [billing, setBilling] = useState<Address>({
-    firstName: "",
-    lastName: "",
-    company: "",
-    address1: "",
-    address2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    phone: "",
-    email: "",
-  });
-
-  // Load any saved data
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("checkoutAddresses");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed?.shipping) setShipping(parsed.shipping);
-        if (typeof parsed?.useSameForBilling === "boolean") setUseSameForBilling(parsed.useSameForBilling);
-        if (parsed?.billing) setBilling(parsed.billing);
-      }
-    } catch {}
-  }, []);
+  const {
+    shippingAddress,
+    billingAddress,
+    useSameAddressForBilling,
+    updateShippingAddress,
+    updateBillingAddress,
+    setUseSameAddressForBilling,
+  } = useContext(CartContext) as CartContextType;
 
   const saveAndContinue = () => {
-    const payload = { shipping, billing: useSameForBilling ? shipping : billing, useSameForBilling };
-    localStorage.setItem("checkoutAddresses", JSON.stringify(payload));
     router.push("/checkout/shipping");
   };
 
-  const onChangeFactory = (
-    setter: React.Dispatch<React.SetStateAction<Address>>
-  ) =>
-    (field: keyof Address) =>
+  const onChangeFactory =
+    (
+      updater: (updates: Partial<CheckoutAddress>) => void
+    ) =>
+    (field: keyof CheckoutAddress) =>
       (e: React.ChangeEvent<HTMLInputElement>) =>
-        setter((prev) => ({ ...prev, [field]: e.target.value }));
+        updater({ [field]: e.target.value });
 
-  const s = onChangeFactory(setShipping);
-  const b = onChangeFactory(setBilling);
+  const shipping = shippingAddress;
+  const billing = billingAddress;
+  const useSameForBilling = useSameAddressForBilling;
+  const s = onChangeFactory(updateShippingAddress);
+  const b = onChangeFactory(updateBillingAddress);
 
   return (
     <section className="bg-gray-50">
@@ -102,7 +65,7 @@ export default function AddressStepPage() {
           {/* Billing toggle */}
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
             <label className="flex items-center gap-2">
-              <input type="checkbox" className="checkbox checkbox-sm" checked={useSameForBilling} onChange={(e) => setUseSameForBilling(e.target.checked)} />
+              <input type="checkbox" className="checkbox checkbox-sm" checked={useSameForBilling} onChange={(e) => setUseSameAddressForBilling(e.target.checked)} />
               <span className="text-slate-800">Utiliser la même adresse pour la facturation</span>
             </label>
             {!useSameForBilling && (

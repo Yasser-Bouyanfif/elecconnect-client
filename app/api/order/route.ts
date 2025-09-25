@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
@@ -10,9 +10,28 @@ type CartItemPayload = {
   documentId?: string;
 };
 
+type ShippingMethod = "standard" | "express";
+
+type CheckoutAddress = {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+};
+
 type RequestBody = {
   cart?: CartItemPayload[];
   stripeSessionId?: string;
+  shippingMethod?: ShippingMethod;
+  userEmail?: string;
+  shippingAddress?: CheckoutAddress;
+  billingAddress?: CheckoutAddress;
 };
 
 type OrderLineInput = {
@@ -21,9 +40,36 @@ type OrderLineInput = {
   unitPrice: number;
 };
 
-const SHIPPING_DETAILS = { carrier: "DHL", price: 9.99 } as const;
+const SHIPPING_OPTIONS: Record<ShippingMethod, { carrier: string; price: number }> = {
+  standard: { carrier: "Colissimo Standard", price: 0 },
+  express: { carrier: "Chronopost Express", price: 12.9 },
+};
 
 const toStringId = (value: string | number) => String(value);
+
+const sanitizeText = (value: unknown) =>
+  typeof value === "string" ? value.trim() : undefined;
+
+const formatAddress = (address?: CheckoutAddress) => {
+  if (!address) {
+    return undefined;
+  }
+
+  const firstName = sanitizeText(address.firstName) ?? "";
+  const lastName = sanitizeText(address.lastName) ?? "";
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  return {
+    fullName: fullName || undefined,
+    company: sanitizeText(address.company),
+    address1: sanitizeText(address.address1),
+    address2: sanitizeText(address.address2),
+    postalCode: sanitizeText(address.postalCode),
+    city: sanitizeText(address.city),
+    country: sanitizeText(address.country),
+    phone: sanitizeText(address.phone),
+  };
+};
 
 async function buildOrderLines(
   items: Array<[string, { quantity: number }]>
@@ -84,7 +130,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { cart, stripeSessionId, userEmail } = await request.json();
+    const {
+      cart,
+      stripeSessionId,
+      userEmail,
+      shippingMethod,
+      shippingAddress: shippingAddressPayload,
+      billingAddress: billingAddressPayload,
+    }: RequestBody = await request.json();
+
+    const selectedShippingMethod:
+      | ShippingMethod
+      | undefined = shippingMethod;
+    const resolvedShippingMethod: ShippingMethod =
+      selectedShippingMethod === "express" || selectedShippingMethod === "standard"
+        ? selectedShippingMethod
+        : "standard";
+    const shippingDetails = SHIPPING_OPTIONS[resolvedShippingMethod];
 
         // Vérification CRITIQUE de la session Stripe
         if (!stripeSessionId) {
@@ -163,34 +225,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const total = subtotal + SHIPPING_DETAILS.price;
+    const total = subtotal + shippingDetails.price;
 
     const orderResponse = await orderApis.createOrder({
       data: {
         orderNumber: randomUUID(),
         userId,
         userEmail,
-        shippingAddress: {
-          fullName: "Jean Dupont",
-          company: "Ma Société",
-          address1: "12 rue des Fleurs",
-          address2: "Appartement 34",
-          postalCode: 75001,
-          city: "Paris",
-          country: "France",
-          phone: 33123456789,
-        },
-        billingAddress: {
-          fullName: "Jean Dupont",
-          company: "Ma Société",
-          address1: "12 rue des Fleurs",
-          address2: "Appartement 34",
-          postalCode: 75001,
-          city: "Paris",
-          country: "France",
-          phone: 33123456789,
-        },
-        shipping: SHIPPING_DETAILS,
+        shippingAddress: formatAddress(shippingAddressPayload),
+        billingAddress: formatAddress(
+          billingAddressPayload ?? shippingAddressPayload
+        ),
+        shipping: shippingDetails,
         subtotal,
         total,
         orderStatus: "pending",

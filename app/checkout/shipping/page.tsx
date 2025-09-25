@@ -1,9 +1,14 @@
 "use client";
 
-import React, { useMemo, useState, useContext, useEffect } from "react";
+import { useMemo, useContext, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CartContext, CartContextType, CartItem, MAX_PER_PRODUCT } from "../../contexts/CartContext";
+import {
+  CartContext,
+  CartContextType,
+  CartItem,
+  MAX_PER_PRODUCT,
+} from "../../contexts/CartContext";
 
 function groupCart(cart: (CartItem | null | undefined)[]) {
   const map = new Map<string, { item: CartItem; quantity: number }>();
@@ -29,9 +34,14 @@ async function createCheckoutSession(items: { title?: string; price: number; qua
 
 export default function ShippingStepPage() {
   const router = useRouter();
-  const { cart, cartSubtotal, cartTotal, cartTotalsUpdatedAt } = useContext(
-    CartContext
-  ) as CartContextType;
+  const {
+    cart,
+    cartSubtotal,
+    cartTotal,
+    cartTotalsUpdatedAt,
+    shippingMethod,
+    setShippingMethod,
+  } = useContext(CartContext) as CartContextType;
   const groups = useMemo(() => groupCart(cart), [cart]);
 
   useEffect(() => {
@@ -39,8 +49,6 @@ export default function ShippingStepPage() {
       router.replace("/cart");
     }
   }, [groups, router]);
-
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
 
   const handleProceedToPayment = async () => {
     // Build line items from cart
