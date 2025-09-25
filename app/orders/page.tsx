@@ -32,6 +32,17 @@ type Order = {
     price: number;
     carrier: string;
   };
+  shippingAddress?: {
+    id: number;
+    fullName: string;
+    address1: string;
+    address2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    phone: string;
+    createdAt: string;
+  };
 };
 
 export default function OrdersPage() {
@@ -50,7 +61,6 @@ export default function OrdersPage() {
           throw new Error('Erreur lors de la récupération des commandes');
         }
         const data = await response.json();
-        console.log(data.data)
         setOrders(data.data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -297,7 +307,7 @@ export default function OrdersPage() {
                               <Truck className="h-5 w-5" />
                             </div>
                             <h3 className="text-sm font-medium text-stone-700 uppercase tracking-wider">
-                              Livraison
+                              Statut
                             </h3>
                           </div>
                           <div className="pl-11">
@@ -315,12 +325,12 @@ export default function OrdersPage() {
                               </div>
                               <div className="ml-3">
                                 <p className="text-sm font-medium text-stone-900">
-                                  {order.orderStatus === 'completed' ? 'Livraison effectuée' : 'En cours de préparation'}
+                                  {order.orderStatus === 'completed' ? 'Commande terminée' : 'En cours de traitement'}
                                 </p>
                                 <p className="text-xs text-stone-500 mt-0.5">
                                   {order.orderStatus === 'completed' 
-                                    ? 'Livré le ' + new Date(order.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-                                    : 'En attente de préparation'}
+                                    ? 'Terminé le ' + new Date(order.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                                    : 'Votre commande est en préparation'}
                                 </p>
                               </div>
                             </div>
@@ -334,31 +344,47 @@ export default function OrdersPage() {
                               <PackageCheck className="h-5 w-5" />
                             </div>
                             <h3 className="text-sm font-medium text-stone-700 uppercase tracking-wider">
-                              Actions
+                              Livraison
                             </h3>
                           </div>
                           <div className="pl-11 mt-auto">
                             <div className="space-y-3">
+                              <div className="p-3 bg-white border border-stone-200 rounded-lg">
+                                <p className="text-xs font-medium text-stone-500 mb-1">Adresse de livraison</p>
+                                {order.shippingAddress ? (
+                                  <div className="space-y-1">
+                                    <p className="text-sm text-stone-800 font-medium">
+                                      {order.shippingAddress.fullName}
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                      {order.shippingAddress.address1}
+                                    </p>
+                                    {order.shippingAddress.address2 && (
+                                      <p className="text-sm text-stone-600">
+                                        {order.shippingAddress.address2}
+                                      </p>
+                                    )}
+                                    <p className="text-sm text-stone-600">
+                                      {order.shippingAddress.postalCode} {order.shippingAddress.city}
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                      {order.shippingAddress.country}
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                      {order.shippingAddress.phone}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-stone-500 italic">Aucune adresse de livraison renseignée</p>
+                                )}
+                              </div>
                               <Link 
                                 href={`/orders/${order.id}`}
                                 className="group w-full inline-flex items-center justify-between px-4 py-2.5 border border-stone-200 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors"
                               >
-                                <span>Voir les détails</span>
+                                <span>Suivre ma commande</span>
                                 <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-emerald-600 transition-colors" />
                               </Link>
-                              <button
-                                disabled={order.orderStatus === 'completed'}
-                                className={`w-full inline-flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
-                                  order.orderStatus === 'completed'
-                                    ? 'border-stone-200 bg-stone-50 text-stone-400 cursor-not-allowed'
-                                    : 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                                }`}
-                              >
-                                <span>Suivre mon colis</span>
-                                <Truck className={`h-4 w-4 ${
-                                  order.orderStatus === 'completed' ? 'text-stone-300' : 'text-emerald-500'
-                                }`} />
-                              </button>
                             </div>
                           </div>
                         </div>
