@@ -42,7 +42,7 @@ interface OrderLine {
 }
 
 type OrderStatus = 'paid' | 'processing' | 'shipped' | 'delivered' | 'canceled' | 'refunded';
-//
+
 type Order = {
   id: number;
   orderNumber: string;
@@ -339,7 +339,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       if (!isLoaded || !user?.id) return;
-      
+
       try {
         setLoading(true);
         const data = await fetchUserOrders();
@@ -381,7 +381,7 @@ export default function OrdersPage() {
           <ChevronRight className="h-4 w-4 mx-2 text-stone-400" />
           <span className="text-stone-700 font-medium">Mes commandes</span>
         </nav>
-        
+
         <div className="mb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
             <div>
@@ -524,34 +524,6 @@ export default function OrdersPage() {
                           <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
                             <div className="flex items-center mb-3">
                               <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
-                                <ReceiptText className="h-4 w-4" />
-                              </div>
-                              <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">
-                                Résumé du paiement
-                              </h3>
-                            </div>
-                            <div className="pl-9 text-sm space-y-2">
-                              <div className="flex items-center justify-between text-stone-600">
-                                <span>Sous-total</span>
-                                <span className="font-medium text-stone-900">{formatPrice(order.subtotal)}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-stone-600">
-                                <span>
-                                  Livraison
-                                  {order.shipping?.carrier ? ` · ${order.shipping.carrier}` : ''}
-                                </span>
-                                <span className="font-medium text-stone-900">{formatPrice(order.shipping?.price ?? 0)}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-stone-900 font-semibold text-base pt-1 border-t border-stone-200">
-                                <span>Total payé</span>
-                                <span>{formatPrice(order.total)}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
-                            <div className="flex items-center mb-3">
-                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
                                 <Package className="h-4 w-4" />
                               </div>
                               <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">
@@ -582,6 +554,34 @@ export default function OrdersPage() {
                                 Aucun article n&apos;est associé à cette commande.
                               </p>
                             )}
+                          </div>
+
+                          <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
+                                <ReceiptText className="h-4 w-4" />
+                              </div>
+                              <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">
+                                Résumé du paiement
+                              </h3>
+                            </div>
+                            <div className="pl-9 text-sm space-y-2">
+                              <div className="flex items-center justify-between text-stone-600">
+                                <span>Sous-total</span>
+                                <span className="font-medium text-stone-900">{formatPrice(order.subtotal)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-stone-600">
+                                <span>
+                                  Livraison
+                                  {order.shipping?.carrier ? ` · ${order.shipping.carrier}` : ''}
+                                </span>
+                                <span className="font-medium text-stone-900">{formatPrice(order.shipping?.price ?? 0)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-stone-900 font-semibold text-base pt-1 border-t border-stone-200">
+                                <span>Total payé</span>
+                                <span>{formatPrice(order.total)}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -652,7 +652,7 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Barre de progression */}
                     <div className="h-1.5 bg-stone-200 overflow-hidden">
                       <motion.div 
