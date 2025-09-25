@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,11 @@ import {
   Calendar,
   CreditCard,
   PackageCheck,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  BarChart3,
+  BadgeCheck,
+  Timer
 } from 'lucide-react';
 
 type Order = {
@@ -50,6 +54,38 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const enhancedOrders = useMemo(
+    () =>
+      [...orders].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+    [orders]
+  );
+
+  const ordersInsight = useMemo(() => {
+    if (enhancedOrders.length === 0) {
+      return {
+        completed: 0,
+        pending: 0,
+        totalSpent: 0,
+        averageSpent: 0,
+        lastOrder: null as Order | null
+      };
+    }
+
+    const completed = enhancedOrders.filter((order) => order.orderStatus === 'completed').length;
+    const pending = enhancedOrders.length - completed;
+    const totalSpent = enhancedOrders.reduce((sum, order) => sum + order.total, 0);
+
+    return {
+      completed,
+      pending,
+      totalSpent,
+      averageSpent: totalSpent / enhancedOrders.length,
+      lastOrder: enhancedOrders[0]
+    };
+  }, [enhancedOrders]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -108,8 +144,14 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-stone-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-white via-stone-50 to-emerald-50/40">
+      <div className="absolute inset-0 -z-10 overflow-hidden opacity-70">
+        <div className="absolute -left-32 top-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="absolute right-0 top-1/3 h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-100/40 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         {/* Breadcrumb */}
         <nav className="flex items-center text-sm text-stone-500 mb-8">
           <Link href="/" className="hover:text-emerald-600 transition-colors">Accueil</Link>
@@ -118,23 +160,99 @@ export default function OrdersPage() {
         </nav>
         
         <div className="mb-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-stone-900 tracking-tight bg-clip-text">
-                Mes commandes
-              </h1>
-              <p className="mt-2 text-lg text-stone-600 max-w-2xl">
-                Retrouvez l'historique et le suivi de vos commandes passées sur ElecConnect
-              </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 shadow-lg shadow-emerald-100/70 backdrop-blur-xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/80 via-white to-white/60" />
+            <div className="relative p-8 md:p-10">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                <div className="max-w-xl">
+                  <div className="inline-flex items-center rounded-full border border-emerald-200/80 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-emerald-600">
+                    <Sparkles className="mr-2 h-3.5 w-3.5" />
+                    Tableau de bord personnalisé
+                  </div>
+                  <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-bold text-stone-900 tracking-tight">
+                    Bonjour{user.firstName ? `, ${user.firstName}` : ''}! Suivez vos commandes en un clin d'œil
+                  </h1>
+                  <p className="mt-3 text-lg text-stone-600 leading-relaxed">
+                    Visualisez vos commandes passées et en cours, accédez rapidement au suivi de livraison et découvrez de nouvelles recommandations produits.
+                  </p>
+                  {ordersInsight.lastOrder && (
+                    <div className="mt-6 flex items-center text-sm text-stone-500">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                        <Package className="h-5 w-5" />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">Dernière commande</p>
+                        <p className="text-sm font-medium text-stone-800">
+                          Passée le {formatDate(ordersInsight.lastOrder.createdAt)} · #{ordersInsight.lastOrder.orderNumber}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full lg:w-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-emerald-200/50 bg-white/80 p-5 shadow-sm">
+                      <div className="flex items-center justify-between text-sm font-medium text-stone-500">
+                        <span>Commandes complétées</span>
+                        <BadgeCheck className="h-4 w-4 text-emerald-500" />
+                      </div>
+                      <p className="mt-2 text-3xl font-bold text-stone-900">{ordersInsight.completed}</p>
+                      <p className="mt-1 text-xs uppercase tracking-widest text-emerald-500">Historique confirmé</p>
+                    </div>
+                    <div className="rounded-2xl border border-amber-200/70 bg-white/80 p-5 shadow-sm">
+                      <div className="flex items-center justify-between text-sm font-medium text-stone-500">
+                        <span>Commandes en cours</span>
+                        <Timer className="h-4 w-4 text-amber-500" />
+                      </div>
+                      <p className="mt-2 text-3xl font-bold text-stone-900">{ordersInsight.pending}</p>
+                      <p className="mt-1 text-xs uppercase tracking-widest text-amber-500">Livraison à suivre</p>
+                    </div>
+                    <div className="rounded-2xl border border-stone-200/70 bg-white/80 p-5 shadow-sm sm:col-span-2">
+                      <div className="flex items-center justify-between text-sm font-medium text-stone-500">
+                        <span>Dépenses cumulées</span>
+                        <BarChart3 className="h-4 w-4 text-emerald-500" />
+                      </div>
+                      <div className="mt-2 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+                        <p className="text-3xl font-bold text-stone-900">
+                          {formatPrice(ordersInsight.totalSpent)}
+                        </p>
+                        <p className="text-sm text-stone-500">
+                          En moyenne {formatPrice(ordersInsight.averageSpent || 0)} par commande
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center text-sm text-stone-500">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                    <Package className="h-5 w-5" />
+                  </div>
+                  <p className="ml-3">
+                    {enhancedOrders.length > 0
+                      ? `${enhancedOrders.length} commande${enhancedOrders.length > 1 ? 's' : ''} enregistrée${enhancedOrders.length > 1 ? 's' : ''}`
+                      : 'Aucune commande enregistrée pour le moment'}
+                  </p>
+                </div>
+                <Link
+                  href="/shop"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-600 px-5 py-3 text-base font-medium text-white shadow-lg shadow-emerald-200/40 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                  <ShoppingBag className="h-5 w-5 flex-shrink-0" />
+                  Découvrir la boutique
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <Link 
-              href="/shop" 
-              className="group inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              <ShoppingBag className="h-5 w-5 mr-2 flex-shrink-0" />
-              Découvrir la boutique
-            </Link>
-          </div>
+          </motion.div>
         </div>
 
         {loading ? (
@@ -182,7 +300,7 @@ export default function OrdersPage() {
               </div>
             </div>
           </motion.div>
-        ) : orders.length === 0 ? (
+        ) : enhancedOrders.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -216,12 +334,58 @@ export default function OrdersPage() {
             </div>
           </motion.div>
         ) : (
-          <AnimatePresence>
-            <div className="space-y-6">
-              {orders.map((order, index) => (
-                <motion.div 
-                  key={order.id}
-                  initial={{ opacity: 0, y: 15 }}
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3"
+            >
+              <div className="rounded-2xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold uppercase tracking-widest text-stone-500">
+                    Vision globale
+                  </p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                </div>
+                <p className="mt-3 text-lg text-stone-600">
+                  Continuez de suivre vos équipements et optimisez vos installations énergétiques avec ElecConnect.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold uppercase tracking-widest text-stone-500">Support dédié</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+                    <Home className="h-4 w-4" />
+                  </div>
+                </div>
+                <p className="mt-3 text-lg text-stone-600">
+                  Besoin d'aide ? Notre équipe reste disponible pour vous accompagner dans le suivi de vos commandes.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold uppercase tracking-widest text-stone-500">
+                    Conseils personnalisés
+                  </p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                </div>
+                <p className="mt-3 text-lg text-stone-600">
+                  Recevez des recommandations adaptées pour tirer le meilleur parti de votre installation solaire.
+                </p>
+              </div>
+            </motion.div>
+
+            <AnimatePresence>
+              <div className="space-y-6">
+                {enhancedOrders.map((order, index) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ 
                     delay: index * 0.03,
@@ -416,8 +580,9 @@ export default function OrdersPage() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </AnimatePresence>
+              </div>
+            </AnimatePresence>
+          </>
         )}
       </div>
     </div>
