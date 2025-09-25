@@ -219,32 +219,39 @@ export default function OrdersPage() {
           <AnimatePresence>
             <div className="space-y-6">
               {orders.map((order, index) => (
-                <motion.div 
+                <motion.div
                   key={order.id}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
+                  transition={{
                     delay: index * 0.03,
                     type: "spring",
                     stiffness: 120,
                     damping: 12
                   }}
                   whileHover={{ y: -2 }}
-                  className="group bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-300 rounded-2xl shadow-sm hover:shadow-md border border-stone-100 overflow-hidden"
+                  className="relative group overflow-hidden rounded-3xl border border-stone-100 bg-white/80 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
                 >
-                  <div className="p-6 md:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-emerald-500/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl transition-colors duration-500 group-hover:bg-emerald-500/20" />
+                  <div className="relative p-6 md:p-8">
                     {/* En-tête */}
                     <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                       <div>
                         <div className="flex flex-wrap items-center gap-3">
-                          <h2 className="text-xl font-bold text-stone-900">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 shadow-inner">
+                            <Package className="h-5 w-5" />
+                          </div>
+                          <h2 className="text-xl font-semibold tracking-tight text-stone-900">
                             Commande #{order.orderNumber}
                           </h2>
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                            order.orderStatus === 'completed' 
-                              ? 'bg-green-50 text-green-700 border border-green-100' 
-                              : 'bg-amber-50 text-amber-700 border border-amber-100'
-                          }`}>
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${
+                              order.orderStatus === 'completed'
+                                ? 'border-emerald-200/70 bg-emerald-50/80 text-emerald-700'
+                                : 'border-amber-200/70 bg-amber-50/80 text-amber-700'
+                            }`}
+                          >
                             {order.orderStatus === 'completed' ? (
                               <CheckCircle2 className="h-3 w-3 mr-1.5 flex-shrink-0" />
                             ) : (
@@ -274,49 +281,55 @@ export default function OrdersPage() {
 
                     {/* Détails de la commande */}
                     <div className="mt-8 pt-6 border-t border-stone-100">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Montant total */}
-                        <div className="bg-stone-50/70 p-5 rounded-xl border border-stone-100">
-                          <div className="flex items-center mb-3">
-                            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600 mr-3">
+                        <div className="relative overflow-hidden rounded-2xl border border-emerald-100/70 bg-white/80 p-5 shadow-sm">
+                          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400" />
+                          <div className="mb-4 flex items-center">
+                            <div className="mr-3 flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
                               <CreditCard className="h-5 w-5" />
                             </div>
-                            <h3 className="text-sm font-medium text-stone-700 uppercase tracking-wider">
-                              Montant total
-                            </h3>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-600/80">Montant total</p>
+                              <p className="text-sm text-stone-500">Synthèse de votre achat</p>
+                            </div>
                           </div>
-                          <div className="pl-11">
-                            <p className="text-2xl font-bold text-stone-900">
+                          <div className="pl-14">
+                            <p className="text-3xl font-bold text-stone-900">
                               {formatPrice(order.total)}
                             </p>
                             {order.shipping && (
-                              <p className="mt-1.5 text-sm text-stone-500">
-                                <span className="font-medium">Frais de port :</span> {formatPrice(order.shipping.price)}
+                              <p className="mt-2 text-sm text-stone-600">
+                                <span className="font-semibold text-stone-700">Frais de port :</span> {formatPrice(order.shipping.price)}
                               </p>
                             )}
                             <p className="mt-1 text-sm text-stone-500">
-                              <span className="font-medium">Méthode :</span> Carte bancaire
+                              <span className="font-semibold text-stone-600">Méthode :</span> Carte bancaire
                             </p>
                           </div>
                         </div>
-                        
+
                         {/* Statut de livraison */}
-                        <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-100">
-                          <div className="flex items-center mb-3">
-                            <div className="p-2 rounded-lg bg-amber-50 text-amber-600 mr-3">
+                        <div className="relative overflow-hidden rounded-2xl border border-amber-100/70 bg-gradient-to-br from-white via-amber-50/60 to-white p-5 shadow-sm">
+                          <div className="absolute -top-12 -right-12 h-24 w-24 rounded-full bg-amber-400/20 blur-3xl" />
+                          <div className="relative mb-4 flex items-center">
+                            <div className="mr-3 flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                               <Truck className="h-5 w-5" />
                             </div>
-                            <h3 className="text-sm font-medium text-stone-700 uppercase tracking-wider">
-                              Statut
-                            </h3>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-600/80">Statut</p>
+                              <p className="text-sm text-stone-500">Suivi de la livraison</p>
+                            </div>
                           </div>
-                          <div className="pl-11">
+                          <div className="relative pl-14">
                             <div className="flex items-center">
-                              <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                                order.orderStatus === 'completed' 
-                                  ? 'bg-green-100 text-green-600' 
-                                  : 'bg-amber-100 text-amber-600'
-                              }`}>
+                              <div
+                                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                                  order.orderStatus === 'completed'
+                                    ? 'bg-emerald-500/15 text-emerald-600'
+                                    : 'bg-amber-500/15 text-amber-600'
+                                }`}
+                              >
                                 {order.orderStatus === 'completed' ? (
                                   <CheckCircle2 className="h-4 w-4" />
                                 ) : (
@@ -324,11 +337,11 @@ export default function OrdersPage() {
                                 )}
                               </div>
                               <div className="ml-3">
-                                <p className="text-sm font-medium text-stone-900">
+                                <p className="text-base font-semibold text-stone-900">
                                   {order.orderStatus === 'completed' ? 'Commande terminée' : 'En cours de traitement'}
                                 </p>
-                                <p className="text-xs text-stone-500 mt-0.5">
-                                  {order.orderStatus === 'completed' 
+                                <p className="mt-1 text-xs uppercase tracking-wide text-stone-500">
+                                  {order.orderStatus === 'completed'
                                     ? 'Terminé le ' + new Date(order.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
                                     : 'Votre commande est en préparation'}
                                 </p>
@@ -336,64 +349,54 @@ export default function OrdersPage() {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Actions rapides */}
-                        <div className="bg-stone-50/30 p-5 rounded-xl border border-stone-100 flex flex-col">
-                          <div className="flex items-center mb-3">
-                            <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
+                        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-stone-200/80 bg-gradient-to-br from-white via-stone-50 to-white p-5 shadow-sm">
+                          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+                          <div className="relative mb-4 flex items-center">
+                            <div className="mr-3 flex h-11 w-11 items-center justify-center rounded-xl bg-stone-200/50 text-stone-700">
                               <PackageCheck className="h-5 w-5" />
                             </div>
-                            <h3 className="text-sm font-medium text-stone-700 uppercase tracking-wider">
-                              Livraison
-                            </h3>
-                          </div>
-                          <div className="pl-11 mt-auto">
-                            <div className="space-y-3">
-                              <div className="p-3 bg-white border border-stone-200 rounded-lg">
-                                <p className="text-xs font-medium text-stone-500 mb-1">Adresse de livraison</p>
-                                {order.shippingAddress ? (
-                                  <div className="space-y-1">
-                                    <p className="text-sm text-stone-800 font-medium">
-                                      {order.shippingAddress.fullName}
-                                    </p>
-                                    <p className="text-sm text-stone-600">
-                                      {order.shippingAddress.address1}
-                                    </p>
-                                    {order.shippingAddress.address2 && (
-                                      <p className="text-sm text-stone-600">
-                                        {order.shippingAddress.address2}
-                                      </p>
-                                    )}
-                                    <p className="text-sm text-stone-600">
-                                      {order.shippingAddress.postalCode} {order.shippingAddress.city}
-                                    </p>
-                                    <p className="text-sm text-stone-600">
-                                      {order.shippingAddress.country}
-                                    </p>
-                                    <p className="text-sm text-stone-600">
-                                      {order.shippingAddress.phone}
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-stone-500 italic">Aucune adresse de livraison renseignée</p>
-                                )}
-                              </div>
-                              <Link 
-                                href={`/orders/${order.id}`}
-                                className="group w-full inline-flex items-center justify-between px-4 py-2.5 border border-stone-200 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors"
-                              >
-                                <span>Suivre ma commande</span>
-                                <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-emerald-600 transition-colors" />
-                              </Link>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Livraison</p>
+                              <p className="text-sm text-stone-500">Informations pratiques</p>
                             </div>
+                          </div>
+                          <div className="relative mt-auto space-y-4 rounded-xl bg-white/80 p-4 shadow-sm ring-1 ring-stone-100/80">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">Adresse de livraison</p>
+                              {order.shippingAddress ? (
+                                <div className="mt-3 space-y-1 text-sm">
+                                  <p className="font-semibold text-stone-800">{order.shippingAddress.fullName}</p>
+                                  <p className="text-stone-600">{order.shippingAddress.address1}</p>
+                                  {order.shippingAddress.address2 && (
+                                    <p className="text-stone-600">{order.shippingAddress.address2}</p>
+                                  )}
+                                  <p className="text-stone-600">
+                                    {order.shippingAddress.postalCode} {order.shippingAddress.city}
+                                  </p>
+                                  <p className="text-stone-600">{order.shippingAddress.country}</p>
+                                  <p className="text-stone-600">{order.shippingAddress.phone}</p>
+                                </div>
+                              ) : (
+                                <p className="mt-3 text-sm italic text-stone-500">Aucune adresse de livraison renseignée</p>
+                              )}
+                            </div>
+                            <Link
+                              href={`/orders/${order.id}`}
+                              className="group inline-flex w-full items-center justify-between rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition-all duration-300 hover:bg-emerald-500/20"
+                            >
+                              <span>Suivre ma commande</span>
+                              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Link>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Barre de progression */}
-                  <div className="h-1.5 bg-stone-100 overflow-hidden">
+                  <div className="relative h-1.5 overflow-hidden bg-stone-100">
                     <motion.div 
                       className={`h-full ${
                         order.orderStatus === 'completed' 
