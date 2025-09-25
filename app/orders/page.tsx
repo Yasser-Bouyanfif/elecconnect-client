@@ -25,12 +25,20 @@ import {
 interface Address {
   fullName?: string;
   company?: string;
-  address1: string;
+  address1?: string;
   address2?: string;
-  city: string;
-  postalCode: string;
-  country: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
   phone?: string;
+}
+
+interface OrderLine {
+  id: number;
+  quantity: number;
+  unitPrice: number;
+  productTitle: string;
+  productPrice: number;
 }
 
 type OrderStatus = 'paid' | 'processing' | 'shipped' | 'delivered' | 'canceled' | 'refunded';
@@ -43,160 +51,168 @@ type Order = {
   total: number;
   createdAt: string;
   shipping?: {
-    price?: number;
+    price: number;
     carrier?: string;
   };
   shippingAddress?: Address;
   billingAddress?: Address;
+  lines: OrderLine[];
 };
 
-const toPlainRecord = (input: unknown): Record<string, unknown> | undefined => {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    return undefined;
-  }
-
-  const entity = input as Record<string, unknown>;
-
-  if (
-    'data' in entity &&
-    entity.data &&
-    typeof entity.data === 'object' &&
-    !Array.isArray(entity.data)
-  ) {
-    return toPlainRecord(entity.data);
-  }
-
-  if (
-    'attributes' in entity &&
-    entity.attributes &&
-    typeof entity.attributes === 'object' &&
-    !Array.isArray(entity.attributes)
-  ) {
-    const attributes = entity.attributes as Record<string, unknown>;
-    return {
-      ...attributes,
-      id: entity.id ?? attributes.id
-    };
-  }
-
-  return entity;
+type ApiAddress = {
+  fullName?: string | null;
+  company?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  phone?: string | null;
 };
 
-const normalizeAddress = (address: unknown): Address | undefined => {
-  const source = toPlainRecord(address);
+type ApiShipping = {
+  carrier?: string | null;
+  price?: number | string | null;
+};
 
-  if (!source) {
+type ApiOrderLine = {
+  id?: number;
+  quantity?: number | null;
+  unitPrice?: number | string | null;
+  product?: {
+    title?: string | null;
+    price?: number | string | null;
+  } | null;
+};
+
+type ApiOrder = {
+  id?: number | string;
+  orderNumber?: string | null;
+  orderStatus?: string | null;
+  subtotal?: number | string | null;
+  total?: number | string | null;
+  createdAt?: string | null;
+  shipping?: ApiShipping | null;
+  shippingAddress?: ApiAddress | null;
+  billingAddress?: ApiAddress | null;
+  order_lines?: ApiOrderLine[] | null;
+};
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
+};
+
+const mapAddress = (address?: ApiAddress | null): Address | undefined => {
+  if (!address) {
     return undefined;
   }
 
-  const address1 = typeof source.address1 === 'string' ? source.address1 : '';
-  const city = typeof source.city === 'string' ? source.city : '';
-  const postalCode = typeof source.postalCode === 'string' ? source.postalCode : '';
-  const country = typeof source.country === 'string' ? source.country : '';
-
-  if (!address1 && !city && !postalCode && !country) {
-    return undefined;
-  }
-
-  return {
-    fullName: typeof source.fullName === 'string' ? source.fullName : undefined,
-    company: typeof source.company === 'string' ? source.company : undefined,
-    address1,
-    address2: typeof source.address2 === 'string' ? source.address2 : undefined,
-    city,
-    postalCode,
-    country,
-    phone: typeof source.phone === 'string' ? source.phone : undefined
+  const fields: Address = {
+    fullName: address.fullName ?? undefined,
+    company: address.company ?? undefined,
+    address1: address.address1 ?? undefined,
+    address2: address.address2 ?? undefined,
+    city: address.city ?? undefined,
+    postalCode: address.postalCode ?? undefined,
+    country: address.country ?? undefined,
+    phone: address.phone ?? undefined
   };
+
+  const hasContent = Object.values({
+    address1: fields.address1,
+    city: fields.city,
+    postalCode: fields.postalCode,
+    country: fields.country
+  }).some((value) => typeof value === 'string' && value.trim() !== '');
+
+  return hasContent ? fields : undefined;
 };
 
-const normalizeShipping = (shipping: unknown): Order['shipping'] => {
-  const source = toPlainRecord(shipping);
-
-  if (!source) {
+const mapShipping = (shipping?: ApiShipping | null): Order['shipping'] | undefined => {
+  if (!shipping) {
     return undefined;
   }
 
-  const priceValue =
-    typeof source.price === 'number'
-      ? source.price
-      : typeof source.price === 'string'
-        ? Number.parseFloat(source.price)
-        : undefined;
+  const price = toNumber(shipping.price, 0);
+  const carrier = typeof shipping.carrier === 'string' && shipping.carrier.trim() ? shipping.carrier : undefined;
 
-  if (
-    (typeof source.carrier !== 'string' || source.carrier.trim() === '') &&
-    (typeof priceValue !== 'number' || Number.isNaN(priceValue))
-  ) {
+  if (!carrier && price === 0) {
     return undefined;
   }
 
-  return {
-    carrier: typeof source.carrier === 'string' ? source.carrier : undefined,
-    price: typeof priceValue === 'number' && Number.isFinite(priceValue) ? priceValue : 0
-  };
+  return { price, carrier };
 };
 
-const normalizeOrder = (order: unknown): Order | null => {
-  if (!order || typeof order !== 'object') {
+const mapOrderLine = (line?: ApiOrderLine | null): OrderLine | null => {
+  if (!line || typeof line !== 'object') {
     return null;
   }
 
-  const rawOrder = order as Record<string, unknown>;
-  const flattened = toPlainRecord(order) ?? rawOrder;
-
-  const idCandidate = rawOrder.id ?? flattened.id;
-  const id = typeof idCandidate === 'number' ? idCandidate : Number.parseInt(String(idCandidate ?? ''), 10);
+  const id = typeof line.id === 'number' ? line.id : Number.parseInt(String(line.id ?? ''), 10);
 
   if (!Number.isFinite(id)) {
     return null;
   }
 
-  const createdAtRaw = flattened.createdAt ?? rawOrder.createdAt;
-  const createdAt =
-    typeof createdAtRaw === 'string'
-      ? createdAtRaw
-      : createdAtRaw instanceof Date
-        ? createdAtRaw.toISOString()
-        : new Date().toISOString();
-
-  const status = flattened.orderStatus ?? rawOrder.orderStatus;
-  const orderStatus: OrderStatus =
-    status === 'paid' ||
-    status === 'processing' ||
-    status === 'shipped' ||
-    status === 'delivered' ||
-    status === 'canceled' ||
-    status === 'refunded'
-      ? status
-      : 'processing';
-
-  const subtotalRaw = flattened.subtotal ?? rawOrder.subtotal;
-  const totalRaw = flattened.total ?? rawOrder.total;
+  const quantity = typeof line.quantity === 'number' ? line.quantity : toNumber(line.quantity, 0);
+  const unitPrice = toNumber(line.unitPrice, 0);
+  const productPrice = toNumber(line.product?.price, unitPrice);
+  const productTitle = typeof line.product?.title === 'string' && line.product.title.trim()
+    ? line.product.title
+    : 'Produit';
 
   return {
     id,
-    orderNumber:
-      typeof flattened.orderNumber === 'string'
-        ? flattened.orderNumber
-        : String(flattened.orderNumber ?? id),
+    quantity,
+    unitPrice,
+    productPrice,
+    productTitle
+  };
+};
+
+const mapOrder = (order?: ApiOrder | null): Order | null => {
+  if (!order) {
+    return null;
+  }
+
+  const id = typeof order.id === 'number' ? order.id : Number.parseInt(String(order.id ?? ''), 10);
+
+  if (!Number.isFinite(id)) {
+    return null;
+  }
+
+  const status = order.orderStatus ?? 'processing';
+  const allowedStatus: OrderStatus[] = ['paid', 'processing', 'shipped', 'delivered', 'canceled', 'refunded'];
+  const orderStatus = allowedStatus.includes(status as OrderStatus) ? (status as OrderStatus) : 'processing';
+
+  const createdAt = typeof order.createdAt === 'string' && order.createdAt ? order.createdAt : new Date().toISOString();
+
+  const lines = (order.order_lines ?? [])
+    .map((line) => mapOrderLine(line))
+    .filter((line): line is OrderLine => line !== null);
+
+  return {
+    id,
+    orderNumber: typeof order.orderNumber === 'string' && order.orderNumber ? order.orderNumber : String(id),
     orderStatus,
-    subtotal:
-      typeof subtotalRaw === 'number'
-        ? subtotalRaw
-        : typeof subtotalRaw === 'string'
-          ? Number.parseFloat(subtotalRaw)
-          : 0,
-    total:
-      typeof totalRaw === 'number'
-        ? totalRaw
-        : typeof totalRaw === 'string'
-          ? Number.parseFloat(totalRaw)
-          : 0,
+    subtotal: toNumber(order.subtotal, 0),
+    total: toNumber(order.total, 0),
     createdAt,
-    shipping: normalizeShipping(flattened.shipping ?? rawOrder.shipping),
-    shippingAddress: normalizeAddress(flattened.shippingAddress ?? rawOrder.shippingAddress),
-    billingAddress: normalizeAddress(flattened.billingAddress ?? rawOrder.billingAddress)
+    shipping: mapShipping(order.shipping),
+    shippingAddress: mapAddress(order.shippingAddress),
+    billingAddress: mapAddress(order.billingAddress),
+    lines
   };
 };
 
@@ -292,21 +308,21 @@ const fetchUserOrders = async (): Promise<Order[]> => {
     const response = await fetch('/api/order', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
     if (!response.ok) {
       throw new Error('Erreur lors de la récupération des commandes');
     }
     const payload = await response.json();
-    const rawOrders = Array.isArray(payload)
+    const rawOrders: ApiOrder[] = Array.isArray(payload)
       ? payload
       : Array.isArray(payload?.data)
         ? payload.data
         : [];
 
     return rawOrders
-      .map((order) => normalizeOrder(order))
+      .map((order) => mapOrder(order))
       .filter((order): order is Order => order !== null);
   } catch (error) {
     console.error('Erreur:', error);
@@ -483,95 +499,163 @@ export default function OrdersPage() {
                     whileHover={{ y: -4, scale: 1.005, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
                     className="group bg-white rounded-2xl shadow-md border border-stone-200 overflow-hidden"
                   >
-                    <div className="p-6 md:p-8 flex flex-col lg:flex-row md:items-start gap-8">
-                      {/* Section 1: Infos principales */}
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-4 mb-3">
-                          <h2 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">
-                            Commande #{order.orderNumber}
-                          </h2>
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusDetails.color}`}>
-                            <StatusIcon className="h-3 w-3 mr-1.5 flex-shrink-0" />
-                            {statusDetails.text}
-                          </span>
+                    <div className="p-6 md:p-8 flex flex-col gap-8">
+                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-4 mb-3">
+                            <h2 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">
+                              Commande #{order.orderNumber}
+                            </h2>
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusDetails.color}`}>
+                              <StatusIcon className="h-3 w-3 mr-1.5 flex-shrink-0" />
+                              {statusDetails.text}
+                            </span>
+                          </div>
+                          <p className="flex items-center text-sm text-stone-500">
+                            <Calendar className="h-4 w-4 mr-1.5 text-stone-400 flex-shrink-0" />
+                            Passée le {formatDate(order.createdAt)}
+                          </p>
                         </div>
-                        <p className="flex items-center text-sm text-stone-500 mb-6">
-                          <Calendar className="h-4 w-4 mr-1.5 text-stone-400 flex-shrink-0" />
-                          Passée le {formatDate(order.createdAt)}
-                        </p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Détails du Paiement */}
+
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="inline-flex items-center justify-between px-4 py-2.5 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors shadow-sm"
+                        >
+                          <span>Suivre ma commande</span>
+                          <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-emerald-600 transition-colors" />
+                        </Link>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-4 lg:col-span-2">
                           <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
-                            <div className="flex items-center mb-2">
-                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-2">
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
                                 <ReceiptText className="h-4 w-4" />
                               </div>
                               <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">
-                                Résumé du Paiement
+                                Résumé du paiement
                               </h3>
                             </div>
-                            <div className="pl-8 text-sm">
-                              <p className="font-medium text-stone-900">{formatPrice(order.total)}</p>
-                              <p className="text-stone-500 mt-1">Total payé</p>
-                              <p className="text-stone-500 mt-1">via Carte bancaire</p>
+                            <div className="pl-9 text-sm space-y-2">
+                              <div className="flex items-center justify-between text-stone-600">
+                                <span>Sous-total</span>
+                                <span className="font-medium text-stone-900">{formatPrice(order.subtotal)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-stone-600">
+                                <span>
+                                  Livraison
+                                  {order.shipping?.carrier ? ` · ${order.shipping.carrier}` : ''}
+                                </span>
+                                <span className="font-medium text-stone-900">{formatPrice(order.shipping?.price ?? 0)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-stone-900 font-semibold text-base pt-1 border-t border-stone-200">
+                                <span>Total payé</span>
+                                <span>{formatPrice(order.total)}</span>
+                              </div>
                             </div>
                           </div>
-                          
-                          {/* Détails de la Livraison */}
+
                           <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
-                            <div className="flex items-center mb-2">
-                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-2">
-                                <Truck className="h-4 w-4" />
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
+                                <Package className="h-4 w-4" />
                               </div>
                               <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">
-                                Livraison
+                                Articles commandés
                               </h3>
                             </div>
-                            <div className="pl-8 text-sm">
-                              {order.shipping?.carrier && (
-                                <p className="font-medium text-stone-900">{order.shipping.carrier}</p>
-                              )}
-                              <p className="text-stone-500 mt-1">Frais de port : {formatPrice(order.shipping?.price || 0)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Section 2: Adresse et Actions */}
-                      <div className="w-full lg:w-80">
-                        <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200 h-full flex flex-col">
-                          <div className="flex items-center mb-4">
-                            <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
-                              <Box className="h-5 w-5" />
-                            </div>
-                            <h3 className="text-sm font-semibold text-stone-700 uppercase tracking-wide">
-                              Adresse de Livraison
-                            </h3>
-                          </div>
-                          
-                          <div className="pl-11 flex-grow">
-                            {order.shippingAddress ? (
-                              <div className="space-y-1 text-sm text-stone-700">
-                                <p className="font-medium">{order.shippingAddress.fullName}</p>
-                                <p>{order.shippingAddress.address1}</p>
-                                {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
-                                <p>{order.shippingAddress.postalCode} {order.shippingAddress.city}</p>
-                                <p>{order.shippingAddress.country}</p>
-                                <p className="text-sm text-stone-500 mt-2">{order.shippingAddress.phone}</p>
-                              </div>
+                            {order.lines.length > 0 ? (
+                              <ul className="space-y-3">
+                                {order.lines.map((line) => (
+                                  <li
+                                    key={line.id}
+                                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white/60 border border-stone-200 rounded-lg px-4 py-3"
+                                  >
+                                    <div>
+                                      <p className="font-medium text-stone-900">{line.productTitle}</p>
+                                      <p className="text-sm text-stone-500">
+                                        {line.quantity} × {formatPrice(line.unitPrice)}
+                                      </p>
+                                    </div>
+                                    <p className="text-sm font-semibold text-stone-900">
+                                      {formatPrice(line.quantity * line.unitPrice)}
+                                    </p>
+                                  </li>
+                                ))}
+                              </ul>
                             ) : (
-                              <p className="text-sm text-stone-500 italic">Aucune adresse de livraison renseignée</p>
+                              <p className="text-sm text-stone-500 italic">
+                                Aucun article n&apos;est associé à cette commande.
+                              </p>
                             )}
                           </div>
-                          
-                          <Link 
-                            href={`/orders/${order.id}`}
-                            className="mt-6 w-full inline-flex items-center justify-between px-4 py-2.5 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors shadow-sm"
-                          >
-                            <span>Suivre ma commande</span>
-                            <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-emerald-600 transition-colors" />
-                          </Link>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
+                                <Box className="h-5 w-5" />
+                              </div>
+                              <h3 className="text-sm font-semibold text-stone-700 uppercase tracking-wide">
+                                Adresse de livraison
+                              </h3>
+                            </div>
+                            {order.shippingAddress ? (
+                              <div className="pl-11 space-y-1 text-sm text-stone-700">
+                                {order.shippingAddress.fullName && <p className="font-medium">{order.shippingAddress.fullName}</p>}
+                                {order.shippingAddress.company && <p>{order.shippingAddress.company}</p>}
+                                {order.shippingAddress.address1 && <p>{order.shippingAddress.address1}</p>}
+                                {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
+                                {(order.shippingAddress.postalCode || order.shippingAddress.city) && (
+                                  <p>
+                                    {[order.shippingAddress.postalCode, order.shippingAddress.city].filter(Boolean).join(' ')}
+                                  </p>
+                                )}
+                                {order.shippingAddress.country && <p>{order.shippingAddress.country}</p>}
+                                {order.shippingAddress.phone && (
+                                  <p className="text-sm text-stone-500 mt-2">{order.shippingAddress.phone}</p>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="pl-11 text-sm text-stone-500 italic">
+                                Aucune adresse de livraison renseignée
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="bg-stone-50/50 p-5 rounded-xl border border-stone-200">
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-lg bg-stone-100 text-stone-600 mr-3">
+                                <Wallet className="h-5 w-5" />
+                              </div>
+                              <h3 className="text-sm font-semibold text-stone-700 uppercase tracking-wide">
+                                Adresse de facturation
+                              </h3>
+                            </div>
+                            {order.billingAddress ? (
+                              <div className="pl-11 space-y-1 text-sm text-stone-700">
+                                {order.billingAddress.fullName && <p className="font-medium">{order.billingAddress.fullName}</p>}
+                                {order.billingAddress.company && <p>{order.billingAddress.company}</p>}
+                                {order.billingAddress.address1 && <p>{order.billingAddress.address1}</p>}
+                                {order.billingAddress.address2 && <p>{order.billingAddress.address2}</p>}
+                                {(order.billingAddress.postalCode || order.billingAddress.city) && (
+                                  <p>
+                                    {[order.billingAddress.postalCode, order.billingAddress.city].filter(Boolean).join(' ')}
+                                  </p>
+                                )}
+                                {order.billingAddress.country && <p>{order.billingAddress.country}</p>}
+                                {order.billingAddress.phone && (
+                                  <p className="text-sm text-stone-500 mt-2">{order.billingAddress.phone}</p>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="pl-11 text-sm text-stone-500 italic">
+                                Aucune adresse de facturation renseignée
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
