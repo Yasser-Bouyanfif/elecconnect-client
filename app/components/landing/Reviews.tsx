@@ -38,6 +38,7 @@ type GoogleReviewResponse = {
 const FALLBACK_SECRET = "";
 
 const MOBILE_COMMENT_CHAR_LIMIT = 120;
+const DESKTOP_COMMENT_CHAR_LIMIT = 220;
 
 const sanitizeRelativeTime = (value?: string) =>
   value?.replace(/\u00A0/g, " ") ?? "";
@@ -250,9 +251,12 @@ export default function Testimonials() {
                           {/* MILIEU : commentaire centré verticalement */}
                           <div className="flex-1 flex items-center justify-center text-center">
                             <p className="max-w-[42ch] text-[13px] sm:text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed whitespace-pre-line">
-                              {isMobileViewport
-                                ? truncateText(review.text, MOBILE_COMMENT_CHAR_LIMIT)
-                                : review.text}
+                              {truncateText(
+                                review.text,
+                                isMobileViewport
+                                  ? MOBILE_COMMENT_CHAR_LIMIT
+                                  : DESKTOP_COMMENT_CHAR_LIMIT,
+                              )}
                             </p>
                           </div>
 
