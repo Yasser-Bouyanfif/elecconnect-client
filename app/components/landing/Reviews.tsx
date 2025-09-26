@@ -37,6 +37,8 @@ type GoogleReviewResponse = {
 
 const FALLBACK_SECRET = "";
 
+const MOBILE_COMMENT_CHAR_LIMIT = 200;
+
 const sanitizeRelativeTime = (value?: string) =>
   value?.replace(/\u00A0/g, " ") ?? "";
 
@@ -45,12 +47,21 @@ const getInitial = (value: string) => {
   return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
 };
 
+const truncateText = (text: string, limit: number) => {
+  if (text.length <= limit) {
+    return text;
+  }
+
+  return `${text.slice(0, limit).trimEnd()}...`;
+};
+
 export default function Testimonials() {
   const [reviews, setReviews] = useState<GoogleReview[]>([]);
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [totalRatings, setTotalRatings] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -83,6 +94,21 @@ export default function Testimonials() {
     };
 
     fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    const updateViewport = () => {
+      if (typeof window !== "undefined") {
+        setIsMobileViewport(window.innerWidth < 768);
+      }
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+    };
   }, []);
 
   const renderStars = (rating: number) => {
@@ -217,19 +243,16 @@ export default function Testimonials() {
                       >
                         <div className="w-[86%] mx-auto h-full flex flex-col py-8">
                           {/* HAUT : étoiles + note */}
-                          <div className="flex items-center justify-between gap-4 mb-8">
-                            <div className="flex items-center gap-1.5">
-                              {renderStars(review.rating)}
-                            </div>
-                            <span className="text-base md:text-lg font-semibold text-slate-700">
-                              {review.rating}/5
-                            </span>
+                          <div className="flex items-center gap-1.5 mb-8">
+                            {renderStars(review.rating)}
                           </div>
 
                           {/* MILIEU : commentaire centré verticalement */}
                           <div className="flex-1 flex items-center justify-center text-center">
                             <p className="max-w-[42ch] text-[13px] sm:text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed whitespace-pre-line">
-                              {review.text}
+                              {isMobileViewport
+                                ? truncateText(review.text, MOBILE_COMMENT_CHAR_LIMIT)
+                                : review.text}
                             </p>
                           </div>
 
