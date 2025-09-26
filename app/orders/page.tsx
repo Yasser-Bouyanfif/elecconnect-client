@@ -389,16 +389,9 @@ export default function OrdersPage() {
                 Mes commandes
               </h1>
               <p className="mt-2 text-lg text-stone-600 max-w-2xl">
-                Retrouvez l&apos;historique et le suivi de vos commandes passées sur ElecConnect
+                Retrouvez l'historique et le suivi de vos commandes passées sur ElecConnect
               </p>
             </div>
-            <Link 
-              href="/shop" 
-              className="group inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              <ShoppingBag className="h-5 w-5 mr-2 flex-shrink-0" />
-              Découvrir la boutique
-            </Link>
           </div>
         </div>
 
