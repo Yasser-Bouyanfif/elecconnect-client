@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
@@ -36,6 +36,14 @@ type GoogleReviewResponse = {
 };
 
 const FALLBACK_SECRET = "";
+
+const sanitizeRelativeTime = (value?: string) =>
+  value?.replace(/\u00A0/g, " ") ?? "";
+
+const getInitial = (value: string) => {
+  const trimmed = value.trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
+};
 
 export default function Testimonials() {
   const [reviews, setReviews] = useState<GoogleReview[]>([]);
@@ -98,8 +106,10 @@ export default function Testimonials() {
       ? reviews.reduce((sum, review) => sum + review.rating, 0) /
         reviews.length
       : null);
-  const roundedAverageRating =
-    computedAverageRating != null ? Math.round(computedAverageRating) : 0;
+  const roundedAverageRating = useMemo(
+    () => (computedAverageRating != null ? Math.round(computedAverageRating) : 0),
+    [computedAverageRating],
+  );
 
   return (
     <section
@@ -190,58 +200,69 @@ export default function Testimonials() {
                       Aucun avis disponible pour le moment.
                     </SwiperSlide>
                   )}
-                  {reviews.map((review) => (
-                    <SwiperSlide
-                    key={`${review.author_name}-${review.time}`}
-                    className="bg-white rounded-[22px] overflow-hidden"
-                    style={{
-                      boxShadow:
-                        "0 26px 44px -18px rgba(2,6,23,0.25), 0 12px 24px rgba(2,6,23,0.08)",
-                      border: "2px solid rgba(226,232,240,1)", // slate-200
-                    }}
-                  >
-                    <div className="w-[86%] mx-auto h-full flex flex-col py-8">
-                      {/* HAUT : étoiles + note */}
-                      <div className="flex items-center justify-center gap-1.5 mb-8">
-                        {renderStars(review.rating)}
-                        <span className="ml-3 text-base md:text-lg font-semibold text-slate-700">
-                          {review.rating}/5
-                        </span>
-                      </div>
+                  {reviews.map((review) => {
+                    const relativeTime = sanitizeRelativeTime(
+                      review.relative_time_description,
+                    );
 
-                      {/* MILIEU : commentaire centré verticalement */}
-                      <div className="flex-1 flex items-center justify-center text-center">
-                        <p className="max-w-[42ch] text-[13px] sm:text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed">
-                          {review.text}
-                        </p>
-                      </div>
+                    return (
+                      <SwiperSlide
+                        key={`${review.author_name}-${review.time}`}
+                        className="bg-white rounded-[22px] overflow-hidden"
+                        style={{
+                          boxShadow:
+                            "0 26px 44px -18px rgba(2,6,23,0.25), 0 12px 24px rgba(2,6,23,0.08)",
+                          border: "2px solid rgba(226,232,240,1)", // slate-200
+                        }}
+                      >
+                        <div className="w-[86%] mx-auto h-full flex flex-col py-8">
+                          {/* HAUT : étoiles + note */}
+                          <div className="flex items-center justify-between gap-4 mb-8">
+                            <div className="flex items-center gap-1.5">
+                              {renderStars(review.rating)}
+                            </div>
+                            <span className="text-base md:text-lg font-semibold text-slate-700">
+                              {review.rating}/5
+                            </span>
+                          </div>
 
-                      {/* BAS : auteur */}
-                      <div className="flex items-center gap-4 mt-8">
-                        {review.profile_photo_url ? (
-                          <Image
-                            src={review.profile_photo_url}
-                            alt={review.author_name}
-                            width={56}
-                            height={56}
-                            className="rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-14 h-14 rounded-full bg-slate-200" />
-                        )}
+                          {/* MILIEU : commentaire centré verticalement */}
+                          <div className="flex-1 flex items-center justify-center text-center">
+                            <p className="max-w-[42ch] text-[13px] sm:text-sm md:text-[15px] font-semibold text-slate-800 leading-relaxed whitespace-pre-line">
+                              {review.text}
+                            </p>
+                          </div>
 
-                        <div>
-                          <p className="text-[15px] sm:text-lg font-semibold text-slate-900">
-                            {review.author_name}
-                          </p>
-                          <p className="text-slate-500 text-xs sm:text-sm">
-                            Avis Google{review.relative_time_description ? ` • ${review.relative_time_description}` : ""}
-                          </p>
+                          {/* BAS : auteur */}
+                          <div className="flex items-center gap-4 mt-8">
+                            {review.profile_photo_url ? (
+                              <Image
+                                src={review.profile_photo_url}
+                                alt={review.author_name}
+                                width={56}
+                                height={56}
+                                className="rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center text-lg font-semibold text-slate-600">
+                                {getInitial(review.author_name)}
+                              </div>
+                            )}
+
+                            <div>
+                              <p className="text-[15px] sm:text-lg font-semibold text-slate-900">
+                                {review.author_name}
+                              </p>
+                              <p className="text-slate-500 text-xs sm:text-sm">
+                                Avis Google
+                                {relativeTime ? ` • ${relativeTime}` : ""}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                 ))}
+                      </SwiperSlide>
+                    );
+                  })}
                 </Swiper>
               </div>
             </div>
