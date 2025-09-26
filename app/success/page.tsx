@@ -203,9 +203,9 @@ function SuccessPage() {
                   <PackageCheck className="h-6 w-6 text-emerald-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-900">Préparation en cours</p>
+                  <p className="text-sm font-medium text-gray-900">Commande en cours de traitement.</p>
                   <p className="mt-1 text-sm text-gray-500">
-                    Votre commande est en cours de préparation. Vous recevrez une notification lorsqu'elle sera expédiée.
+                    Nous avons bien reçu votre commande. Suivez son avancement sur votre espace client dans la rubrique "<a href="/orders"><u>Mes commandes</u></a>".
                   </p>
                   <p className="mt-2 text-xs text-gray-500">
                     Date de commande: {orderDate}
@@ -293,9 +293,6 @@ function SuccessPage() {
                           Frais de port: {order.shipping.price !== undefined && order.shipping.price > 0 
                             ? `${order.shipping.price.toFixed(2)} €` 
                             : 'Offerts'}
-                        </p>
-                        <p className="mt-2 text-xs text-gray-500">
-                          Délai de livraison estimé: 2-5 jours ouvrés
                         </p>
                       </div>
                     </div>
