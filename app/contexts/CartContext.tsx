@@ -295,11 +295,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = useCallback((id: string | number) => {
     setCart((prev) => {
-      const index = prev.findIndex((item) => item.id === id);
-      if (index === -1) return prev;
-      const updated = [...prev];
-      updated.splice(index, 1);
-      return updated;
+      // Filtrer pour supprimer toutes les occurrences de l'article
+      return prev.filter((item) => item.id !== id);
     });
   }, []);
 

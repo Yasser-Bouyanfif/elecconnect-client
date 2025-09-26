@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import orderApis from "@/app/strapi/orderApis";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
 import { LOCAL_URL } from "@/app/lib/constants";
+import { useEffect } from "react";
 
 type OrderLine = {
   quantity?: number;
@@ -210,7 +211,7 @@ const buildEmailHtml = (order: OrderPayload) => {
 
       <div class="content">
         <h2>Merci pour votre commande 🎉</h2>
-        <p>Bonjour ${order.shippingAddress?.fullName || "client"},<br />
+        <p>Bonjour ${order.billingAddress?.fullName || "client"},<br />
         Votre commande a bien été reçue.</p>
 
         <!-- Récap -->

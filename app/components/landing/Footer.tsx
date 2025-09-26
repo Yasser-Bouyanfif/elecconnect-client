@@ -26,13 +26,13 @@ export default function Footer() {
               Nous contribuons à un avenir plus durable grâce à la mobilité électrique.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+              <a href="https://www.facebook.com/share/1CjD1JuuFW/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+              <a href="https://www.instagram.com/elec_connectpaca?igsh=a2t2OHhycmEzdG4x" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+              <a href="https://www.linkedin.com/in/rodolphe-ewouindo-b52528376?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
