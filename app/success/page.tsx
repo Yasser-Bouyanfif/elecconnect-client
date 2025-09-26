@@ -62,7 +62,10 @@ function SuccessPage() {
 
 
   useEffect(() => {
-    const stripeSessionId = new URLSearchParams(window.location.search).get("session_id");
+    const rawStripeSessionId = new URLSearchParams(window.location.search).get(
+      "session_id"
+    );
+    const stripeSessionId = rawStripeSessionId?.trim();
     if (!stripeSessionId) {
       router.push("/cart");
       return;
@@ -90,6 +93,23 @@ function SuccessPage() {
           console.error("Failed to create order", await response.text());
           router.push("/cart");
           return;
+        }
+
+        try {
+          const resendResponse = await fetch("/api/resend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ stripeSessionId }),
+          });
+
+          if (!resendResponse.ok) {
+            console.error(
+              "Failed to send confirmation email",
+              await resendResponse.text()
+            );
+          }
+        } catch (error) {
+          console.error("Failed to send confirmation email", error);
         }
 
         const response2 = await fetch('/api/order/by-session', {

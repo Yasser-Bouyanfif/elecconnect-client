@@ -211,7 +211,7 @@ const buildEmailHtml = (order: OrderPayload) => {
       <div class="content">
         <h2>Merci pour votre commande 🎉</h2>
         <p>Bonjour ${order.shippingAddress?.fullName || "client"},<br />
-        Votre commande a bien été reçue le ${orderDate}.</p>
+        Votre commande a bien été reçue.</p>
 
         <!-- Récap -->
         <div class="card">
