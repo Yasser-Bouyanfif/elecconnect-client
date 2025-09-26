@@ -37,7 +37,7 @@ type GoogleReviewResponse = {
 
 const FALLBACK_SECRET = "";
 
-const MOBILE_COMMENT_CHAR_LIMIT = 200;
+const MOBILE_COMMENT_CHAR_LIMIT = 120;
 
 const sanitizeRelativeTime = (value?: string) =>
   value?.replace(/\u00A0/g, " ") ?? "";
