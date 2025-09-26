@@ -71,6 +71,12 @@ const formatAddress = (address?: CheckoutAddress) => {
   };
 };
 
+function generateOrderNumber() {
+  const date = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 8);
+  const rand = Math.floor(1000 + Math.random() * 9000); // 4 chiffres aléatoires
+  return `EC-${date}-${rand}`; // ex: "EC-20250926-4821"
+}
+
 async function buildOrderLines(
   items: Array<[string, { quantity: number }]>
 ): Promise<{ orderLines: OrderLineInput[]; subtotal: number }> {
@@ -229,7 +235,7 @@ export async function POST(request: Request) {
 
     const orderResponse = await orderApis.createOrder({
       data: {
-        orderNumber: randomUUID(),
+        orderNumber: generateOrderNumber(),
         userId,
         userEmail,
         shippingAddress: formatAddress(shippingAddressPayload),
