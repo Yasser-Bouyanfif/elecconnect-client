@@ -53,7 +53,8 @@ interface ProductSection { id?: number; title?: string; content?: SectionContent
 function extractSections(p?: Product | null): ProductSection[] {
   if (!p) return [];
 
-  const record = p as Record<string, unknown>;
+  const record = p as unknown as Record<string, unknown>;
+
   const candidates = [
     record.ProductSection,
     record.productSection,
