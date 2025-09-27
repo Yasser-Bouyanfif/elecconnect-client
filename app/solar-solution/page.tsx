@@ -246,6 +246,19 @@ export default function SolutionsSolaires() {
                   </div>
                 </div>
                 <div className="relative grid gap-4 sm:grid-cols-2">
+                  <div className="absolute -top-10 right-2 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 shadow-lg backdrop-blur-sm border border-white/20 sm:-top-12">
+                    <div className="relative h-10 w-24">
+                      <Image
+                        src="/ssp.png"
+                        alt="Partenaire installation SSP"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1024px) 40vw, 16vw"
+                        priority
+                      />
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-emerald-100">Partenaire</span>
+                  </div>
                   <div className="relative col-span-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
                     <div className="relative aspect-[3/2]">
                       <Image
