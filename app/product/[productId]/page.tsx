@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SERVER_URL } from "@/app/lib/constants";
 import { ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from "lucide-react";
@@ -12,22 +12,22 @@ import {
   CartItem,
 } from "@/app/contexts/CartContext";
 
+const IMAGE_FALLBACK = "/borne2.png";
+
+type ImageFormatKey = "thumbnail" | "small" | "medium" | "large";
+
+interface BannerImageFormat {
+  url: string;
+}
+
 interface BannerImage {
   id: number;
   url: string;
   formats?: {
-    thumbnail?: {
-      url: string;
-    };
-    small?: {
-      url: string;
-    };
-    medium?: {
-      url: string;
-    };
-    large?: {
-      url: string;
-    };
+    thumbnail?: BannerImageFormat;
+    small?: BannerImageFormat;
+    medium?: BannerImageFormat;
+    large?: BannerImageFormat;
   };
   alternativeText?: string | null;
   caption?: string | null;
@@ -40,7 +40,7 @@ interface Product {
   description: string;
   price: number;
   weight?: string;
-  banner?: BannerImage[];
+  banner?: BannerImage[] | BannerImage | null;
   productSection: [];
 }
 
@@ -52,16 +52,23 @@ interface ProductSection { id?: number; title?: string; content?: SectionContent
 // Extract sections from various possible API keys
 function extractSections(p?: Product | null): ProductSection[] {
   if (!p) return [];
+
+  const record = p as Record<string, unknown>;
   const candidates = [
-    (p as any).ProductSection,
-    (p as any).productSection,
-    (p as any).product_sections,
-    (p as any).ProductSections,
-    (p as any).sections,
+    record.ProductSection,
+    record.productSection,
+    record.product_sections,
+    record.ProductSections,
+    record.sections,
   ];
-  const found = candidates.find((c) => Array.isArray(c) && c.length);
-  if (!found) return [];
-  return (found as any[]).filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length > 0) {
+      return (candidate as ProductSection[]).filter(Boolean);
+    }
+  }
+
+  return [];
 }
 
 export default function ProductDetails() {
@@ -75,6 +82,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState<number>(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const cartContext = useContext(CartContext) as CartContextType | undefined;
 
   const clampQuantity = (value: number) => {
@@ -105,11 +113,10 @@ export default function ProductDetails() {
           throw new Error(`Statut ${response.status}`);
         }
 
-        const {data} = await response.json();
+        const { data } = await response.json();
         if (!alive) return;
 
-        console.log(data);
-        setProduct(data)
+        setProduct(data);
       } catch (e) {
         console.error("Erreur API:", e);
         router.push("/404");
@@ -123,20 +130,99 @@ export default function ProductDetails() {
     };
   }, [productId, router]);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
-  
-  if (!product) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Produit non trouvé</h2>
-      <Link href="/" className="text-blue-600 hover:underline flex items-center">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Retour à l'accueil
-      </Link>
-    </div>
-  );
+  const productImages = useMemo(() => {
+    const bannerData = product?.banner;
+
+    if (Array.isArray(bannerData)) {
+      return bannerData.filter(
+        (image): image is BannerImage =>
+          Boolean(image) &&
+          typeof image === "object" &&
+          typeof (image as BannerImage).url === "string" &&
+          (image as BannerImage).url.length > 0
+      );
+    }
+
+    if (
+      bannerData &&
+      typeof bannerData === "object" &&
+      typeof (bannerData as BannerImage).url === "string" &&
+      (bannerData as BannerImage).url.length > 0
+    ) {
+      return [bannerData as BannerImage];
+    }
+
+    return [];
+  }, [product]);
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [product?.documentId]);
+
+  useEffect(() => {
+    if (selectedImageIndex >= productImages.length) {
+      setSelectedImageIndex(productImages.length > 0 ? productImages.length - 1 : 0);
+    }
+  }, [productImages.length, selectedImageIndex]);
+
+  const getImagePath = (
+    image: BannerImage | null,
+    order: ImageFormatKey[] = ["large", "medium", "small", "thumbnail"],
+    options?: { includeOriginal?: boolean }
+  ): string => {
+    if (!image) return "";
+
+    const includeOriginal = options?.includeOriginal !== false;
+
+    if (includeOriginal && image.url) {
+      return image.url;
+    }
+
+    for (const key of order) {
+      const candidate = image.formats?.[key]?.url;
+      if (candidate) {
+        return candidate;
+      }
+    }
+
+    return image.url ?? "";
+  };
+
+  const ensureAbsoluteUrl = (url: string): string => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return `${SERVER_URL}${url}`;
+  };
+
+  const selectedImage = productImages[selectedImageIndex] ?? null;
+  const mainImagePath = getImagePath(selectedImage, ["large", "medium", "small", "thumbnail"]);
+  const mainImageSrc = ensureAbsoluteUrl(mainImagePath) || IMAGE_FALLBACK;
+  const mainImageAlt =
+    selectedImage?.alternativeText ||
+    selectedImage?.caption ||
+    product?.title ||
+    "Image produit";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Produit non trouvé</h2>
+        <Link href="/" className="text-blue-600 hover:underline flex items-center">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Retour à l&apos;accueil
+        </Link>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     const quantity = clampQuantity(qty);
@@ -150,12 +236,15 @@ export default function ProductDetails() {
       return;
     }
 
+    const primaryImage = productImages[0] ?? null;
+    const primaryImagePath = getImagePath(primaryImage);
+
     const cartItem: CartItem = {
       id: product.id,
       documentId: product.documentId,
       title: product.title,
       price: product.price,
-      banner: product.banner?.url ? { url: product.banner.url } : undefined,
+      banner: primaryImagePath ? { url: primaryImagePath } : undefined,
     };
 
     for (let index = 0; index < quantity; index += 1) {
@@ -173,15 +262,51 @@ export default function ProductDetails() {
           <div className="grid grid-cols-1 md:grid-cols-2 md:[grid-template-columns:1.2fr_1fr] gap-6 md:gap-8 items-start">
             {/* Galerie d'images */}
             <div className="w-full">
-              <div className="w-full overflow-hidden rounded-lg">
+              <div className="w-full overflow-hidden rounded-lg border border-gray-100 bg-white">
                 <Image
-                  src={`${SERVER_URL}${product.banner?.url}`}
-                  alt={product.title}
+                  src={mainImageSrc}
+                  alt={mainImageAlt}
                   width={1000}
                   height={800}
                   className="h-full w-full object-contain bg-white"
                 />
               </div>
+              {productImages.length > 1 && (
+                <div className="mt-4 grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {productImages.map((image, index) => {
+                    const thumbPath = getImagePath(image, ["thumbnail", "small", "medium", "large"], {
+                      includeOriginal: false,
+                    });
+                    const thumbSrc = ensureAbsoluteUrl(thumbPath) || mainImageSrc;
+                    const isActive = index === selectedImageIndex;
+
+                    return (
+                      <button
+                        key={image.id ?? index}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`relative aspect-square overflow-hidden rounded-md border transition ${
+                          isActive
+                            ? "border-blue-500 ring-2 ring-blue-200"
+                            : "border-gray-200 hover:border-blue-300"
+                        }`}
+                        aria-label={`Afficher l&apos;image ${index + 1}`}
+                        aria-pressed={isActive}
+                      >
+                        <Image
+                          src={thumbSrc}
+                          alt={
+                            image.alternativeText || image.caption || `Image ${index + 1} du produit`
+                          }
+                          width={200}
+                          height={200}
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Détails du produit */}
