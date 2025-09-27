@@ -194,9 +194,81 @@ export default function SolutionsSolaires() {
             </div>
           </div>
           
+          <div className="mt-16">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900 text-white shadow-2xl">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.35),_transparent_55%)]" />
+              <div className="relative grid gap-10 p-8 md:p-12 lg:grid-cols-[1.1fr,0.9fr]">
+                <div className="space-y-6">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium uppercase tracking-[0.15em] text-emerald-200">
+                    <Zap className="h-4 w-4" />
+                    Offre exclusive
+                  </div>
+                  <h3 className="text-3xl font-bold md:text-4xl">
+                    Carport solaire + borne de recharge<br />Installation clé en main
+                  </h3>
+                  <p className="text-slate-200 md:text-lg">
+                    Une solution complète pour protéger votre véhicule, produire votre propre énergie et recharger à domicile grâce à l&apos;expertise ELEC&apos;CONNECT &amp; SSP.
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
+                      <p className="text-sm uppercase tracking-wide text-emerald-200">Prix exceptionnel</p>
+                      <p className="mt-1 text-3xl font-bold text-white md:text-4xl">16 499 € TTC</p>
+                      <p className="text-xs text-slate-300">Carport solaire + borne + installation</p>
+                    </div>
+                    <ul className="space-y-3 text-sm text-slate-100 sm:text-base">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="mt-0.5 h-5 w-5 text-emerald-300" />
+                        Carport premium bi-pente avec panneaux photovoltaïques haute performance
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="mt-0.5 h-5 w-5 text-emerald-300" />
+                        Borne de recharge ELEC&apos;CONNECT 7 kW avec pilotage intelligent
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="mt-0.5 h-5 w-5 text-emerald-300" />
+                        Installation clé en main et accompagnement administratif
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="grid gap-4 lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30 shadow-lg">
+                    <Image
+                      src="/carport-voiture.png"
+                      alt="Carport solaire Elec'Connect avec véhicule électrique"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-2">
+                    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30 shadow-lg">
+                      <Image
+                        src="/charge-solar-solution.png"
+                        alt="Gros plan sur la charge d'un véhicule électrique"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30 shadow-lg">
+                      <Image
+                        src="/borne-solar-solution.png"
+                        alt="Borne de recharge intelligente Elec'Connect"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-12 flex justify-end">
-            <a 
-              href="/#contact" 
+            <a
+              href="/#contact"
               className="btn btn-success btn-lg text-white"
             >
               Demander un devis
