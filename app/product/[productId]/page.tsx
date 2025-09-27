@@ -12,6 +12,27 @@ import {
   CartItem,
 } from "@/app/contexts/CartContext";
 
+interface BannerImage {
+  id: number;
+  url: string;
+  formats?: {
+    thumbnail?: {
+      url: string;
+    };
+    small?: {
+      url: string;
+    };
+    medium?: {
+      url: string;
+    };
+    large?: {
+      url: string;
+    };
+  };
+  alternativeText?: string | null;
+  caption?: string | null;
+}
+
 interface Product {
   id: number;
   documentId: string;
@@ -19,8 +40,8 @@ interface Product {
   description: string;
   price: number;
   weight?: string;
-  banner?: { url?: string; };
-  productSection: []
+  banner?: BannerImage[];
+  productSection: [];
 }
 
 // Types for ProductSection rendering (kept permissive to match API)
@@ -87,6 +108,7 @@ export default function ProductDetails() {
         const {data} = await response.json();
         if (!alive) return;
 
+        console.log(data);
         setProduct(data)
       } catch (e) {
         console.error("Erreur API:", e);

@@ -18,6 +18,7 @@ const getProductsPagination = (
   const params = new URLSearchParams({
     "pagination[page]": String(safePage),
     "pagination[pageSize]": String(boundedPageSize),
+    "sort[0]": "id:desc",
     populate: "*",
   });
 
@@ -29,7 +30,8 @@ const getProductById = (id: string) =>
     `/products?filters[id][$eq]=${id}&pagination[pageSize]=1&populate=*`
   );
 
-const getProducts = () => axiosClient.get(`/products?populate=*`);
+const getProducts = () => 
+  axiosClient.get(`/products?populate=*&sort[0]=id:desc`);
 
 export default {
   getProductsPagination,
