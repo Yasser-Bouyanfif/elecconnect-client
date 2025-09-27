@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
     const emailPayload = {
       from: "ElecConnect <noreply@updates.chajaratmaryam.fr>",
-      to: ["tloli0940@gmail.com"],
+      to: ["contact@elecconnect.fr"],
       reply_to: email,
       subject: "Nouveau message via le formulaire de contact",
       html: buildHtml({ fullName, phone, email, content }),
