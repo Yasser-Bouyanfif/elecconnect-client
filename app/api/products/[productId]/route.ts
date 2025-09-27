@@ -30,13 +30,10 @@ export async function GET(_request: Request, route: RouteParams) {
       ? payload.data[0] ?? null
       : payload.data ?? null;
 
-
     if (!rawData) {
       return NextResponse.json({ error: "Produit introuvable" }, { status: 404 });
     }
-
-    console.log(rawData)
-
+    
     return NextResponse.json({ data: rawData });
   } catch (error) {
     console.error("API Route Error:", error);
