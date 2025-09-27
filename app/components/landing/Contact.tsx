@@ -9,10 +9,70 @@ export default function Contact() {
     phone: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<
+    | { type: 'idle' }
+    | { type: 'success'; message: string }
+    | { type: 'error'; message: string }
+  >({ type: 'idle' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setStatus({ type: 'idle' });
+    setIsSubmitting(true);
+
+    const fullName = formData.name.trim();
+    const email = formData.email.trim();
+    const message = formData.message.trim();
+    const phone = formData.phone.trim();
+
+    if (!fullName || !email || !message) {
+      setStatus({
+        type: 'error',
+        message: 'Merci de remplir tous les champs obligatoires.',
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const payload = {
+      fullName,
+      email,
+      content: message,
+      ...(phone ? { phone } : {}),
+    };
+
+    try {
+      const response = await fetch('/api/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'contact',
+          payload,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error || "Une erreur est survenue lors de l'envoi du message."
+        );
+      }
+
+      setStatus({
+        type: 'success',
+        message: 'Merci ! Votre message a bien été envoyé.',
+      });
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Impossible d'envoyer votre message. Veuillez réessayer.";
+      setStatus({ type: 'error', message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -126,11 +186,24 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="btn btn-success btn-block text-white hover:text-white flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="btn btn-success btn-block text-white hover:text-white flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
               >
-                <span>Envoyer ma demande</span>
+                <span>{isSubmitting ? 'Envoi en cours...' : 'Envoyer ma demande'}</span>
                 <Send className="w-4 h-4" />
               </button>
+
+              {status.type !== 'idle' && (
+                <div
+                  className={`text-sm rounded-lg p-3 ${
+                    status.type === 'success'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-rose-50 text-rose-600'
+                  }`}
+                >
+                  {status.message}
+                </div>
+              )}
             </form>
           </div>
         </div>

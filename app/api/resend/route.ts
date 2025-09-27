@@ -2,7 +2,24 @@ import { NextResponse } from "next/server";
 import orderApis from "@/app/strapi/orderApis";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
 import { LOCAL_URL } from "@/app/lib/constants";
-import { useEffect } from "react";
+
+type ContactFormPayload = {
+  fullName: string;
+  email: string;
+  phone?: string;
+  content: string;
+};
+
+type ResendEmailPayload = {
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+  text?: string;
+  reply_to?: string;
+};
+
+const CONTACT_RECIPIENT_EMAIL = "contact@elecconnect.fr";
 
 type OrderLine = {
   quantity?: number;
@@ -292,62 +309,172 @@ const buildEmailHtml = (order: OrderPayload) => {
 };
 
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const formatMultiline = (value: string) =>
+  escapeHtml(value).replace(/\r?\n/g, "<br />");
+
+const buildContactEmailHtml = (payload: ContactFormPayload) => {
+  const phone = payload.phone?.trim()
+    ? escapeHtml(payload.phone.trim())
+    : "<span style=\"color:#6b7280;\">Non renseigné</span>";
+
+  return `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+      <h2 style="margin:0 0 16px;">Nouvelle demande de contact</h2>
+      <p style="margin:0 0 16px;">Une nouvelle demande a été soumise via le formulaire de contact du site.</p>
+      <div style="padding:16px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
+        <p style="margin:0 0 12px;"><strong>Nom :</strong> ${escapeHtml(payload.fullName)}</p>
+        <p style="margin:0 0 12px;"><strong>Email :</strong> ${escapeHtml(payload.email)}</p>
+        <p style="margin:0 0 12px;"><strong>Téléphone :</strong> ${phone}</p>
+        <p style="margin:0;"><strong>Message :</strong><br />${formatMultiline(payload.content)}</p>
+      </div>
+    </div>
+  `;
+};
+
+const buildContactEmailText = (payload: ContactFormPayload) => {
+  const phone = payload.phone?.trim() || "Non renseigné";
+  return [
+    "Nouvelle demande de contact",
+    "",
+    `Nom : ${payload.fullName}`,
+    `Email : ${payload.email}`,
+    `Téléphone : ${phone}`,
+    "",
+    "Message :",
+    payload.content,
+  ].join("\n");
+};
+
+const sendEmailThroughResend = async (payload: ResendEmailPayload) => {
+  const resendResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resendResponse.ok) {
+    const errorText = await resendResponse.text();
+    throw new Error(errorText || "Resend API error");
+  }
+
+  return resendResponse.json();
+};
+
+const handleOrderEmail = async (stripeSessionId: unknown) => {
+  if (!stripeSessionId || typeof stripeSessionId !== "string") {
+    return NextResponse.json(
+      { error: "Le paramètre stripeSessionId est requis." },
+      { status: 400 }
+    );
+  }
+
+  const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
+  const order = orderResponse?.data?.data?.[0] as OrderPayload | undefined;
+
+  if (!order) {
+    return NextResponse.json(
+      { error: "Aucune commande trouvée pour cette session Stripe." },
+      { status: 404 }
+    );
+  }
+
+  if (!order.userEmail) {
+    return NextResponse.json(
+      { error: "Aucune adresse email n'est associée à cette commande." },
+      { status: 422 }
+    );
+  }
+
+  const emailPayload: ResendEmailPayload = {
+    from: "ElecConnect <no-reply@updates.chajaratmaryam.fr>",
+    to: [order.userEmail],
+    subject: `Confirmation de commande.`,
+    html: buildEmailHtml(order),
+  };
+
+  try {
+    const resendResult = await sendEmailThroughResend(emailPayload);
+    return NextResponse.json({ success: true, resendId: resendResult.id ?? null });
+  } catch (error) {
+    console.error("Resend API error", error);
+    return NextResponse.json(
+      { error: "Échec de l'envoi de l'email." },
+      { status: 502 }
+    );
+  }
+};
+
+const handleContactEmail = async (payload: unknown) => {
+  if (!payload || typeof payload !== "object") {
+    return NextResponse.json(
+      { error: "Le contenu du formulaire est invalide." },
+      { status: 400 }
+    );
+  }
+
+  const { fullName, email, phone, content } = payload as Partial<ContactFormPayload>;
+
+  const trimmedFullName = typeof fullName === "string" ? fullName.trim() : "";
+  const trimmedEmail = typeof email === "string" ? email.trim() : "";
+  const trimmedContent = typeof content === "string" ? content.trim() : "";
+  const trimmedPhone =
+    typeof phone === "string" ? phone.trim() || undefined : undefined;
+
+  if (!trimmedFullName || !trimmedEmail || !trimmedContent) {
+    return NextResponse.json(
+      { error: "Merci de renseigner votre nom, votre email et votre message." },
+      { status: 400 }
+    );
+  }
+
+  const contactPayload: ContactFormPayload = {
+    fullName: trimmedFullName,
+    email: trimmedEmail,
+    content: trimmedContent,
+    phone: trimmedPhone,
+  };
+
+  const emailPayload: ResendEmailPayload = {
+    from: "ElecConnect <no-reply@updates.chajaratmaryam.fr>",
+    to: [CONTACT_RECIPIENT_EMAIL],
+    subject: `Nouvelle demande de contact - ${contactPayload.fullName}`,
+    html: buildContactEmailHtml(contactPayload),
+    text: buildContactEmailText(contactPayload),
+    reply_to: contactPayload.email,
+  };
+
+  try {
+    const resendResult = await sendEmailThroughResend(emailPayload);
+    return NextResponse.json({ success: true, resendId: resendResult.id ?? null });
+  } catch (error) {
+    console.error("Resend API error", error);
+    return NextResponse.json(
+      { error: "Échec de l'envoi du message." },
+      { status: 502 }
+    );
+  }
+};
+
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const stripeSessionId = body?.stripeSessionId;
-
-    if (!stripeSessionId || typeof stripeSessionId !== "string") {
-      return NextResponse.json(
-        { error: "Le paramètre stripeSessionId est requis." },
-        { status: 400 }
-      );
+    if (body?.type === "contact") {
+      return handleContactEmail(body?.payload);
     }
 
-    const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
-    const order = orderResponse?.data?.data?.[0] as OrderPayload | undefined;
-
-    if (!order) {
-      return NextResponse.json(
-        { error: "Aucune commande trouvée pour cette session Stripe." },
-        { status: 404 }
-      );
-    }
-
-    if (!order.userEmail) {
-      return NextResponse.json(
-        { error: "Aucune adresse email n'est associée à cette commande." },
-        { status: 422 }
-      );
-    }
-
-    const emailPayload = {
-      from: "ElecConnect <no-reply@updates.chajaratmaryam.fr>",
-      to: [order.userEmail],
-      subject: `Confirmation de commande.`,
-      html: buildEmailHtml(order),
-    };
-
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(emailPayload),
-    });
-
-    if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error("Resend API error", errorText);
-      return NextResponse.json(
-        { error: "Échec de l'envoi de l'email." },
-        { status: 502 }
-      );
-    }
-
-    const resendResult = await resendResponse.json();
-    return NextResponse.json({ success: true, resendId: resendResult.id ?? null });
+    return handleOrderEmail(body?.stripeSessionId);
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email", error);
     return NextResponse.json(
