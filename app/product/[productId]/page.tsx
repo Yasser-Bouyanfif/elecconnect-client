@@ -54,6 +54,7 @@ function extractSections(p?: Product | null): ProductSection[] {
   if (!p) return [];
 
   const record = p as unknown as Record<string, unknown>;
+
   const candidates = [
     record.ProductSection,
     record.productSection,
