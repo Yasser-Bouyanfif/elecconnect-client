@@ -52,7 +52,7 @@ export default function Page() {
         <AboutUs />
       </section>
 
-      <section id="testimonials" className="scroll-mt-24">
+      <section id="reviews" className="scroll-mt-24">
         <Reviews />
       </section>
 

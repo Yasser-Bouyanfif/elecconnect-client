@@ -12,7 +12,6 @@ import { EffectCards } from "swiper/modules";
 
 import Image from "next/image";
 import { Star as LucideStar } from "lucide-react";
-import { INTERNAL_SERVER_SECRET } from "@/app/lib/constants";
 
 type GoogleReview = {
   author_name: string;
@@ -67,11 +66,7 @@ export default function Testimonials() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("/api/google-reviews", {
-          headers: {
-            "x-internal-secret": INTERNAL_SERVER_SECRET ?? FALLBACK_SECRET,
-          },
-        });
+        const response = await fetch("/api/google-reviews")
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}`);

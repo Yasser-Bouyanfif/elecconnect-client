@@ -10,14 +10,17 @@ const isPublicRoute = createRouteMatcher([
   '/api/products(.*)',
   '/api/cart-total(.*)',
   '/api/promotion(.*)',
+  '/api/google-reviews(.*)',
   '/404(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
-    await auth.protect()
+    const signInAbs = new URL("/account", req.nextUrl.origin).toString();
+
+    await auth.protect({ unauthenticatedUrl: signInAbs });
   }
-})
+});
 
 export const config = {
   matcher: [

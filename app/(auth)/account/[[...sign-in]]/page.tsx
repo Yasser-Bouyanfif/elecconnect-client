@@ -72,7 +72,7 @@ export default function AuthPage() {
           <section className="w-full lg:w-1/2 flex justify-center lg:justify-end mt-12 lg:mt-20">
             <div className="w-full max-w-md">
               {mode === "signin" ? (
-                <SignIn routing="hash" />
+                <SignIn routing="hash" signUpUrl="/sign-up"/>
               ) : (
                 <SignUp routing="hash" />
               )}
