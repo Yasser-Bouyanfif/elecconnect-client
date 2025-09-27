@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Sun, Zap, BatteryCharging, CheckCircle } from 'lucide-react';
+import { Sun, Zap, BatteryCharging, CheckCircle, Sparkles } from 'lucide-react';
 
 export default function SolutionsSolaires() {
   return (
@@ -153,6 +153,84 @@ export default function SolutionsSolaires() {
               <p className="text-slate-600 mb-4">
                 En couplant bornes de recharge et photovoltaïque, vous valorisez votre propriété tout en investissant dans des technologies propres et innovantes. Avec la longévité des panneaux solaires et la fiabilité des bornes Elec' Connect, c'est un choix durable et avantageux sur le long terme.
               </p>
+            </div>
+          </div>
+
+          {/* Offre exclusive carport + borne */}
+          <div className="mt-16 relative">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-emerald-400/60 via-emerald-500/40 to-emerald-600/60 blur-2xl" />
+            <div className="relative rounded-3xl border border-white/60 bg-white/80 backdrop-blur-xl shadow-2xl p-8 md:p-12">
+              <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] items-center">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-sm">
+                    <Sparkles className="h-4 w-4" />
+                    Offre exclusive
+                  </div>
+                  <h3 className="mt-6 text-3xl font-bold text-slate-900 md:text-4xl">
+                    Carport solaire + borne clé en main
+                  </h3>
+                  <p className="mt-4 text-lg text-slate-600">
+                    Profitez d'une solution complète et premium pour protéger votre véhicule tout en le rechargeant grâce à l'énergie solaire.
+                  </p>
+                  <div className="mt-6 inline-flex items-baseline gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 text-white shadow-lg">
+                    <span className="text-sm uppercase tracking-wider text-white/70">À partir de</span>
+                    <span className="text-3xl font-extrabold md:text-4xl">16 499 € TTC</span>
+                  </div>
+                  <ul className="mt-6 grid gap-3 text-slate-600 sm:grid-cols-2">
+                    <li className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 shadow-sm">
+                      <CheckCircle className="h-5 w-5 text-emerald-500" />
+                      Carport solaire double pente haut de gamme
+                    </li>
+                    <li className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 shadow-sm">
+                      <CheckCircle className="h-5 w-5 text-emerald-500" />
+                      Borne Elec'Connect intelligente incluse
+                    </li>
+                    <li className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 shadow-sm">
+                      <CheckCircle className="h-5 w-5 text-emerald-500" />
+                      Installation clé en main par nos experts
+                    </li>
+                    <li className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/60 px-4 py-3 shadow-sm">
+                      <CheckCircle className="h-5 w-5 text-emerald-500" />
+                      Garantie et accompagnement premium
+                    </li>
+                  </ul>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="relative col-span-2 overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 shadow-md transition-transform duration-300 hover:-translate-y-1">
+                    <div className="relative h-48 sm:h-56">
+                      <Image
+                        src="/carport-voiture.png"
+                        alt="Carport solaire Elec'Connect"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 shadow-md transition-transform duration-300 hover:-translate-y-1">
+                    <div className="relative h-40">
+                      <Image
+                        src="/charge-solar-solution.png"
+                        alt="Recharge solaire Elec'Connect"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 shadow-md transition-transform duration-300 hover:-translate-y-1">
+                    <div className="relative h-40">
+                      <Image
+                        src="/borne-solar-solution.png"
+                        alt="Borne Elec'Connect"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
