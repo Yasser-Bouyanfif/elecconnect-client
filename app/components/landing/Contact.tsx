@@ -9,10 +9,46 @@ export default function Contact() {
     phone: '',
     message: ''
   });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setStatus('loading');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/resend/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          content: formData.message,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        setErrorMessage(
+          typeof errorBody?.error === 'string'
+            ? errorBody.error
+            : "Une erreur est survenue lors de l'envoi du message."
+        );
+        setStatus('error');
+        return;
+      }
+
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      setStatus('success');
+    } catch (error) {
+      console.error('Erreur lors de la soumission du formulaire de contact', error);
+      setErrorMessage("Impossible d'envoyer votre demande pour le moment. Veuillez réessayer plus tard.");
+      setStatus('error');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -20,6 +56,10 @@ export default function Contact() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (status !== 'idle') {
+      setStatus('idle');
+      setErrorMessage('');
+    }
   };
 
   return (
@@ -127,10 +167,21 @@ export default function Contact() {
               <button
                 type="submit"
                 className="btn btn-success btn-block text-white hover:text-white flex items-center justify-center gap-2"
+                disabled={status === 'loading'}
               >
-                <span>Envoyer ma demande</span>
+                <span>{status === 'loading' ? 'Envoi en cours...' : 'Envoyer ma demande'}</span>
                 <Send className="w-4 h-4" />
               </button>
+              {status === 'success' && (
+                <p className="text-sm text-emerald-600 text-center">
+                  Votre message a bien été envoyé. Nous vous répondrons sous 8h.
+                </p>
+              )}
+              {status === 'error' && (
+                <p className="text-sm text-red-500 text-center">
+                  {errorMessage}
+                </p>
+              )}
             </form>
           </div>
         </div>
