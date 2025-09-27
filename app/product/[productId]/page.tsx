@@ -134,13 +134,17 @@ export default function ProductDetails() {
     const bannerData = product?.banner;
 
     if (Array.isArray(bannerData)) {
-      return bannerData.filter(
+      const validImages = bannerData.filter(
         (image): image is BannerImage =>
           Boolean(image) &&
           typeof image === "object" &&
           typeof (image as BannerImage).url === "string" &&
           (image as BannerImage).url.length > 0
       );
+
+      // Reverse order to prioritise the most recently added media while
+      // keeping the original array untouched.
+      return validImages.slice().reverse();
     }
 
     if (
