@@ -156,8 +156,14 @@ export default function SolutionsSolaires() {
             </div>
           </div>
 
+          {/* Titre des offres exclusives */}
+          <div className="mt-20 text-center">
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">Nos Offres Exclusives</h2>
+            <div className="w-20 h-1 bg-emerald-500 mx-auto mb-12"></div>
+          </div>
+
           {/* Offre exclusive carport solaire */}
-          <div className="mt-16 relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-2xl">
             <div className="absolute -top-20 -right-32 h-64 w-64 rounded-full bg-emerald-500/40 blur-3xl" aria-hidden />
             <div className="relative flex flex-col lg:flex-row">
               <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-12">
@@ -194,14 +200,7 @@ export default function SolutionsSolaires() {
                   </div>
                 </div>
 
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-emerald-100">
-                    Garantie 10 ans structure
-                  </span>
-                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-emerald-100">
-                    Maintenance & support inclus
-                  </span>
-                </div>
+
               </div>
 
               <div className="w-full lg:w-1/2 bg-slate-800/40 p-6 sm:p-8 lg:p-10">

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import orderApis from "@/app/strapi/orderApis";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
 import { LOCAL_URL } from "@/app/lib/constants";
-import { useEffect } from "react";
 
 type OrderLine = {
   quantity?: number;
