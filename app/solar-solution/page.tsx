@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Sun, Zap, BatteryCharging, CheckCircle } from 'lucide-react';
+import { Sun, Zap, BatteryCharging, CheckCircle, Sparkles } from 'lucide-react';
 
 export default function SolutionsSolaires() {
   return (
@@ -193,9 +193,99 @@ export default function SolutionsSolaires() {
               </div>
             </div>
           </div>
-          
+
+          {/* Offre exclusive carport solaire */}
+          <div className="mt-12">
+            <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-2xl">
+              <div className="absolute -top-32 -right-24 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" aria-hidden />
+              <div className="relative z-10 grid gap-10 px-8 py-10 sm:px-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-wide text-emerald-200">
+                    <Sparkles className="h-4 w-4" />
+                    Offre exclusive Elec'Connect
+                  </div>
+                  <h3 className="mt-4 text-3xl font-bold sm:text-4xl">
+                    Carport solaire + borne clés en main
+                  </h3>
+                  <p className="mt-3 text-lg text-slate-200">
+                    Profitez d'un abri élégant et autonome pour votre véhicule électrique avec une installation photovoltaïque optimisée et une borne Elec'Connect prête à l'emploi.
+                  </p>
+                  <div className="mt-6 flex flex-wrap items-end gap-4">
+                    <div>
+                      <p className="text-sm uppercase tracking-wide text-emerald-300">Prix spécial</p>
+                      <p className="text-4xl font-extrabold text-white sm:text-5xl">16 499 € TTC</p>
+                    </div>
+                    <div className="rounded-full bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100">
+                      Installation clé en main
+                    </div>
+                  </div>
+                  <ul className="mt-6 space-y-3 text-sm sm:text-base">
+                    <li className="flex items-center gap-3 text-slate-100">
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      Carport aluminium premium avec panneaux photovoltaïques haute performance
+                    </li>
+                    <li className="flex items-center gap-3 text-slate-100">
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      Borne de recharge Elec'Connect incluse et configurée pour votre véhicule
+                    </li>
+                    <li className="flex items-center gap-3 text-slate-100">
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      Mise en service par nos installateurs certifiés SSP – conformité RGE
+                    </li>
+                  </ul>
+                  <div className="mt-8 flex flex-wrap items-center gap-4">
+                    <a
+                      href="/#contact"
+                      className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-emerald-400"
+                    >
+                      Réserver mon installation
+                    </a>
+                    <p className="text-sm text-slate-300">
+                      Offre limitée – contactez-nous pour une étude gratuite.
+                    </p>
+                  </div>
+                </div>
+                <div className="relative grid gap-4 sm:grid-cols-2">
+                  <div className="relative col-span-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                    <div className="relative aspect-[3/2]">
+                      <Image
+                        src="/carport-voiture.png"
+                        alt="Carport solaire Elec'Connect avec véhicule"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                    <div className="relative aspect-square">
+                      <Image
+                        src="/charge-solar-solution.png"
+                        alt="Câble de recharge connecté au véhicule"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                    <div className="relative aspect-square">
+                      <Image
+                        src="/borne-solar-solution.png"
+                        alt="Borne de recharge Elec'Connect"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 20vw"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-12 flex justify-end">
-            <a 
+            <a
               href="/#contact" 
               className="btn btn-success btn-lg text-white"
             >
