@@ -44,8 +44,8 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Nav desktop (inchangé) */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Navigation desktop - visible à partir de lg */}
+          <nav className="hidden lg:flex items-center space-x-8">
             <a href="/" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
               Accueil
             </a>
@@ -103,8 +103,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Boutons pour mobile */}
-          <div className="flex items-center gap-4 md:hidden">
+          {/* Boutons pour mobile et tablette */}
+          <div className="flex items-center gap-4 lg:hidden">
             {/* Panier */}
             <button
               type="button"
@@ -148,9 +148,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Menu mobile */}
+      {/* Menu mobile et tablette */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
+        <div className="lg:hidden bg-white border-t border-gray-200">
           <nav className="px-4 py-3 space-y-3">
             <a 
               href="/" 
