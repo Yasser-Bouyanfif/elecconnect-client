@@ -1,6 +1,16 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
+import {
+  isValidEmail,
+  isValidMessage,
+  isValidName,
+  isValidPhone,
+  sanitizeEmail,
+  sanitizeMessage,
+  sanitizeName,
+  sanitizePhone,
+} from "@/app/lib/validation";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -14,8 +24,44 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
     setErrorMessage('');
+
+    const sanitizedName = sanitizeName(formData.name);
+    const sanitizedEmail = sanitizeEmail(formData.email);
+    const sanitizedPhone = sanitizePhone(formData.phone);
+    const sanitizedMessage = sanitizeMessage(formData.message);
+
+    if (!isValidName(sanitizedName)) {
+      setErrorMessage('Votre nom complet contient des caractères non autorisés.');
+      setStatus('error');
+      return;
+    }
+
+    if (!isValidEmail(sanitizedEmail)) {
+      setErrorMessage('Veuillez renseigner une adresse email valide.');
+      setStatus('error');
+      return;
+    }
+
+    if (sanitizedPhone && !isValidPhone(sanitizedPhone)) {
+      setErrorMessage('Le numéro de téléphone saisi est invalide.');
+      setStatus('error');
+      return;
+    }
+
+    if (!isValidMessage(sanitizedMessage)) {
+      setErrorMessage('Votre message doit contenir entre 10 et 1000 caractères valides.');
+      setStatus('error');
+      return;
+    }
+
+    setFormData({
+      name: sanitizedName,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
+      message: sanitizedMessage,
+    });
+    setStatus('loading');
 
     try {
       const response = await fetch('/api/resend/contact', {
@@ -24,10 +70,10 @@ export default function Contact() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          content: formData.message,
+          fullName: sanitizedName,
+          phone: sanitizedPhone,
+          email: sanitizedEmail,
+          content: sanitizedMessage,
         }),
       });
 
@@ -52,9 +98,25 @@ export default function Contact() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const sanitizedValue = (() => {
+      switch (name) {
+        case 'name':
+          return sanitizeName(value);
+        case 'email':
+          return sanitizeEmail(value);
+        case 'phone':
+          return sanitizePhone(value);
+        case 'message':
+          return sanitizeMessage(value);
+        default:
+          return value;
+      }
+    })();
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: sanitizedValue
     });
     if (status !== 'idle') {
       setStatus('idle');
