@@ -26,49 +26,33 @@ const buildHtml = ({ fullName, phone, email, content }: Required<ContactPayload>
       <meta charSet="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Nouveau message de contact</title>
-      <style>
-        body { font-family: Arial, Helvetica, sans-serif; background:#f9fafb; color:#1f2937; margin:0; padding:24px; }
-        .container { max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
-        .header { background:#10b981; padding:20px; color:#ffffff; }
-        .header h1 { margin:0; font-size:20px; }
-        .content { padding:24px; }
-        .label { font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#6b7280; margin-bottom:4px; }
-        .value { font-size:15px; color:#111827; margin-bottom:16px; }
-        .value strong { font-weight:600; }
-        .message { white-space:pre-line; line-height:1.6; background:#f3f4f6; padding:16px; border-radius:8px; }
-        .footer { background:#f9fafb; padding:16px; text-align:center; font-size:12px; color:#9ca3af; }
-      </style>
     </head>
     <body>
-      <div class="container">
-        <div class="header">
-          <h1>Nouveau message de contact</h1>
-        </div>
-        <div class="content">
-          <div>
-            <div class="label">Nom complet</div>
-            <div class="value"><strong>${escapeHtml(fullName)}</strong></div>
-          </div>
-          <div>
-            <div class="label">Téléphone</div>
-            <div class="value">${escapeHtml(phone || 'Non communiqué')}</div>
-          </div>
-          <div>
-            <div class="label">Email</div>
-            <div class="value">${escapeHtml(email)}</div>
-          </div>
-          <div>
-            <div class="label">Message</div>
-            <div class="message">${escapeHtml(content)}</div>
-          </div>
-        </div>
-        <div class="footer">
-          Ce message a été envoyé depuis le formulaire de contact du site ElecConnect.
-        </div>
-      </div>
+      <h1>Nouveau message de contact</h1>
+      <p><strong>Nom complet :</strong> ${escapeHtml(fullName)}</p>
+      <p><strong>Téléphone :</strong> ${escapeHtml(phone || 'Non communiqué')}</p>
+      <p><strong>Email :</strong> ${escapeHtml(email)}</p>
+      <p><strong>Message :</strong></p>
+      <pre>${escapeHtml(content)}</pre>
+      <hr />
+      <p>Ce message a été envoyé depuis le formulaire de contact du site ElecConnect.</p>
     </body>
   </html>
 `;
+
+const buildText = ({ fullName, phone, email, content }: Required<ContactPayload>) =>
+  [
+    "Nouveau message de contact",
+    "",
+    `Nom complet : ${fullName}`,
+    `Téléphone : ${phone || "Non communiqué"}`,
+    `Email : ${email}`,
+    "",
+    "Message :",
+    content,
+    "",
+    "Ce message a été envoyé depuis le formulaire de contact du site ElecConnect.",
+  ].join("\n");
 
 export async function POST(request: Request) {
   try {
@@ -92,6 +76,7 @@ export async function POST(request: Request) {
       reply_to: email,
       subject: "Nouveau message via le formulaire de contact",
       html: buildHtml({ fullName, phone, email, content }),
+      text: buildText({ fullName, phone, email, content }),
     };
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
