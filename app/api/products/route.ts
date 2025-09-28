@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("API Route Error:", error);
+    console.error("Erreur de route API :", error);
     return NextResponse.json(
       { error: "Erreur de chargement des produits" },
       { status: 500 }

@@ -39,7 +39,7 @@ export default function AboutUs() {
               alt="Borne de recharge ELEC'CONNECT"
               fill
               sizes="(max-width: 1024px) 100vw, 600px"
-              className="object-contain" // pas de card/ombre/arrondis
+              className="object-contain"
               priority
             />
           </div>

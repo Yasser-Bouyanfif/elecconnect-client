@@ -231,9 +231,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           if (typeof parsed?.useSameForBilling === "boolean") {
             setUseSameAddressForBillingState(parsed.useSameForBilling);
           }
-        } catch {
-          // ignore malformed data
-        }
+        } catch {}
       }
       return;
     }
@@ -245,9 +243,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           sanitizeCartItems(parsed as Array<CartItem & { quantity?: unknown }>)
         );
       }
-    } catch {
-      // ignore malformed data
-    }
+    } catch {}
 
     if (storedShippingMethod === "standard" || storedShippingMethod === "express") {
       setShippingMethodState(storedShippingMethod);
@@ -265,9 +261,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (typeof parsedAddresses?.useSameForBilling === "boolean") {
           setUseSameAddressForBillingState(parsedAddresses.useSameForBilling);
         }
-      } catch {
-        // ignore malformed data
-      }
+      } catch {}
     }
   }, []);
 
@@ -294,10 +288,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeFromCart = useCallback((id: string | number) => {
-    setCart((prev) => {
-      // Filtrer pour supprimer toutes les occurrences de l'article
-      return prev.filter((item) => item.id !== id);
-    });
+    setCart((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   const clearCart = useCallback(() => {

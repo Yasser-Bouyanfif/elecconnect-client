@@ -7,7 +7,6 @@ export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Vérifier si l'utilisateur a déjà donné son consentement
     const consent = localStorage.getItem('cookie_consent');
     if (consent !== 'accepted' && consent !== 'rejected') {
       setShowBanner(true);
@@ -17,8 +16,6 @@ export default function CookieBanner() {
   const handleAccept = () => {
     localStorage.setItem('cookie_consent', 'accepted');
     setShowBanner(false);
-    // Ici, vous pouvez initialiser les cookies non essentiels
-    // comme Google Analytics, Facebook Pixel, etc.
   };
 
   const handleReject = () => {

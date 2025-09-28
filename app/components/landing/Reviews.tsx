@@ -5,8 +5,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-
-// >>> modules pour l'effet "cards"
 import "swiper/css/effect-cards";
 import { EffectCards } from "swiper/modules";
 
@@ -234,7 +232,7 @@ export default function Testimonials() {
                         style={{
                           boxShadow:
                             "0 26px 44px -18px rgba(2,6,23,0.25), 0 12px 24px rgba(2,6,23,0.08)",
-                          border: "2px solid rgba(226,232,240,1)", // slate-200
+                          border: "2px solid rgba(226,232,240,1)",
                         }}
                       >
                         <div className="w-[86%] mx-auto h-full flex flex-col py-8">

@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
-      console.error("Resend contact API error", errorText);
+      console.error("Erreur de l'API Resend pour le contact", errorText);
       return NextResponse.json(
         { error: "Échec de l'envoi du message." },
         { status: 502 }

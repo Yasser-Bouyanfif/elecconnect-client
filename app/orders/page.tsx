@@ -325,7 +325,7 @@ const fetchUserOrders = async (): Promise<Order[]> => {
       .map((order) => mapOrder(order))
       .filter((order): order is Order => order !== null);
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('Erreur lors de la récupération des commandes :', error);
     throw error;
   }
 };

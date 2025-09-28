@@ -51,7 +51,6 @@ export default function ShippingStepPage() {
   }, [groups, router]);
 
   const handleProceedToPayment = async () => {
-    // Build line items from cart
     type CheckoutItem = { title?: string; price: number; quantity: number };
     const items = groups.reduce<CheckoutItem[]>((acc, { item, quantity }) => {
       const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
@@ -72,7 +71,6 @@ export default function ShippingStepPage() {
       return acc;
     }, []);
 
-    // Add shipping fee if needed
     if (shippingMethod === "express") {
       items.push({ title: "Livraison express", price: 12.9, quantity: 1 });
     }

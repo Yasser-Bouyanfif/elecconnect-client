@@ -44,12 +44,10 @@ interface Product {
   productSection: [];
 }
 
-// Types for ProductSection rendering (kept permissive to match API)
 interface SectionItemEntry { label?: string; value?: string }
 interface SectionContentItem { value?: string; label?: string; items?: SectionItemEntry[] }
 interface ProductSection { id?: number; title?: string; content?: SectionContentItem[] }
 
-// Extract sections from various possible API keys
 function extractSections(p?: Product | null): ProductSection[] {
   if (!p) return [];
 
@@ -119,7 +117,7 @@ export default function ProductDetails() {
 
         setProduct(data);
       } catch (e) {
-        console.error("Erreur API:", e);
+        console.error("Erreur lors de l'appel à l'API :", e);
         router.push("/404");
       } finally {
         if (alive) setLoading(false);
@@ -143,8 +141,6 @@ export default function ProductDetails() {
           (image as BannerImage).url.length > 0
       );
 
-      // Reverse order to prioritise the most recently added media while
-      // keeping the original array untouched.
       return validImages.slice().reverse();
     }
 
@@ -441,10 +437,8 @@ export default function ProductDetails() {
                 </div>
               </div>
 
-              {/* sections moved out to full-width row below */}
-            </div>
-            {/* sections block moved above, between Description and Quantité */}
           </div>
+        </div>
         </div>
       </div>
     </div>

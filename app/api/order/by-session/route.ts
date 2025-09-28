@@ -27,12 +27,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Vérifier d'abord la session Stripe pour la sécurité
     const stripe = require('stripe')(STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
-
-    // Récupérer la commande
     const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
     
     if (!orderResponse?.data?.data || orderResponse.data.data.length === 0) {
@@ -82,7 +79,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ order });
   } catch (error) {
-    console.error("Failed to fetch order", error);
+    console.error("Échec de la récupération de la commande", error);
     return NextResponse.json(
       { error: "Erreur lors de la récupération de la commande" },
       { status: 500 }

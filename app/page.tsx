@@ -11,7 +11,6 @@ import dynamic from 'next/dynamic';
 import { auth } from "@clerk/nextjs/server";
 import { useUser } from '@clerk/nextjs';
 
-// Chargement dynamique pour éviter le rendu côté serveur
 const ExclusiveOfferPopup = dynamic(
   () => import('./components/ui/ExclusiveOfferPopup'),
   { ssr: false }
@@ -21,15 +20,13 @@ export default function Page() {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Vérifier si la popup a déjà été affichée dans cette session
     const popupShown = sessionStorage.getItem('popupShown');
-    
+
     if (!popupShown) {
-      // Délai avant d'afficher la popup
       const timer = setTimeout(() => {
         setShowPopup(true);
-      }, 2000); // 2 secondes de délai
-      
+      }, 2000);
+
       return () => clearTimeout(timer);
     }
   }, []);
