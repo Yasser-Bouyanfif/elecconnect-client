@@ -7,7 +7,7 @@ const contactSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, 'Le nom est obligatoire.')
+    .min(2, 'Le nom doit contenir au moins 2 caractères.')
     .max(100, 'Le nom est trop long.'),
   email: z
     .string()
@@ -20,8 +20,9 @@ const contactSchema = z.object({
     .optional()
     .transform((value) => (value ?? '').trim())
     .refine(
-      (value) => value.length === 0 || /^[0-9+().\s-]*$/.test(value),
-      'Le format du numéro de téléphone est invalide.'
+      (value) =>
+        value.length === 0 || /^(?:\+33|0)[1-9](?:[ .-]?\d{2}){4}$/.test(value),
+      'Le numéro de téléphone doit être un numéro français valide.'
     )
     .refine((value) => value.length <= 30, 'Le numéro de téléphone est trop long.'),
   message: z
