@@ -1,15 +1,35 @@
 import { NextResponse } from "next/server";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
+import { z } from "zod";
 
-type ContactPayload = {
-  fullName?: string;
-  phone?: string;
-  email?: string;
-  content?: string;
-};
-
-const sanitize = (value?: string) =>
-  typeof value === "string" ? value.trim() : "";
+const payloadSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "Le nom complet doit contenir au moins 2 caractères.")
+    .max(100, "Le nom complet est trop long."),
+  phone: z
+    .string()
+    .optional()
+    .transform((value) => (value ?? "").trim())
+    .refine(
+      (value) =>
+        value.length === 0 || /^(?:\+33|0)[1-9](?:[ .-]?\d{2}){4}$/.test(value),
+      "Le numéro de téléphone doit être un numéro français valide."
+    )
+    .refine((value) => value.length <= 30, "Le numéro de téléphone est trop long."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "L'adresse e-mail est obligatoire.")
+    .email("Adresse e-mail invalide.")
+    .max(320, "L'adresse e-mail est trop longue."),
+  content: z
+    .string()
+    .trim()
+    .min(10, "Le message doit contenir au moins 10 caractères.")
+    .max(2000, "Le message est trop long."),
+});
 
 const escapeHtml = (value: string) =>
   value
@@ -19,7 +39,9 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
-const buildHtml = ({ fullName, phone, email, content }: Required<ContactPayload>) => `
+type ContactPayload = z.infer<typeof payloadSchema>;
+
+const buildHtml = ({ fullName, phone, email, content }: ContactPayload) => `
   <!DOCTYPE html>
   <html lang="fr">
     <head>
@@ -72,19 +94,28 @@ const buildHtml = ({ fullName, phone, email, content }: Required<ContactPayload>
 
 export async function POST(request: Request) {
   try {
-    const body: ContactPayload = await request.json();
-
-    const fullName = sanitize(body.fullName);
-    const phone = sanitize(body.phone);
-    const email = sanitize(body.email);
-    const content = sanitize(body.content);
-
-    if (!fullName || !email || !content) {
+    const jsonBody = await request.json().catch(() => null);
+    if (!jsonBody || typeof jsonBody !== "object") {
       return NextResponse.json(
-        { error: "Les champs fullName, email et content sont obligatoires." },
+        { error: "Le corps de la requête est invalide." },
         { status: 400 }
       );
     }
+
+    const parsedBody = payloadSchema.safeParse(jsonBody);
+
+    if (!parsedBody.success) {
+      const firstIssue = parsedBody.error.issues[0];
+      return NextResponse.json(
+        {
+          error:
+            firstIssue?.message ?? "Les données du formulaire de contact sont invalides.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const { fullName, phone, email, content } = parsedBody.data;
 
     const emailPayload = {
       from: "ElecConnect <noreply@updates.chajaratmaryam.fr>",
