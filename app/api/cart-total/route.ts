@@ -10,7 +10,6 @@ type StrapiV5Product = {
   id: string | number;
   title?: string;
   price?: unknown;
-  // Plus de nesting 'attributes'
 };
 
 type CalculationResult = {
@@ -45,7 +44,6 @@ const normalizeStrapiV5Product = (response: unknown): StrapiV5Product | null => 
     return null;
   }
 
-  // Structure Strapi v5 - données directes sans 'attributes'
   if ('data' in response) {
     const data = (response as any).data;
     
@@ -58,7 +56,6 @@ const normalizeStrapiV5Product = (response: unknown): StrapiV5Product | null => 
     }
   }
 
-  // Si réponse directe (sans wrapper data)
   if (response && typeof response === 'object' && 'id' in response) {
     return response as StrapiV5Product;
   }
@@ -119,7 +116,6 @@ export async function POST(request: Request) {
             };
           }
 
-          // Prix direct maintenant, plus dans attributes
           const unitPrice = parsePrice(product.price);
           const subtotal = unitPrice * quantity;
 
@@ -133,7 +129,7 @@ export async function POST(request: Request) {
           };
 
         } catch (error) {
-          console.error(`Error fetching product ${item.id}:`, error);
+          console.error(`Erreur lors de la récupération du produit ${item.id} :`, error);
           return {
             id: item.id,
             quantity,
@@ -155,7 +151,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error("Failed to calculate total", error);
+    console.error("Échec du calcul du total", error);
     return NextResponse.json(
       { error: "Failed to calculate total" },
       { status: 500 }

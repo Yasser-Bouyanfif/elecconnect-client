@@ -73,8 +73,8 @@ const formatAddress = (address?: CheckoutAddress) => {
 
 function generateOrderNumber() {
   const date = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 8);
-  const rand = Math.floor(1000 + Math.random() * 9000); // 4 chiffres aléatoires
-  return `EC-${date}-${rand}`; // ex: "EC-20250926-4821"
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `EC-${date}-${rand}`;
 }
 
 async function buildOrderLines(
@@ -121,7 +121,7 @@ async function buildOrderLines(
         unitPrice,
       });
     } catch (error) {
-      console.error(`Failed to fetch product ${id}`, error);
+      console.error(`Échec de la récupération du produit ${id}`, error);
     }
   }
 
@@ -154,42 +154,37 @@ export async function POST(request: Request) {
         : "standard";
     const shippingDetails = SHIPPING_OPTIONS[resolvedShippingMethod];
 
-        // Vérification CRITIQUE de la session Stripe
-        if (!stripeSessionId) {
-          return NextResponse.json(
-            { error: "Session Stripe manquante" },
-            { status: 400 }
-          );
-        }
-    
-        // Vérifier la session Stripe
-        const stripe = require('stripe')(STRIPE_SECRET_KEY);
-        const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
-    
-        // Vérifications importantes
-        if (session.payment_status !== 'paid') {
-          return NextResponse.json(
-            { error: "Paiement non confirmé" },
-            { status: 402 }
-          );
-        }
-    
-        if (session.status !== 'complete') {
-          return NextResponse.json(
-            { error: "Session Stripe incomplète" },
-            { status: 400 }
-          );
-        }
-    
-        // IMPORTANT : éviter les doubles créations de commande
-        // Vérifier si une commande existe déjà pour cette session Stripe
-        const existingOrder = await orderApis.getOrderByStripeSession(stripeSessionId);
-        if (existingOrder.data && existingOrder.data.length > 0) {
-          return NextResponse.json(
-            { error: "Commande déjà créée pour cette session" },
-            { status: 409 }
-          );
-        }
+    if (!stripeSessionId) {
+      return NextResponse.json(
+        { error: "Session Stripe manquante" },
+        { status: 400 }
+      );
+    }
+
+    const stripe = require('stripe')(STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+
+    if (session.payment_status !== 'paid') {
+      return NextResponse.json(
+        { error: "Paiement non confirmé" },
+        { status: 402 }
+      );
+    }
+
+    if (session.status !== 'complete') {
+      return NextResponse.json(
+        { error: "Session Stripe incomplète" },
+        { status: 400 }
+      );
+    }
+
+    const existingOrder = await orderApis.getOrderByStripeSession(stripeSessionId);
+    if (existingOrder.data && existingOrder.data.length > 0) {
+      return NextResponse.json(
+        { error: "Commande déjà créée pour cette session" },
+        { status: 409 }
+      );
+    }
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
@@ -257,7 +252,7 @@ export async function POST(request: Request) {
       orderResponse?.data?.id;
 
     if (!orderDocumentId) {
-      console.error("Order created without documentId", orderResponse?.data);
+      console.error("Commande créée sans identifiant de document", orderResponse?.data);
       return NextResponse.json(
         { error: "Order creation failed" },
         { status: 500 }
@@ -279,7 +274,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, subtotal, total });
   } catch (error) {
-    console.error("Failed to process order", error);
+    console.error("Échec du traitement de la commande", error);
     return NextResponse.json(
       { error: "Failed to process order" },
       { status: 500 }
@@ -298,7 +293,7 @@ export async function GET() {
     const response = await orderApis.getOrdersByUser(userId);
     return NextResponse.json(response.data);
   } catch (error) {
-    console.error("Failed to fetch orders", error);
+    console.error("Échec de la récupération des commandes", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

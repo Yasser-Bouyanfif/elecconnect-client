@@ -11,11 +11,9 @@ import {
 } from "../../contexts/CartContext";
 import { SERVER_URL } from "../../lib/constants";
 
-// --- Helpers ---
 const fmt = (v: number) => v.toFixed(2) + " €";
 
-// --- Cart item row ---
-function CartItemRow({ item, quantity, onRemove }: { 
+function CartItemRow({ item, quantity, onRemove }: {
   item: CartItem;
   quantity: number;
   onRemove: (id: number) => void;
@@ -73,7 +71,6 @@ function CartItemRow({ item, quantity, onRemove }: {
   );
 }
 
-// --- Empty state ---
 function CartEmptyState() {
   return (
     <div className="text-center py-8 px-4">
@@ -88,11 +85,9 @@ function CartEmptyState() {
   );
 }
 
-// --- Main Cart ---
 function Cart({ onClose }: { onClose?: () => void }) {
   const { cart, removeFromCart } = useContext(CartContext) as CartContextType;
 
-  // Logique de regroupement comme dans ton deuxième composant
   const { groupedItems, totalItems, subtotal } = useMemo(() => {
     const groups: { [key: string]: { item: CartItem; quantity: number } } = {};
     
@@ -106,7 +101,7 @@ function Cart({ onClose }: { onClose?: () => void }) {
     });
 
     const groupedItems = Object.values(groups);
-    const totalItems = cart.length; // Total articles (non regroupés)
+    const totalItems = cart.length;
     const subtotal = groupedItems.reduce(
       (sum, { item, quantity }) => sum + (Number(item.price) || 0) * quantity, 
       0

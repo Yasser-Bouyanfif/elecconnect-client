@@ -111,7 +111,7 @@ function CartPage() {
           body: JSON.stringify({ items }),
         });
         if (!res.ok) {
-          console.error("Failed to calculate total", await res.text());
+          console.error("Échec du calcul du total", await res.text());
           setSubtotal(0);
           return;
         }
@@ -123,7 +123,7 @@ function CartPage() {
           : 0;
         setSubtotal(sanitizedSubtotal);
       } catch (err) {
-        console.error("Failed to calculate total", err);
+        console.error("Échec du calcul du total", err);
         setSubtotal(0);
       } finally {
         setLoadingTotal(false);
@@ -184,7 +184,7 @@ function CartPage() {
         reduction: Number.isFinite(reduction) ? reduction : 0,
       });
     } catch (error) {
-      console.error("Failed to apply promotion", error);
+      console.error("Échec de l'application de la promotion", error);
       setPromotionError(
         "Une erreur est survenue lors de l'application du code promotionnel."
       );
@@ -250,7 +250,6 @@ function CartPage() {
                               type="button"
                               aria-label="Supprimer l'article"
                               onClick={() => {
-                                // remove all quantities of this item
                                 for (let i = 0; i < displayQuantity; i += 1) {
                                   removeFromCart(item.id);
                                 }

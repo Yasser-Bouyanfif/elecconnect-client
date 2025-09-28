@@ -90,7 +90,7 @@ function SuccessPage() {
         });
 
         if (!response.ok) {
-          console.error("Failed to create order", await response.text());
+          console.error("Échec de la création de la commande", await response.text());
           router.push("/cart");
           return;
         }
@@ -104,12 +104,12 @@ function SuccessPage() {
 
           if (!resendResponse.ok) {
             console.error(
-              "Failed to send confirmation email",
+              "Échec de l'envoi de l'email de confirmation",
               await resendResponse.text()
             );
           }
         } catch (error) {
-          console.error("Failed to send confirmation email", error);
+          console.error("Échec de l'envoi de l'email de confirmation", error);
         }
 
         const response2 = await fetch('/api/order/by-session', {
@@ -127,7 +127,7 @@ function SuccessPage() {
 
         clearCart();
       } catch (error) {
-        console.error("Failed to create order", error);
+        console.error("Échec de la création de la commande", error);
         router.push("/cart");
       } finally {
         setIsLoading(false);

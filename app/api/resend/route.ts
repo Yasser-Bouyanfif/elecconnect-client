@@ -338,7 +338,7 @@ export async function POST(request: Request) {
 
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
-      console.error("Resend API error", errorText);
+      console.error("Erreur de l'API Resend", errorText);
       return NextResponse.json(
         { error: "Échec de l'envoi de l'email." },
         { status: 502 }

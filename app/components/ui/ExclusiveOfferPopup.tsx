@@ -10,7 +10,6 @@ interface ExclusiveOfferPopupProps {
 
 const ExclusiveOfferPopup = ({ onClose }: ExclusiveOfferPopupProps) => {
   useEffect(() => {
-    // Marquer que la popup a été vue dans cette session
     sessionStorage.setItem('popupShown', 'true');
   }, []);
   return (
