@@ -13,6 +13,18 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cart } = useContext(CartContext) as CartContextType;
 
+  const renderUserButton = () => (
+    <UserButton afterSignOutUrl="/">
+      <UserButton.MenuItems>
+        <UserButton.Link
+          label="Mes commandes"
+          href="/orders"
+          labelIcon={<ShoppingCart className="w-4 h-4 mr-2" />}
+        />
+      </UserButton.MenuItems>
+    </UserButton>
+  );
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,15 +90,7 @@ export default function Header() {
 
               {/* Si connecté : bouton profil Clerk ; sinon : icône Login vers /sign-in */}
               {isSignedIn ? (
-                <UserButton >
-                <UserButton.MenuItems>
-                <UserButton.Link 
-                  label="Mes commandes" 
-                  href="/orders" 
-                  labelIcon={<ShoppingCart className="w-4 h-4 mr-2" />} 
-                />
-              </UserButton.MenuItems>
-            </UserButton>
+                renderUserButton()
               ) : (
                 <Link
                   href="/account"
@@ -119,7 +123,7 @@ export default function Header() {
             {/* Bouton utilisateur */}
             <div className="ml-2">
               {isSignedIn ? (
-                <UserButton afterSignOutUrl="/" />
+                renderUserButton()
               ) : (
                 <Link
                   href="/account"
