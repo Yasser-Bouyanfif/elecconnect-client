@@ -1,9 +1,40 @@
 "use client"
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
+import { z } from 'zod';
+
+const contactSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Le nom est obligatoire.')
+    .max(100, 'Le nom est trop long.'),
+  email: z
+    .string()
+    .trim()
+    .min(1, "L'adresse e-mail est obligatoire.")
+    .email('Adresse e-mail invalide.')
+    .max(320, "L'adresse e-mail est trop longue."),
+  phone: z
+    .string()
+    .optional()
+    .transform((value) => (value ?? '').trim())
+    .refine(
+      (value) => value.length === 0 || /^[0-9+().\s-]*$/.test(value),
+      'Le format du numéro de téléphone est invalide.'
+    )
+    .refine((value) => value.length <= 30, 'Le numéro de téléphone est trop long.'),
+  message: z
+    .string()
+    .trim()
+    .min(10, 'Le message doit contenir au moins 10 caractères.')
+    .max(2000, 'Le message est trop long.'),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     phone: '',
@@ -11,11 +42,30 @@ export default function Contact() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
     setErrorMessage('');
+
+    const validation = contactSchema.safeParse(formData);
+    if (!validation.success) {
+      const errors: Partial<Record<keyof ContactFormData, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof ContactFormData | undefined;
+        if (fieldName && !errors[fieldName]) {
+          errors[fieldName] = issue.message;
+        }
+      });
+      setFieldErrors(errors);
+      setStatus('error');
+      setErrorMessage("Veuillez corriger les erreurs du formulaire.");
+      return;
+    }
+
+    const sanitizedData = validation.data;
+    setFieldErrors({});
 
     try {
       const response = await fetch('/api/resend/contact', {
@@ -24,10 +74,10 @@ export default function Contact() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          content: formData.message,
+          fullName: sanitizedData.name,
+          phone: sanitizedData.phone,
+          email: sanitizedData.email,
+          content: sanitizedData.message,
         }),
       });
 
@@ -52,13 +102,19 @@ export default function Contact() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value,
     });
     if (status !== 'idle') {
       setStatus('idle');
       setErrorMessage('');
+    }
+    if (name in fieldErrors) {
+      const nextErrors = { ...fieldErrors };
+      delete nextErrors[name as keyof ContactFormData];
+      setFieldErrors(nextErrors);
     }
   };
 
@@ -132,16 +188,30 @@ export default function Contact() {
                   required
                   value={formData.name}
                   onChange={handleChange}
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? 'name-error' : undefined}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
                 />
+                {fieldErrors.name && (
+                  <p id="name-error" className="text-sm text-red-500 mt-1 sm:col-span-2">
+                    {fieldErrors.name}
+                  </p>
+                )}
                 <input
                   type="tel"
                   name="phone"
                   placeholder="Téléphone"
                   value={formData.phone}
                   onChange={handleChange}
+                  aria-invalid={Boolean(fieldErrors.phone)}
+                  aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
                 />
+                {fieldErrors.phone && (
+                  <p id="phone-error" className="text-sm text-red-500 mt-1 sm:col-span-2">
+                    {fieldErrors.phone}
+                  </p>
+                )}
               </div>
 
               <input
@@ -151,8 +221,15 @@ export default function Contact() {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                aria-invalid={Boolean(fieldErrors.email)}
+                aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
               />
+              {fieldErrors.email && (
+                <p id="email-error" className="text-sm text-red-500 mt-1">
+                  {fieldErrors.email}
+                </p>
+              )}
 
               <textarea
                 name="message"
@@ -161,8 +238,15 @@ export default function Contact() {
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
+                aria-invalid={Boolean(fieldErrors.message)}
+                aria-describedby={fieldErrors.message ? 'message-error' : undefined}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-white"
               ></textarea>
+              {fieldErrors.message && (
+                <p id="message-error" className="text-sm text-red-500 mt-1">
+                  {fieldErrors.message}
+                </p>
+              )}
 
               <button
                 type="submit"
