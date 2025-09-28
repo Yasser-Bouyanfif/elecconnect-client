@@ -31,7 +31,6 @@ export type CheckoutAddress = {
   postalCode: string;
   country: string;
   phone: string;
-  email: string;
 };
 
 export type CartContextType = {
@@ -64,6 +63,8 @@ export const MAX_PER_PRODUCT = 4;
 const getCartKey = (item: Pick<CartItem, "id" | "documentId">) =>
   (item.documentId ?? item.id).toString();
 
+const DEFAULT_COUNTRY = "France" as const;
+
 const createEmptyAddress = (): CheckoutAddress => ({
   firstName: "",
   lastName: "",
@@ -72,10 +73,47 @@ const createEmptyAddress = (): CheckoutAddress => ({
   address2: "",
   city: "",
   postalCode: "",
-  country: "",
+  country: DEFAULT_COUNTRY,
   phone: "",
-  email: "",
 });
+
+const sanitizeAddressUpdates = (
+  previous: CheckoutAddress,
+  updates: Partial<CheckoutAddress>
+): CheckoutAddress => {
+  const next: CheckoutAddress = { ...previous };
+
+  (Object.keys(previous) as Array<keyof CheckoutAddress>).forEach((key) => {
+    const raw = updates[key];
+    if (typeof raw === "string") {
+      next[key] = key === "country" ? DEFAULT_COUNTRY : raw.trim();
+    }
+  });
+
+  next.country = DEFAULT_COUNTRY;
+
+  return next;
+};
+
+const sanitizeStoredAddress = (value: unknown): CheckoutAddress => {
+  const base = createEmptyAddress();
+  if (!value || typeof value !== "object") {
+    return base;
+  }
+
+  const entries = value as Record<string, unknown>;
+
+  (Object.keys(base) as Array<keyof CheckoutAddress>).forEach((key) => {
+    const raw = entries[key as string];
+    if (typeof raw === "string") {
+      base[key] = key === "country" ? DEFAULT_COUNTRY : raw.trim();
+    }
+  });
+
+  base.country = DEFAULT_COUNTRY;
+
+  return base;
+};
 
 const clampStoredQuantity = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -162,7 +200,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateShippingAddress = useCallback(
     (updates: Partial<CheckoutAddress>) => {
       setShippingAddress((prev) => {
-        const next = { ...prev, ...updates };
+        const next = sanitizeAddressUpdates(prev, updates);
 
         if (useSameAddressForBilling) {
           setBillingAddress({ ...next });
@@ -176,7 +214,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateBillingAddress = useCallback(
     (updates: Partial<CheckoutAddress>) => {
-      setBillingAddress((prev) => ({ ...prev, ...updates }));
+      setBillingAddress((prev) => sanitizeAddressUpdates(prev, updates));
     },
     []
   );
@@ -223,10 +261,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         try {
           const parsed = JSON.parse(storedAddressesRaw);
           if (parsed?.shipping && typeof parsed.shipping === "object") {
-            setShippingAddress((prev) => ({ ...prev, ...parsed.shipping }));
+            setShippingAddress(sanitizeStoredAddress(parsed.shipping));
           }
           if (parsed?.billing && typeof parsed.billing === "object") {
-            setBillingAddress((prev) => ({ ...prev, ...parsed.billing }));
+            setBillingAddress(sanitizeStoredAddress(parsed.billing));
           }
           if (typeof parsed?.useSameForBilling === "boolean") {
             setUseSameAddressForBillingState(parsed.useSameForBilling);
@@ -253,10 +291,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       try {
         const parsedAddresses = JSON.parse(storedAddressesRaw);
         if (parsedAddresses?.shipping && typeof parsedAddresses.shipping === "object") {
-          setShippingAddress((prev) => ({ ...prev, ...parsedAddresses.shipping }));
+          setShippingAddress(sanitizeStoredAddress(parsedAddresses.shipping));
         }
         if (parsedAddresses?.billing && typeof parsedAddresses.billing === "object") {
-          setBillingAddress((prev) => ({ ...prev, ...parsedAddresses.billing }));
+          setBillingAddress(sanitizeStoredAddress(parsedAddresses.billing));
         }
         if (typeof parsedAddresses?.useSameForBilling === "boolean") {
           setUseSameAddressForBillingState(parsedAddresses.useSameForBilling);

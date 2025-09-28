@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,6 +8,59 @@ import {
   CartContextType,
   CheckoutAddress,
 } from "@/app/contexts/CartContext";
+import { z } from "zod";
+
+const frenchPhoneRegex = /^(?:\+33|0)[1-9](?:[ .-]?\d{2}){4}$/;
+
+const optionalLimitedString = (max: number, message: string) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => (value ?? "").trim())
+    .refine((value) => value.length <= max, { message });
+
+const addressSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(2, "Le prénom doit contenir au moins 2 caractères.")
+    .max(80, "Le prénom est trop long."),
+  lastName: z
+    .string()
+    .trim()
+    .min(2, "Le nom doit contenir au moins 2 caractères.")
+    .max(80, "Le nom est trop long."),
+  company: optionalLimitedString(120, "Le nom de la société est trop long."),
+  address1: z
+    .string()
+    .trim()
+    .min(5, "L'adresse doit contenir au moins 5 caractères.")
+    .max(180, "L'adresse est trop longue."),
+  address2: optionalLimitedString(180, "Le complément d'adresse est trop long."),
+  city: z
+    .string()
+    .trim()
+    .min(2, "La ville doit contenir au moins 2 caractères.")
+    .max(120, "La ville est trop longue."),
+  postalCode: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{5}$/, "Le code postal doit contenir 5 chiffres."),
+  country: z.literal("France"),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Le numéro de téléphone est obligatoire.")
+    .max(30, "Le numéro de téléphone est trop long.")
+    .refine((value) => frenchPhoneRegex.test(value), {
+      message: "Le numéro de téléphone doit être un numéro français valide.",
+    }),
+});
+
+type AddressFormData = z.infer<typeof addressSchema>;
+type AddressErrors = Partial<Record<keyof AddressFormData, string>>;
+
+type AddressField = keyof CheckoutAddress;
 
 export default function AddressStepPage() {
   const router = useRouter();
@@ -20,79 +73,543 @@ export default function AddressStepPage() {
     setUseSameAddressForBilling,
   } = useContext(CartContext) as CartContextType;
 
-  const saveAndContinue = () => {
+  const [shippingForm, setShippingForm] = useState<AddressFormData>(() => ({
+    ...shippingAddress,
+  }));
+  const [billingForm, setBillingForm] = useState<AddressFormData>(() => ({
+    ...billingAddress,
+  }));
+  const [shippingErrors, setShippingErrors] = useState<AddressErrors>({});
+  const [billingErrors, setBillingErrors] = useState<AddressErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setShippingForm({ ...shippingAddress });
+  }, [shippingAddress]);
+
+  useEffect(() => {
+    setBillingForm({ ...billingAddress });
+  }, [billingAddress]);
+
+  const clearFieldError = (
+    setter: React.Dispatch<React.SetStateAction<AddressErrors>>,
+    field: AddressField
+  ) => {
+    setter((prev) => {
+      if (!prev[field]) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const handleShippingChange =
+    (field: AddressField) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      setShippingForm((prev) => ({ ...prev, [field]: value }));
+      clearFieldError(setShippingErrors, field);
+      if (useSameAddressForBilling) {
+        const syncedValue = field === "country" ? "France" : value;
+        setBillingForm((prev) => ({ ...prev, [field]: syncedValue }));
+        clearFieldError(setBillingErrors, field);
+      }
+    };
+
+  const handleBillingChange =
+    (field: AddressField) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      setBillingForm((prev) => ({ ...prev, [field]: value }));
+      clearFieldError(setBillingErrors, field);
+    };
+
+  const handleUseSameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setUseSameAddressForBilling(checked);
+    if (checked) {
+      setBillingForm({ ...shippingForm, country: "France" });
+      setBillingErrors({});
+    }
+  };
+
+  const collectErrors = (issues: z.ZodIssue[]): AddressErrors =>
+    issues.reduce<AddressErrors>((acc, issue) => {
+      const field = issue.path[0] as AddressField | undefined;
+      if (field && !acc[field]) {
+        acc[field] = issue.message;
+      }
+      return acc;
+    }, {});
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError(null);
+
+    const shippingValidation = addressSchema.safeParse(shippingForm);
+    let nextShippingErrors: AddressErrors = {};
+    let nextBillingErrors: AddressErrors = {};
+    let hasError = false;
+
+    if (!shippingValidation.success) {
+      hasError = true;
+      nextShippingErrors = collectErrors(shippingValidation.error.issues);
+    }
+
+    let billingData: AddressFormData | null = null;
+    if (!useSameAddressForBilling) {
+      const billingValidation = addressSchema.safeParse(billingForm);
+      if (!billingValidation.success) {
+        hasError = true;
+        nextBillingErrors = collectErrors(billingValidation.error.issues);
+      } else {
+        billingData = billingValidation.data;
+      }
+    }
+
+    if (hasError) {
+      setShippingErrors(nextShippingErrors);
+      setBillingErrors(nextBillingErrors);
+      setFormError("Veuillez corriger les erreurs du formulaire.");
+      return;
+    }
+
+    const sanitizedShipping = shippingValidation.data;
+    setShippingErrors({});
+    setBillingErrors({});
+    updateShippingAddress(sanitizedShipping);
+    if (!useSameAddressForBilling && billingData) {
+      updateBillingAddress(billingData);
+    }
     router.push("/checkout/shipping");
   };
 
-  const onChangeFactory =
-    (
-      updater: (updates: Partial<CheckoutAddress>) => void
-    ) =>
-    (field: keyof CheckoutAddress) =>
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        updater({ [field]: e.target.value });
-
-  const shipping = shippingAddress;
-  const billing = billingAddress;
-  const useSameForBilling = useSameAddressForBilling;
-  const s = onChangeFactory(updateShippingAddress);
-  const b = onChangeFactory(updateBillingAddress);
+  const shippingFieldErrorId = (field: AddressField) =>
+    shippingErrors[field] ? `shipping-${field}-error` : undefined;
+  const billingFieldErrorId = (field: AddressField) =>
+    billingErrors[field] ? `billing-${field}-error` : undefined;
 
   return (
     <section className="bg-gray-50">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Étape 1 : Adresse(s)</h1>
-        <p className="mt-1 text-slate-600">Saisissez votre adresse de livraison et, si nécessaire, une adresse de facturation différente.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
+          Étape 1 : Adresse(s)
+        </h1>
+        <p className="mt-1 text-slate-600">
+          Saisissez votre adresse de livraison et, si nécessaire, une adresse de
+          facturation différente.
+        </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-6">
-          {/* Shipping address */}
+        <form
+          className="mt-8 grid grid-cols-1 gap-6"
+          noValidate
+          onSubmit={handleSubmit}
+        >
+          {formError && (
+            <div className="alert alert-error">
+              <span>{formError}</span>
+            </div>
+          )}
+
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
-            <h2 className="text-base font-semibold text-slate-900">Adresse de livraison</h2>
+            <h2 className="text-base font-semibold text-slate-900">
+              Adresse de livraison
+            </h2>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input className="input input-bordered w-full" name="given-name" autoComplete="given-name" placeholder="Prénom" value={shipping.firstName} onChange={s("firstName")} />
-              <input className="input input-bordered w-full" name="family-name" autoComplete="family-name" placeholder="Nom" value={shipping.lastName} onChange={s("lastName")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="organization" autoComplete="organization" placeholder="Société (optionnel)" value={shipping.company} onChange={s("company")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="address-line1" autoComplete="address-line1" placeholder="Adresse" value={shipping.address1} onChange={s("address1")} />
-              <input className="input input-bordered w-full sm:col-span-2" name="address-line2" autoComplete="address-line2" placeholder="Complément d'adresse (optionnel)" value={shipping.address2} onChange={s("address2")} />
-              <input className="input input-bordered w-full" name="address-level2" autoComplete="address-level2" placeholder="Ville" value={shipping.city} onChange={s("city")} />
-              <input className="input input-bordered w-full" name="postal-code" autoComplete="postal-code" placeholder="Code postal" value={shipping.postalCode} onChange={s("postalCode")} />
-              <input className="input input-bordered w-full" name="country" autoComplete="country" placeholder="Pays" value={shipping.country} onChange={s("country")} />
-              <input className="input input-bordered w-full" name="tel" autoComplete="tel" placeholder="Téléphone (optionnel)" value={shipping.phone} onChange={s("phone")} />
-              <input className="input input-bordered w-full sm:col-span-2" type="email" name="email" autoComplete="email" placeholder="Email (optionnel)" value={shipping.email} onChange={s("email")} />
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="given-name"
+                  autoComplete="given-name"
+                  placeholder="Prénom"
+                  required
+                  value={shippingForm.firstName}
+                  onChange={handleShippingChange("firstName")}
+                  aria-invalid={Boolean(shippingErrors.firstName)}
+                  aria-describedby={shippingFieldErrorId("firstName")}
+                />
+                {shippingErrors.firstName && (
+                  <p
+                    id="shipping-firstName-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.firstName}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="family-name"
+                  autoComplete="family-name"
+                  placeholder="Nom"
+                  required
+                  value={shippingForm.lastName}
+                  onChange={handleShippingChange("lastName")}
+                  aria-invalid={Boolean(shippingErrors.lastName)}
+                  aria-describedby={shippingFieldErrorId("lastName")}
+                />
+                {shippingErrors.lastName && (
+                  <p
+                    id="shipping-lastName-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.lastName}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <input
+                  className="input input-bordered w-full"
+                  name="organization"
+                  autoComplete="organization"
+                  placeholder="Société (optionnel)"
+                  value={shippingForm.company}
+                  onChange={handleShippingChange("company")}
+                  aria-invalid={Boolean(shippingErrors.company)}
+                  aria-describedby={shippingFieldErrorId("company")}
+                />
+                {shippingErrors.company && (
+                  <p
+                    id="shipping-company-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.company}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <input
+                  className="input input-bordered w-full"
+                  name="address-line1"
+                  autoComplete="address-line1"
+                  placeholder="Adresse"
+                  required
+                  value={shippingForm.address1}
+                  onChange={handleShippingChange("address1")}
+                  aria-invalid={Boolean(shippingErrors.address1)}
+                  aria-describedby={shippingFieldErrorId("address1")}
+                />
+                {shippingErrors.address1 && (
+                  <p
+                    id="shipping-address1-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.address1}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <input
+                  className="input input-bordered w-full"
+                  name="address-line2"
+                  autoComplete="address-line2"
+                  placeholder="Complément d'adresse (optionnel)"
+                  value={shippingForm.address2}
+                  onChange={handleShippingChange("address2")}
+                  aria-invalid={Boolean(shippingErrors.address2)}
+                  aria-describedby={shippingFieldErrorId("address2")}
+                />
+                {shippingErrors.address2 && (
+                  <p
+                    id="shipping-address2-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.address2}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="address-level2"
+                  autoComplete="address-level2"
+                  placeholder="Ville"
+                  required
+                  value={shippingForm.city}
+                  onChange={handleShippingChange("city")}
+                  aria-invalid={Boolean(shippingErrors.city)}
+                  aria-describedby={shippingFieldErrorId("city")}
+                />
+                {shippingErrors.city && (
+                  <p id="shipping-city-error" className="text-sm text-red-500">
+                    {shippingErrors.city}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="postal-code"
+                  autoComplete="postal-code"
+                  placeholder="Code postal"
+                  required
+                  inputMode="numeric"
+                  value={shippingForm.postalCode}
+                  onChange={handleShippingChange("postalCode")}
+                  aria-invalid={Boolean(shippingErrors.postalCode)}
+                  aria-describedby={shippingFieldErrorId("postalCode")}
+                />
+                {shippingErrors.postalCode && (
+                  <p
+                    id="shipping-postalCode-error"
+                    className="text-sm text-red-500"
+                  >
+                    {shippingErrors.postalCode}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="country"
+                  autoComplete="country"
+                  placeholder="Pays"
+                  value={shippingForm.country}
+                  disabled
+                  aria-disabled="true"
+                  readOnly
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  className="input input-bordered w-full"
+                  name="tel"
+                  autoComplete="tel"
+                  placeholder="Téléphone"
+                  required
+                  value={shippingForm.phone}
+                  onChange={handleShippingChange("phone")}
+                  aria-invalid={Boolean(shippingErrors.phone)}
+                  aria-describedby={shippingFieldErrorId("phone")}
+                  pattern="^(?:\\+33|0)[1-9](?:[ .-]?\\d{2}){4}$"
+                />
+                {shippingErrors.phone && (
+                  <p id="shipping-phone-error" className="text-sm text-red-500">
+                    {shippingErrors.phone}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Billing toggle */}
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
             <label className="flex items-center gap-2">
-              <input type="checkbox" className="checkbox checkbox-sm" checked={useSameForBilling} onChange={(e) => setUseSameAddressForBilling(e.target.checked)} />
-              <span className="text-slate-800">Utiliser la même adresse pour la facturation</span>
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={useSameAddressForBilling}
+                onChange={handleUseSameChange}
+              />
+              <span className="text-slate-800">
+                Utiliser la même adresse pour la facturation
+              </span>
             </label>
-            {!useSameForBilling && (
+            {!useSameAddressForBilling && (
               <div className="mt-4">
-                <h2 className="text-base font-semibold text-slate-900">Adresse de facturation</h2>
+                <h2 className="text-base font-semibold text-slate-900">
+                  Adresse de facturation
+                </h2>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input className="input input-bordered w-full" name="billing-given-name" autoComplete="given-name" placeholder="Prénom" value={billing.firstName} onChange={b("firstName")} />
-                  <input className="input input-bordered w-full" name="billing-family-name" autoComplete="family-name" placeholder="Nom" value={billing.lastName} onChange={b("lastName")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-organization" autoComplete="organization" placeholder="Société (optionnel)" value={billing.company} onChange={b("company")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-address-line1" autoComplete="address-line1" placeholder="Adresse" value={billing.address1} onChange={b("address1")} />
-                  <input className="input input-bordered w-full sm:col-span-2" name="billing-address-line2" autoComplete="address-line2" placeholder="Complément d'adresse (optionnel)" value={billing.address2} onChange={b("address2")} />
-                  <input className="input input-bordered w-full" name="billing-address-level2" autoComplete="address-level2" placeholder="Ville" value={billing.city} onChange={b("city")} />
-                  <input className="input input-bordered w-full" name="billing-postal-code" autoComplete="postal-code" placeholder="Code postal" value={billing.postalCode} onChange={b("postalCode")} />
-                  <input className="input input-bordered w-full" name="billing-country" autoComplete="country" placeholder="Pays" value={billing.country} onChange={b("country")} />
-                  <input className="input input-bordered w-full" name="billing-tel" autoComplete="tel" placeholder="Téléphone (optionnel)" value={billing.phone} onChange={b("phone")} />
-                  <input className="input input-bordered w-full sm:col-span-2" type="email" name="billing-email" autoComplete="email" placeholder="Email (optionnel)" value={billing.email} onChange={b("email")} />
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-given-name"
+                      autoComplete="given-name"
+                      placeholder="Prénom"
+                      required
+                      value={billingForm.firstName}
+                      onChange={handleBillingChange("firstName")}
+                      aria-invalid={Boolean(billingErrors.firstName)}
+                      aria-describedby={billingFieldErrorId("firstName")}
+                    />
+                    {billingErrors.firstName && (
+                      <p
+                        id="billing-firstName-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.firstName}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-family-name"
+                      autoComplete="family-name"
+                      placeholder="Nom"
+                      required
+                      value={billingForm.lastName}
+                      onChange={handleBillingChange("lastName")}
+                      aria-invalid={Boolean(billingErrors.lastName)}
+                      aria-describedby={billingFieldErrorId("lastName")}
+                    />
+                    {billingErrors.lastName && (
+                      <p
+                        id="billing-lastName-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.lastName}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-organization"
+                      autoComplete="organization"
+                      placeholder="Société (optionnel)"
+                      value={billingForm.company}
+                      onChange={handleBillingChange("company")}
+                      aria-invalid={Boolean(billingErrors.company)}
+                      aria-describedby={billingFieldErrorId("company")}
+                    />
+                    {billingErrors.company && (
+                      <p
+                        id="billing-company-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.company}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-address-line1"
+                      autoComplete="address-line1"
+                      placeholder="Adresse"
+                      required
+                      value={billingForm.address1}
+                      onChange={handleBillingChange("address1")}
+                      aria-invalid={Boolean(billingErrors.address1)}
+                      aria-describedby={billingFieldErrorId("address1")}
+                    />
+                    {billingErrors.address1 && (
+                      <p
+                        id="billing-address1-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.address1}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-address-line2"
+                      autoComplete="address-line2"
+                      placeholder="Complément d'adresse (optionnel)"
+                      value={billingForm.address2}
+                      onChange={handleBillingChange("address2")}
+                      aria-invalid={Boolean(billingErrors.address2)}
+                      aria-describedby={billingFieldErrorId("address2")}
+                    />
+                    {billingErrors.address2 && (
+                      <p
+                        id="billing-address2-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.address2}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-address-level2"
+                      autoComplete="address-level2"
+                      placeholder="Ville"
+                      required
+                      value={billingForm.city}
+                      onChange={handleBillingChange("city")}
+                      aria-invalid={Boolean(billingErrors.city)}
+                      aria-describedby={billingFieldErrorId("city")}
+                    />
+                    {billingErrors.city && (
+                      <p
+                        id="billing-city-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.city}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-postal-code"
+                      autoComplete="postal-code"
+                      placeholder="Code postal"
+                      required
+                      inputMode="numeric"
+                      value={billingForm.postalCode}
+                      onChange={handleBillingChange("postalCode")}
+                      aria-invalid={Boolean(billingErrors.postalCode)}
+                      aria-describedby={billingFieldErrorId("postalCode")}
+                    />
+                    {billingErrors.postalCode && (
+                      <p
+                        id="billing-postalCode-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.postalCode}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-country"
+                      autoComplete="country"
+                      placeholder="Pays"
+                      value={billingForm.country}
+                      disabled
+                      aria-disabled="true"
+                      readOnly
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      className="input input-bordered w-full"
+                      name="billing-tel"
+                      autoComplete="tel"
+                      placeholder="Téléphone"
+                      required
+                      value={billingForm.phone}
+                      onChange={handleBillingChange("phone")}
+                      aria-invalid={Boolean(billingErrors.phone)}
+                      aria-describedby={billingFieldErrorId("phone")}
+                      pattern="^(?:\\+33|0)[1-9](?:[ .-]?\\d{2}){4}$"
+                    />
+                    {billingErrors.phone && (
+                      <p
+                        id="billing-phone-error"
+                        className="text-sm text-red-500"
+                      >
+                        {billingErrors.phone}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Actions (no payment button here as requested) */}
           <div className="flex items-center justify-between">
-            <Link href="/cart" className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800">Retour au panier</Link>
-            <button type="button" onClick={saveAndContinue} className="btn btn-soft btn-primary">Continuer</button>
+            <Link
+              href="/cart"
+              className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800"
+            >
+              Retour au panier
+            </Link>
+            <button type="submit" className="btn btn-soft btn-primary">
+              Continuer
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </section>
   );
