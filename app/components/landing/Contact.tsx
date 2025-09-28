@@ -1,64 +1,182 @@
-"use client"
-import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Send } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import { Phone, Mail, MapPin, Send } from "lucide-react";
+
+type ContactFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
+type ContactField = keyof ContactFormData;
+
+const NAME_REGEX = /^[A-Za-zÀ-ÖØ-öø-ÿ' \-]{2,60}$/;
+const PHONE_REGEX = /^(?:\+33 ?|0)[1-9](?:[ .\-]?\d{2}){4}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const MESSAGE_MIN_LENGTH = 10;
+const MESSAGE_MAX_LENGTH = 1000;
+
+const sanitizeFieldValue = (field: ContactField, value: string) => {
+  const normalized = value.normalize("NFKC");
+
+  switch (field) {
+    case "name":
+      return normalized
+        .replace(/[^A-Za-zÀ-ÖØ-öø-ÿ' \-]/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim()
+        .slice(0, 60);
+    case "phone":
+      return normalized
+        .replace(/[^0-9+ ]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 20);
+    case "email":
+      return normalized
+        .replace(/[\s<>"'()]/g, "")
+        .toLowerCase()
+        .slice(0, 254);
+    case "message":
+      return normalized
+        .replace(/[<>]/g, "")
+        .replace(/\r/g, "")
+        .slice(0, MESSAGE_MAX_LENGTH)
+        .trim();
+    default:
+      return normalized.trim();
+  }
+};
+
+const validateFormData = (data: ContactFormData) => {
+  const sanitized: ContactFormData = {
+    name: sanitizeFieldValue("name", data.name),
+    email: sanitizeFieldValue("email", data.email),
+    phone: sanitizeFieldValue("phone", data.phone),
+    message: sanitizeFieldValue("message", data.message),
+  };
+
+  if (!NAME_REGEX.test(sanitized.name)) {
+    return {
+      valid: false,
+      sanitized,
+      error:
+        "Merci d'indiquer un nom complet valide (lettres, espaces, apostrophes).",
+    } as const;
+  }
+
+  if (!PHONE_REGEX.test(sanitized.phone)) {
+    return {
+      valid: false,
+      sanitized,
+      error:
+        "Merci de fournir un numéro de téléphone français valide (ex. 06 12 34 56 78).",
+    } as const;
+  }
+
+  if (!EMAIL_REGEX.test(sanitized.email)) {
+    return {
+      valid: false,
+      sanitized,
+      error: "Merci de fournir une adresse email valide.",
+    } as const;
+  }
+
+  if (sanitized.message.length < MESSAGE_MIN_LENGTH) {
+    return {
+      valid: false,
+      sanitized,
+      error: "Votre message doit contenir au moins 10 caractères.",
+    } as const;
+  }
+
+  return { valid: true, sanitized } as const;
+};
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    "idle"
+  );
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
-    setErrorMessage('');
+    setErrorMessage("");
+
+    const validation = validateFormData(formData);
+    setFormData(validation.sanitized);
+
+    if (!validation.valid) {
+      setStatus("error");
+      setErrorMessage(validation.error);
+      return;
+    }
+
+    setStatus("loading");
 
     try {
-      const response = await fetch('/api/resend/contact', {
-        method: 'POST',
+      const normalizedPhone = validation.sanitized.phone.replace(/\s+/g, "");
+      const response = await fetch("/api/resend/contact", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          content: formData.message,
+          fullName: validation.sanitized.name,
+          phone: normalizedPhone,
+          email: validation.sanitized.email,
+          content: validation.sanitized.message,
         }),
       });
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));
         setErrorMessage(
-          typeof errorBody?.error === 'string'
+          typeof errorBody?.error === "string"
             ? errorBody.error
             : "Une erreur est survenue lors de l'envoi du message."
         );
-        setStatus('error');
+        setStatus("error");
         return;
       }
 
-      setFormData({ name: '', email: '', phone: '', message: '' });
-      setStatus('success');
+      setFormData({ name: "", email: "", phone: "", message: "" });
+      setStatus("success");
     } catch (error) {
-      console.error('Erreur lors de la soumission du formulaire de contact', error);
-      setErrorMessage("Impossible d'envoyer votre demande pour le moment. Veuillez réessayer plus tard.");
-      setStatus('error');
+      console.error("Erreur lors de la soumission du formulaire de contact", error);
+      setErrorMessage(
+        "Impossible d'envoyer votre demande pour le moment. Veuillez réessayer plus tard."
+      );
+      setStatus("error");
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    if (status !== 'idle') {
-      setStatus('idle');
-      setErrorMessage('');
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    if (!name || !(name in formData)) {
+      return;
+    }
+
+    const fieldName = name as ContactField;
+    const sanitizedValue = sanitizeFieldValue(fieldName, value);
+
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName]: sanitizedValue,
+    }));
+
+    if (status !== "idle") {
+      setStatus("idle");
+      setErrorMessage("");
     }
   };
 
@@ -129,7 +247,9 @@ export default function Contact() {
                   type="text"
                   name="name"
                   placeholder="Nom complet"
+                  autoComplete="name"
                   required
+                  maxLength={60}
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
@@ -138,6 +258,12 @@ export default function Contact() {
                   type="tel"
                   name="phone"
                   placeholder="Téléphone"
+                  autoComplete="tel"
+                  required
+                  maxLength={20}
+                  inputMode="tel"
+                  pattern="^(?:\\+33 ?|0)[1-9](?:[ .\\-]?\\d{2}){4}$"
+                  title="Numéro français attendu, ex. 06 12 34 56 78"
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
@@ -149,6 +275,8 @@ export default function Contact() {
                 name="email"
                 placeholder="Email"
                 required
+                maxLength={254}
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
@@ -159,6 +287,8 @@ export default function Contact() {
                 placeholder="Décrivez votre projet..."
                 required
                 rows={4}
+                minLength={MESSAGE_MIN_LENGTH}
+                maxLength={MESSAGE_MAX_LENGTH}
                 value={formData.message}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-white"
@@ -167,17 +297,17 @@ export default function Contact() {
               <button
                 type="submit"
                 className="btn btn-success btn-block text-white hover:text-white flex items-center justify-center gap-2"
-                disabled={status === 'loading'}
+                disabled={status === "loading"}
               >
-                <span>{status === 'loading' ? 'Envoi en cours...' : 'Envoyer ma demande'}</span>
+                <span>{status === "loading" ? "Envoi en cours..." : "Envoyer ma demande"}</span>
                 <Send className="w-4 h-4" />
               </button>
-              {status === 'success' && (
+              {status === "success" && (
                 <p className="text-sm text-emerald-600 text-center">
                   Votre message a bien été envoyé. Nous vous répondrons sous 8h.
                 </p>
               )}
-              {status === 'error' && (
+              {status === "error" && (
                 <p className="text-sm text-red-500 text-center">
                   {errorMessage}
                 </p>

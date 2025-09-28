@@ -31,7 +31,6 @@ export type CheckoutAddress = {
   postalCode: string;
   country: string;
   phone: string;
-  email: string;
 };
 
 export type CartContextType = {
@@ -64,6 +63,77 @@ export const MAX_PER_PRODUCT = 4;
 const getCartKey = (item: Pick<CartItem, "id" | "documentId">) =>
   (item.documentId ?? item.id).toString();
 
+const addressFields = [
+  "firstName",
+  "lastName",
+  "company",
+  "address1",
+  "address2",
+  "city",
+  "postalCode",
+  "country",
+  "phone",
+] as const satisfies ReadonlyArray<keyof CheckoutAddress>;
+
+const ADDRESS_CHARACTER_FILTERS: Record<keyof CheckoutAddress, RegExp> = {
+  firstName: /[^A-Za-zÀ-ÖØ-öø-ÿ' \-]/g,
+  lastName: /[^A-Za-zÀ-ÖØ-öø-ÿ' \-]/g,
+  company: /[^A-Za-zÀ-ÖØ-öø-ÿ0-9'&.,\- ]/g,
+  address1: /[^A-Za-zÀ-ÖØ-öø-ÿ0-9'.,\- ]/g,
+  address2: /[^A-Za-zÀ-ÖØ-öø-ÿ0-9'.,\- ]/g,
+  city: /[^A-Za-zÀ-ÖØ-öø-ÿ' \-]/g,
+  postalCode: /[^0-9]/g,
+  country: /[^A-Za-zÀ-ÖØ-öø-ÿ' \-]/g,
+  phone: /[^0-9+ ]/g,
+};
+
+const ADDRESS_MAX_LENGTHS: Record<keyof CheckoutAddress, number> = {
+  firstName: 60,
+  lastName: 60,
+  company: 80,
+  address1: 120,
+  address2: 120,
+  city: 80,
+  postalCode: 10,
+  country: 60,
+  phone: 20,
+};
+
+const sanitizeAddressFieldValue = (
+  field: keyof CheckoutAddress,
+  rawValue: string
+) => {
+  const normalized = rawValue.normalize("NFKC").replace(/[<>]/g, "");
+  const collapseWhitespace =
+    field === "phone" || field === "postalCode"
+      ? normalized.replace(/\s+/g, " ")
+      : normalized.replace(/\s{2,}/g, " ");
+  const filtered = collapseWhitespace.replace(
+    ADDRESS_CHARACTER_FILTERS[field],
+    ""
+  );
+  const trimmed =
+    field === "phone" || field === "postalCode"
+      ? filtered.trim()
+      : filtered.trimStart().replace(/\s{2,}/g, " ").trim();
+  const maxLength = ADDRESS_MAX_LENGTHS[field];
+  return trimmed.slice(0, maxLength);
+};
+
+const sanitizeAddressPayload = (
+  payload: Partial<Record<keyof CheckoutAddress, unknown>>
+): Partial<CheckoutAddress> => {
+  const sanitized: Partial<CheckoutAddress> = {};
+
+  for (const field of addressFields) {
+    const value = payload[field];
+    if (typeof value === "string") {
+      sanitized[field] = sanitizeAddressFieldValue(field, value);
+    }
+  }
+
+  return sanitized;
+};
 const createEmptyAddress = (): CheckoutAddress => ({
   firstName: "",
   lastName: "",
@@ -72,10 +142,26 @@ const createEmptyAddress = (): CheckoutAddress => ({
   address2: "",
   city: "",
   postalCode: "",
-  country: "",
+  country: "France",
   phone: "",
-  email: "",
 });
+
+const sanitizeStoredAddress = (
+  payload: unknown
+): CheckoutAddress | null => {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const sanitized = sanitizeAddressPayload(
+    payload as Partial<Record<keyof CheckoutAddress, unknown>>
+  );
+
+  return {
+    ...createEmptyAddress(),
+    ...sanitized,
+  };
+};
 
 const clampStoredQuantity = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -162,7 +248,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateShippingAddress = useCallback(
     (updates: Partial<CheckoutAddress>) => {
       setShippingAddress((prev) => {
-        const next = { ...prev, ...updates };
+        const sanitizedUpdates = sanitizeAddressPayload(updates);
+        const next: CheckoutAddress = {
+          ...prev,
+          ...sanitizedUpdates,
+          country: "France",
+        };
 
         if (useSameAddressForBilling) {
           setBillingAddress({ ...next });
@@ -176,7 +267,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateBillingAddress = useCallback(
     (updates: Partial<CheckoutAddress>) => {
-      setBillingAddress((prev) => ({ ...prev, ...updates }));
+      setBillingAddress((prev) => ({
+        ...prev,
+        ...sanitizeAddressPayload(updates),
+        country: "France",
+      }));
     },
     []
   );
@@ -222,11 +317,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (storedAddressesRaw) {
         try {
           const parsed = JSON.parse(storedAddressesRaw);
-          if (parsed?.shipping && typeof parsed.shipping === "object") {
-            setShippingAddress((prev) => ({ ...prev, ...parsed.shipping }));
+          const sanitizedShipping = sanitizeStoredAddress(parsed?.shipping);
+          if (sanitizedShipping) {
+            setShippingAddress(sanitizedShipping);
           }
-          if (parsed?.billing && typeof parsed.billing === "object") {
-            setBillingAddress((prev) => ({ ...prev, ...parsed.billing }));
+          const sanitizedBilling = sanitizeStoredAddress(parsed?.billing);
+          if (sanitizedBilling) {
+            setBillingAddress(sanitizedBilling);
           }
           if (typeof parsed?.useSameForBilling === "boolean") {
             setUseSameAddressForBillingState(parsed.useSameForBilling);
@@ -252,11 +349,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (storedAddressesRaw) {
       try {
         const parsedAddresses = JSON.parse(storedAddressesRaw);
-        if (parsedAddresses?.shipping && typeof parsedAddresses.shipping === "object") {
-          setShippingAddress((prev) => ({ ...prev, ...parsedAddresses.shipping }));
+        const sanitizedShipping = sanitizeStoredAddress(
+          parsedAddresses?.shipping
+        );
+        if (sanitizedShipping) {
+          setShippingAddress(sanitizedShipping);
         }
-        if (parsedAddresses?.billing && typeof parsedAddresses.billing === "object") {
-          setBillingAddress((prev) => ({ ...prev, ...parsedAddresses.billing }));
+        const sanitizedBilling = sanitizeStoredAddress(parsedAddresses?.billing);
+        if (sanitizedBilling) {
+          setBillingAddress(sanitizedBilling);
         }
         if (typeof parsedAddresses?.useSameForBilling === "boolean") {
           setUseSameAddressForBillingState(parsedAddresses.useSameForBilling);
