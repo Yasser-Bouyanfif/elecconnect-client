@@ -38,12 +38,21 @@ const currencyFormatter = new Intl.NumberFormat("fr-FR", {
 });
 
 const normalizeAmount = (amount: number | string | null | undefined) => {
+  if (amount == null) {
+    return 0;
+  }
+
   if (typeof amount === "string") {
-    const parsed = Number(amount);
+    const sanitized = amount.replace(",", ".").trim();
+    const parsed = Number(sanitized);
     amount = Number.isNaN(parsed) ? undefined : parsed;
   }
-  if (typeof amount !== "number" || Number.isNaN(amount)) return 0;
-  return amount >= 1000 ? amount / 100 : amount;
+
+  if (typeof amount !== "number" || Number.isNaN(amount)) {
+    return 0;
+  }
+
+  return amount;
 };
 
 const formatAddress = (address?: Address) => {
@@ -73,7 +82,7 @@ const formatOrderLines = (lines: OrderLine[] = []) => {
       const title = line.product?.title ?? "Produit";
       const qte = line.quantity ?? 0;
       const unit = normalizeAmount(line.unitPrice);
-      const total = normalizeAmount(unit * qte);
+      const total = unit * qte;
       return `
         <tr>
           <td style="padding:10px;border-bottom:1px solid #e5e7eb;">
