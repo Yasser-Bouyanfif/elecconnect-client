@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Sun, Zap, BatteryCharging, CheckCircle } from 'lucide-react';
+import { Sun, Zap, BatteryCharging, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function SolutionsSolaires() {
   return (
@@ -45,21 +45,10 @@ export default function SolutionsSolaires() {
               <div className="text-center mb-6">
                 <p className="text-sm uppercase tracking-wider text-emerald-600 font-semibold">Confiance & Qualité</p>
                 <h3 className="text-2xl font-bold text-slate-800 mt-1">Nos engagements</h3>
-                <p className="text-slate-600 mt-2">En partenariat avec SSP pour des installations conformes et performantes.</p>
+                <p className="text-slate-600 mt-2">Des installations conformes et performantes réalisées par des partenaires certifiés.</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* SSP */}
-                <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                  <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
-                    <Image src="/ssp.png" alt="Partenaire SSP" fill className="object-contain" sizes="(max-width: 640px) 40vw, 20vw" priority />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Partenaire</p>
-                    <p className="font-semibold text-slate-900">SSP</p>
-                  </div>
-                </div>
-
                 {/* RGE */}
                 <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
                   <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
@@ -238,45 +227,103 @@ export default function SolutionsSolaires() {
           </div>
 
           {/* Carte d'offre spéciale */}
-          <div className="mt-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl relative">
-            <div className="p-8 md:p-10 lg:flex items-center pt-16 md:pt-16">
-              <div className="lg:w-2/3">
-                <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white mb-4">
-                  <Zap className="w-4 h-4 mr-2" />
-                  OFFRE EXCLUSIVE
+          <div className="mt-16 rounded-3xl bg-slate-900 text-white overflow-hidden shadow-2xl">
+            <div className="grid lg:grid-cols-[1.05fr,0.95fr]">
+              <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-between">
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+                    <Zap className="h-4 w-4" /> Offre exclusive Elec'Connect
+                  </span>
+                  <h3 className="mt-6 text-3xl md:text-4xl font-bold leading-tight">Carport solaire clé en main + borne intelligente</h3>
+                  <p className="mt-4 text-base text-slate-200">
+                    Profitez d'un accompagnement complet pour produire votre propre énergie, recharger votre véhicule sans contrainte
+                    et valoriser votre habitation grâce à un carport au design premium.
+                  </p>
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      <p className="text-sm text-slate-200">Carport aluminium haute résistance avec intégration photovoltaïque</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      <p className="text-sm text-slate-200">Borne connectée 7 kW offerte et pilotage intelligent de la charge</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      <p className="text-sm text-slate-200">Suivi énergétique en temps réel via application mobile dédiée</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-300" />
+                      <p className="text-sm text-slate-200">Gestion administrative, démarches d'aides et installation certifiée</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Borne de Recharge 7 kW à 0€</h3>
-                <p className="text-emerald-100 mb-6">
-                  Avec l'installation de panneaux solaires d'une puissance minimale de 3 kWc, la borne de recharge 7 kW est offerte
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-emerald-50">
-                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Installation incluse
-                  </li>
-                  <li className="flex items-center text-emerald-50">
-                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Compatible avec tous les véhicules électriques
-                  </li>
-                  <li className="flex items-center text-emerald-50">
-                    <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Pilotage intelligent de la charge
-                  </li>
-                </ul>
+
+                <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm uppercase tracking-wide text-emerald-200/80">Pack complet à partir de</p>
+                    <p className="text-4xl font-extrabold text-white">9 990€</p>
+                    <p className="text-sm text-emerald-100/80">Financement possible en 36x*. Maintenance incluse la 1ère année.</p>
+                  </div>
+                  <a
+                    href="/#contact"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-400"
+                  >
+                    Je profite de l'offre
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+                <p className="mt-2 text-xs text-slate-400">*Sous réserve d'éligibilité. Étude personnalisée et visite technique incluses.</p>
               </div>
-              <div className="lg:w-1/3 mt-8 lg:mt-0 lg:pl-8">
-                <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border-2 border-white/30 text-center transform hover:scale-105 transition-transform duration-300 shadow-2xl">
-                  <div className="text-6xl font-extrabold text-white mb-2 drop-shadow-lg">0€</div>
-                  <div className="text-white/90 text-lg line-through font-medium">À partir de 1299€</div>
-                  <div className="text-white/80 text-sm mt-1">(Prix selon configuration)</div>
-                  <div className="mt-3 text-emerald-100 font-semibold animate-pulse">OFFRE EXCEPTIONNELLE</div>
+              <div className="relative bg-slate-950">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-blue-500/20" />
+                <div className="relative flex h-full items-center justify-center p-10">
+                  <div className="relative w-full max-w-md">
+                    <div className="absolute inset-0 -z-10 rounded-[40px] bg-emerald-500/20 blur-3xl" />
+                    <div className="relative mx-auto aspect-[4/5] w-full max-w-[360px] overflow-visible">
+                      <div className="absolute inset-x-4 top-0 rounded-3xl border border-white/10 bg-slate-900/40 shadow-2xl">
+                        <div className="relative h-full w-full">
+                          <Image
+                            src="/carport-voiture.png"
+                            alt="Carport solaire Elec'Connect"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) 80vw, 30vw"
+                            priority
+                          />
+                        </div>
+                      </div>
+                      <div className="absolute -bottom-10 -left-6 w-40 sm:w-48 rounded-3xl border border-white/10 bg-slate-900/60 p-1 shadow-xl backdrop-blur">
+                        <div className="relative h-40 w-full sm:h-48">
+                          <Image
+                            src="/borne-solar-solution.png"
+                            alt="Borne de recharge Elec'Connect"
+                            fill
+                            className="rounded-2xl object-cover"
+                            sizes="(max-width: 1024px) 40vw, 18vw"
+                          />
+                        </div>
+                      </div>
+                      <div className="absolute -right-8 top-1/2 w-32 -translate-y-1/2 rounded-3xl border border-white/10 bg-slate-900/60 p-1 shadow-xl backdrop-blur sm:w-36">
+                        <div className="relative h-48 w-full sm:h-56">
+                          <Image
+                            src="/charge-solar-solution.png"
+                            alt="Accessoires de charge solaire"
+                            fill
+                            className="rounded-2xl object-cover"
+                            sizes="(max-width: 1024px) 40vw, 16vw"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div className="mt-12 flex justify-end">
-            <a 
+            <a
               href="/#contact" 
               className="btn btn-success btn-lg text-white"
             >
