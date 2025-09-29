@@ -19,6 +19,8 @@ const optionalLimitedString = (max: number, message: string) =>
     .transform((value) => (value ?? "").trim())
     .refine((value) => value.length <= max, { message });
 
+const DEFAULT_COUNTRY = "France" as const;
+
 const addressSchema = z.object({
   firstName: z
     .string()
@@ -46,7 +48,7 @@ const addressSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9]{5}$/, "Le code postal doit contenir 5 chiffres."),
-  country: z.literal("France"),
+  country: z.literal(DEFAULT_COUNTRY),
   phone: z
     .string()
     .trim()
@@ -62,6 +64,18 @@ type AddressErrors = Partial<Record<keyof AddressFormData, string>>;
 
 type AddressField = keyof CheckoutAddress;
 
+const createFormState = (address: CheckoutAddress): AddressFormData => ({
+  firstName: address.firstName ?? "",
+  lastName: address.lastName ?? "",
+  company: address.company ?? "",
+  address1: address.address1 ?? "",
+  address2: address.address2 ?? "",
+  city: address.city ?? "",
+  postalCode: address.postalCode ?? "",
+  country: DEFAULT_COUNTRY,
+  phone: address.phone ?? "",
+});
+
 export default function AddressStepPage() {
   const router = useRouter();
   const {
@@ -73,22 +87,22 @@ export default function AddressStepPage() {
     setUseSameAddressForBilling,
   } = useContext(CartContext) as CartContextType;
 
-  const [shippingForm, setShippingForm] = useState<AddressFormData>(() => ({
-    ...shippingAddress,
-  }));
-  const [billingForm, setBillingForm] = useState<AddressFormData>(() => ({
-    ...billingAddress,
-  }));
+  const [shippingForm, setShippingForm] = useState<AddressFormData>(() =>
+    createFormState(shippingAddress)
+  );
+  const [billingForm, setBillingForm] = useState<AddressFormData>(() =>
+    createFormState(billingAddress)
+  );
   const [shippingErrors, setShippingErrors] = useState<AddressErrors>({});
   const [billingErrors, setBillingErrors] = useState<AddressErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    setShippingForm({ ...shippingAddress });
+    setShippingForm(createFormState(shippingAddress));
   }, [shippingAddress]);
 
   useEffect(() => {
-    setBillingForm({ ...billingAddress });
+    setBillingForm(createFormState(billingAddress));
   }, [billingAddress]);
 
   const clearFieldError = (
@@ -112,7 +126,7 @@ export default function AddressStepPage() {
       setShippingForm((prev) => ({ ...prev, [field]: value }));
       clearFieldError(setShippingErrors, field);
       if (useSameAddressForBilling) {
-        const syncedValue = field === "country" ? "France" : value;
+        const syncedValue = field === "country" ? DEFAULT_COUNTRY : value;
         setBillingForm((prev) => ({ ...prev, [field]: syncedValue }));
         clearFieldError(setBillingErrors, field);
       }
@@ -130,7 +144,7 @@ export default function AddressStepPage() {
     const { checked } = event.target;
     setUseSameAddressForBilling(checked);
     if (checked) {
-      setBillingForm({ ...shippingForm, country: "France" });
+      setBillingForm({ ...shippingForm, country: DEFAULT_COUNTRY });
       setBillingErrors({});
     }
   };
@@ -149,27 +163,20 @@ export default function AddressStepPage() {
     setFormError(null);
 
     const shippingValidation = addressSchema.safeParse(shippingForm);
-    let nextShippingErrors: AddressErrors = {};
-    let nextBillingErrors: AddressErrors = {};
-    let hasError = false;
+    const billingValidation = useSameAddressForBilling
+      ? null
+      : addressSchema.safeParse(billingForm);
 
-    if (!shippingValidation.success) {
-      hasError = true;
-      nextShippingErrors = collectErrors(shippingValidation.error.issues);
-    }
+    const nextShippingErrors = shippingValidation.success
+      ? {}
+      : collectErrors(shippingValidation.error.issues);
 
-    let billingData: AddressFormData | null = null;
-    if (!useSameAddressForBilling) {
-      const billingValidation = addressSchema.safeParse(billingForm);
-      if (!billingValidation.success) {
-        hasError = true;
-        nextBillingErrors = collectErrors(billingValidation.error.issues);
-      } else {
-        billingData = billingValidation.data;
-      }
-    }
+    const nextBillingErrors =
+      !billingValidation || billingValidation.success
+        ? {}
+        : collectErrors(billingValidation.error.issues);
 
-    if (hasError) {
+    if (!shippingValidation.success || (billingValidation && !billingValidation.success)) {
       setShippingErrors(nextShippingErrors);
       setBillingErrors(nextBillingErrors);
       setFormError("Veuillez corriger les erreurs du formulaire.");
@@ -180,8 +187,8 @@ export default function AddressStepPage() {
     setShippingErrors({});
     setBillingErrors({});
     updateShippingAddress(sanitizedShipping);
-    if (!useSameAddressForBilling && billingData) {
-      updateBillingAddress(billingData);
+    if (!useSameAddressForBilling && billingValidation?.success) {
+      updateBillingAddress(billingValidation.data);
     }
     router.push("/checkout/shipping");
   };
