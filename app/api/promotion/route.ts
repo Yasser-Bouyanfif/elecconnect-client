@@ -1,20 +1,33 @@
 import { NextResponse } from "next/server";
 import promotionApi from "@/app/strapi/promotionApi";
-
-type RequestBody = {
-  code: string;
-};
+import { promotionRequestSchema } from "@/app/lib/validation/promotion";
 
 export async function POST(request: Request) {
   try {
-    const { code } = await request.json() as RequestBody;
-
-    if (!code) {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error("Corps de requête JSON invalide pour le code promotionnel", error);
       return NextResponse.json(
-        { error: "Code promotionnel requis" },
+        { error: "Requête invalide" },
         { status: 400 }
       );
     }
+
+    const validation = promotionRequestSchema.safeParse(body);
+    if (!validation.success) {
+      const [firstIssue] = validation.error.issues;
+      return NextResponse.json(
+        {
+          error:
+            firstIssue?.message ?? "Code promotionnel invalide",
+        },
+        { status: 400 }
+      );
+    }
+
+    const { code } = validation.data;
 
     const { data } = await promotionApi.getPromotionById(code);
     const promotion = data.data[0];

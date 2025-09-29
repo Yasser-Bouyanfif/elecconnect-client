@@ -11,6 +11,7 @@ import { SERVER_URL } from "../lib/constants";
 import Link from "next/link";
 import { Minus, Plus, Trash2, ArrowLeft, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { promotionCodeSchema } from "@/app/lib/validation/promotion";
 
 const toCartKey = (item: CartItem) =>
   (item.documentId ?? item.id).toString();
@@ -140,21 +141,15 @@ function CartPage() {
   }, [subtotal, total, syncCartTotals]);
 
   const handleApplyPromotion = async () => {
-    const trimmedCode = coupon.trim();
-    if (!trimmedCode) {
-      setPromotionError("Veuillez entrer un code promotionnel.");
+    const validation = promotionCodeSchema.safeParse(coupon);
+    if (!validation.success) {
+      const [firstIssue] = validation.error.issues;
+      setPromotionError(firstIssue?.message ?? "Code promotionnel invalide.");
       setAppliedPromotion(null);
       return;
     }
 
-    const parts = trimmedCode.split(/\s+/).filter(Boolean);
-    if (parts.length !== 1) {
-      setPromotionError("Un seul code promotionnel peut être utilisé à la fois.");
-      setAppliedPromotion(null);
-      return;
-    }
-
-    const sanitizedCode = parts[0];
+    const sanitizedCode = validation.data;
 
     try {
       setApplyingPromotion(true);
