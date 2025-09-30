@@ -76,7 +76,7 @@ export default function SolarSolution() {
           </div>
 
           <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid justify-center gap-6 sm:[grid-template-columns:repeat(2,minmax(0,260px))]">
               <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
                 <div className="relative flex h-48 w-full items-center justify-center bg-slate-900/40">
                   <Image
