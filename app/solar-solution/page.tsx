@@ -203,7 +203,7 @@ export default function SolutionsSolaires() {
                 <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-100">
                   Offre exclusive
                 </div>
-                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWH + borne clé en main</h3>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWh + borne clé en main</h3>
                 <p className="mt-4 text-lg text-slate-200">
                   Profitez d'une solution complète combinant protection de votre véhicule, production d'énergie solaire et borne de recharge intelligente installée par nos experts certifiés.
                 </p>

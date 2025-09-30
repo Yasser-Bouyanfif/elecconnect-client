@@ -80,7 +80,7 @@ export default function SolarSolution() {
               <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
                 <div className="relative h-48 w-full">
                   <Image
-                    src="/advenir.jpeg"
+                    src="/advenir.png"
                     alt="Programme de financement ADVENIR"
                     fill
                     className="object-cover transition duration-500 group-hover:scale-105"
