@@ -66,7 +66,7 @@ export default function SolarSolution() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-emerald-600/30 transition hover:-translate-y-0.5 hover:bg-emerald-500"
               >
-                Démarrer ma demande ADVENIR
+                Vérifiez votre éligibilité ADVENIR
                 <ArrowUpRight className="ml-2 h-5 w-5" />
               </a>
               <span className="inline-flex items-center rounded-full bg-white px-5 py-3 text-sm text-slate-600 ring-1 ring-emerald-100">
