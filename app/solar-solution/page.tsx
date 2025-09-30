@@ -203,23 +203,23 @@ export default function SolutionsSolaires() {
                 <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-100">
                   Offre exclusive
                 </div>
-                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire + borne clé en main</h3>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWc + borne clé en main</h3>
                 <p className="mt-4 text-lg text-slate-200">
                   Profitez d'une solution complète combinant protection de votre véhicule, production d'énergie solaire et borne de recharge intelligente installée par nos experts certifiés.
                 </p>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">À partir de</div>
+                    <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">Tarif</div>
                     <div className="mt-2 text-4xl font-extrabold">16 499 € TTC</div>
-                    <div className="text-sm text-slate-300">Installation complète incluse</div>
+                    <div className="text-sm text-slate-300">Hors VRD - Installation complète incluse</div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">Équipement</div>
                     <ul className="mt-3 space-y-2 text-sm text-slate-200">
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
-                        Carport solaire premium
+                        Carport solaire premium 3 kWc
                       </li>
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
@@ -260,6 +260,80 @@ export default function SolutionsSolaires() {
                     <Image
                       src="/borne-solar-solution.png"
                       alt="Détail de la borne Elec'Connect"
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Carte d'offre spéciale */}
+          <div className="mt-16 relative overflow-hidden rounded-3xl bg-white text-slate-900 shadow-2xl">
+            <div className="absolute -bottom-20 -left-32 h-64 w-64 rounded-full bg-emerald-100 blur-3xl" aria-hidden />
+            <div className="relative flex flex-col lg:flex-row">
+              <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-12">
+                <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-600">
+                  Offre exclusive
+                </div>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Installation en toiture 3 kWc</h3>
+                <p className="mt-4 text-lg text-slate-600">
+                  Optez pour une installation solaire discrète sur votre toiture avec une borne de recharge 7 kW offerte et la mise en service réalisée par nos équipes certifiées (après validation technique).
+                </p>
+
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                    <div className="text-sm font-semibold uppercase tracking-widest text-emerald-600">Tarif</div>
+                    <div className="mt-2 text-4xl font-extrabold text-emerald-700">6 990 € TTC</div>
+                    <div className="text-sm text-emerald-700">Hors VRD - Borne et installation offertes*</div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 bg-white p-5">
+                    <div className="text-sm font-semibold uppercase tracking-widest text-slate-500">Équipement</div>
+                    <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                      <li className="flex items-center">
+                        <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" />
+                        Panneaux photovoltaïques 3 kWc en toiture
+                      </li>
+                      <li className="flex items-center">
+                        <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" />
+                        Borne Elec'Connect 7 kW offerte
+                      </li>
+                      <li className="flex items-center">
+                        <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" />
+                        Installation offerte (après validation technique)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <p className="mt-6 text-sm text-slate-500">*Offre valable après validation technique de votre installation.</p>
+              </div>
+
+              <div className="w-full lg:w-1/2 bg-slate-50 p-6 sm:p-8 lg:p-10">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative col-span-2 h-52 overflow-hidden rounded-2xl sm:h-64 lg:h-72">
+                    <Image
+                      src="/solaire3.png"
+                      alt="Installation solaire en toiture"
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  </div>
+                  <div className="relative h-40 overflow-hidden rounded-2xl sm:h-44">
+                    <Image
+                      src="/borne-solar-solution.png"
+                      alt="Borne de recharge Elec'Connect"
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                    />
+                  </div>
+                  <div className="relative h-40 overflow-hidden rounded-2xl sm:h-44">
+                    <Image
+                      src="/charge-solar-solution.png"
+                      alt="Détail installation photovoltaïque"
                       fill
                       className="object-cover object-center"
                       sizes="(max-width: 1024px) 50vw, 25vw"
