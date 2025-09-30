@@ -23,8 +23,8 @@ export default function SolarFinancing() {
         </div>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
-          <article className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-            <div className="relative h-56 w-full overflow-hidden">
+          <article className="group relative flex h-full min-h-[540px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+            <div className="relative h-72 w-full overflow-hidden">
               <Image
                 src="/advenir.jpeg"
                 alt="Programme ADVENIR"
@@ -33,7 +33,7 @@ export default function SolarFinancing() {
                 priority
               />
             </div>
-            <div className="space-y-5 px-8 pb-10 pt-8">
+            <div className="flex flex-1 flex-col space-y-5 px-10 pb-12 pt-10">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-600">
                 <ShieldCheck className="h-4 w-4" />
                 Prime ADVENIR
@@ -69,8 +69,8 @@ export default function SolarFinancing() {
             </div>
           </article>
 
-          <article className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-            <div className="relative h-56 w-full overflow-hidden">
+          <article className="group relative flex h-full min-h-[540px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+            <div className="relative h-72 w-full overflow-hidden">
               <Image
                 src="/credit-impot.png"
                 alt="Crédit d'impôt pour la transition énergétique"
@@ -78,7 +78,7 @@ export default function SolarFinancing() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
-            <div className="space-y-5 px-8 pb-10 pt-8">
+            <div className="flex flex-1 flex-col space-y-5 px-10 pb-12 pt-10">
               <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
                 <HandCoins className="h-4 w-4" />
                 Crédit d'impôt
@@ -102,7 +102,7 @@ export default function SolarFinancing() {
                   Assistance pour la préparation des justificatifs et de la déclaration fiscale.
                 </li>
               </ul>
-              <p className="rounded-2xl bg-slate-50 p-5 text-sm text-slate-600">
+              <p className="mt-auto rounded-2xl bg-slate-50 p-5 text-sm text-slate-600">
                 Nous vous guidons étape par étape pour coordonner les aides financières et optimiser votre investissement.
                 Contactez nos experts pour une estimation personnalisée.
               </p>
