@@ -76,14 +76,14 @@ export default function SolarSolution() {
           </div>
 
           <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+            <div className="grid justify-center gap-6 sm:grid-cols-2">
+              <div className="group relative w-full max-w-[260px] overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
+                <div className="relative flex h-48 w-full items-center justify-center bg-slate-900/40">
                   <Image
                     src="/advenir.png"
                     alt="Programme de financement ADVENIR"
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
+                    className="object-contain"
                     sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
                     priority
                   />
@@ -96,13 +96,13 @@ export default function SolarSolution() {
                 </div>
               </div>
 
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+              <div className="group relative w-full max-w-[260px] overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
+                <div className="relative flex h-48 w-full items-center justify-center bg-slate-900/40">
                   <Image
                     src="/credit-impot.png"
                     alt="Crédit d’impôt pour borne de recharge"
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
+                    className="object-contain"
                     sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
                   />
                 </div>
