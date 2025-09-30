@@ -10,8 +10,8 @@ export default function SolarSolution() {
       className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-black py-20 text-white"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_55%)]" />
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-14 lg:grid-cols-2">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-2 xl:gap-16">
           <div className="space-y-8">
             <div className="space-y-4">
               <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-4 py-1 text-sm font-medium text-emerald-300 ring-1 ring-emerald-400/40">
@@ -75,10 +75,10 @@ export default function SolarSolution() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+          <div className="space-y-8">
+            <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-lg shadow-emerald-500/10 backdrop-blur">
+                <div className="relative h-60 w-full sm:h-72">
                   <Image
                     src="/advenir.png"
                     alt="Programme de financement ADVENIR"
@@ -88,16 +88,16 @@ export default function SolarSolution() {
                     priority
                   />
                 </div>
-                <div className="space-y-3 p-6">
-                  <h3 className="text-lg font-semibold text-white">Programme ADVENIR</h3>
-                  <p className="text-sm text-slate-300">
+                <div className="space-y-4 p-7">
+                  <h3 className="text-xl font-semibold text-white">Programme ADVENIR</h3>
+                  <p className="text-base text-slate-300">
                     Une aide dédiée aux infrastructures de recharge pour véhicules électriques, accessible aux copropriétés, entreprises et collectivités.
                   </p>
                 </div>
               </div>
 
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-lg shadow-emerald-500/10 backdrop-blur">
+                <div className="relative h-60 w-full sm:h-72">
                   <Image
                     src="/credit-impot.png"
                     alt="Crédit d’impôt pour borne de recharge"
@@ -106,16 +106,16 @@ export default function SolarSolution() {
                     sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
                   />
                 </div>
-                <div className="space-y-3 p-6">
-                  <h3 className="text-lg font-semibold text-white">Crédit d’impôt</h3>
-                  <p className="text-sm text-slate-300">
+                <div className="space-y-4 p-7">
+                  <h3 className="text-xl font-semibold text-white">Crédit d’impôt</h3>
+                  <p className="text-base text-slate-300">
                     Un dispositif fiscal pour encourager l’installation de bornes de recharge à domicile, applicable une fois par résidence principale ou secondaire.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-sm text-emerald-100">
+            <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-7 text-base text-emerald-100">
               <p>
                 ELEC’CONNECT se charge d’évaluer votre éligibilité, d’estimer les montants disponibles et de constituer le dossier auprès des organismes compétents. Nous veillons à ce que votre installation respecte les exigences techniques ouvrant droit aux financements.
               </p>
