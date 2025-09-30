@@ -203,23 +203,23 @@ export default function SolutionsSolaires() {
                 <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-100">
                   Offre exclusive
                 </div>
-                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire + borne clé en main</h3>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWc + borne clé en main</h3>
                 <p className="mt-4 text-lg text-slate-200">
                   Profitez d'une solution complète combinant protection de votre véhicule, production d'énergie solaire et borne de recharge intelligente installée par nos experts certifiés.
                 </p>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">À partir de</div>
+                    <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">Tarif 3 kWc</div>
                     <div className="mt-2 text-4xl font-extrabold">16 499 € TTC</div>
-                    <div className="text-sm text-slate-300">Installation complète incluse</div>
+                    <div className="text-sm text-slate-300">Hors VRD – installation complète incluse</div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <div className="text-sm font-semibold uppercase tracking-widest text-emerald-200">Équipement</div>
                     <ul className="mt-3 space-y-2 text-sm text-slate-200">
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
-                        Carport solaire premium
+                        Carport solaire premium 3 kWc
                       </li>
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
@@ -270,39 +270,39 @@ export default function SolutionsSolaires() {
             </div>
           </div>
 
-          {/* Carte d'offre spéciale */}
-          <div className="mt-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl relative">
-            <div className="p-8 md:p-10 lg:flex items-center pt-16 md:pt-16">
-              <div className="lg:w-2/3">
-                <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white mb-4">
-                  <Zap className="w-4 h-4 mr-2" />
-                  OFFRE EXCLUSIVE
+          {/* Offre installation en toiture */}
+          <div className="mt-16 relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-xl">
+            <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/20 blur-3xl" aria-hidden />
+            <div className="relative p-8 md:p-12 lg:flex lg:items-center lg:justify-between">
+              <div className="lg:w-2/3 space-y-4">
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold bg-white/20 text-white uppercase tracking-widest">
+                  Offre installation toiture
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Borne de Recharge 7 kW à 0€</h3>
-                <p className="text-emerald-100 mb-6">
-                  Avec l'installation de panneaux solaires d'une puissance minimale de 3 kWc, la borne de recharge 7 kW est offerte
+                <h3 className="text-3xl md:text-4xl font-bold">Panneaux solaires en toiture 3 kWc</h3>
+                <p className="text-emerald-100 text-lg">
+                  Profitez d'une installation photovoltaïque en toiture avec borne de recharge incluse et pose offerte après validation technique.
                 </p>
-                <ul className="space-y-2 mb-6">
+                <ul className="space-y-2 text-sm sm:text-base">
                   <li className="flex items-center text-emerald-50">
                     <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Installation incluse
+                    Borne de recharge 7 kW offerte
                   </li>
                   <li className="flex items-center text-emerald-50">
                     <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Compatible avec tous les véhicules électriques
+                    Installation offerte après validation technique
                   </li>
                   <li className="flex items-center text-emerald-50">
                     <CheckCircle className="w-5 h-5 mr-2 text-emerald-200" />
-                    Pilotage intelligent de la charge
+                    Offre valable hors VRD
                   </li>
                 </ul>
               </div>
-              <div className="lg:w-1/3 mt-8 lg:mt-0 lg:pl-8">
-                <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border-2 border-white/30 text-center transform hover:scale-105 transition-transform duration-300 shadow-2xl">
-                  <div className="text-6xl font-extrabold text-white mb-2 drop-shadow-lg">0€</div>
-                  <div className="text-white/90 text-lg line-through font-medium">À partir de 1299€</div>
-                  <div className="text-white/80 text-sm mt-1">(Prix selon configuration)</div>
-                  <div className="mt-3 text-emerald-100 font-semibold animate-pulse">OFFRE EXCEPTIONNELLE</div>
+              <div className="lg:w-1/3 mt-8 lg:mt-0 lg:pl-10">
+                <div className="bg-white/15 backdrop-blur-sm p-8 rounded-2xl border-2 border-white/30 text-center shadow-2xl">
+                  <div className="text-sm font-semibold uppercase tracking-widest text-emerald-100">Tarif 3 kWc</div>
+                  <div className="mt-3 text-5xl font-extrabold text-white">6 990 € TTC</div>
+                  <div className="mt-2 text-emerald-100 text-sm">Borne & installation offertes*</div>
+                  <div className="mt-1 text-emerald-100/80 text-xs">*Après validation technique – hors VRD</div>
                 </div>
               </div>
             </div>
