@@ -77,18 +77,20 @@ export default function SolarSolution() {
 
           <div className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src="/advenir.png"
-                    alt="Programme de financement ADVENIR"
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
-                    priority
-                  />
+              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
+                <div className="relative flex items-center justify-center bg-slate-900/60 p-6">
+                  <div className="relative aspect-square w-full max-w-[220px]">
+                    <Image
+                      src="/advenir.png"
+                      alt="Programme de financement ADVENIR"
+                      fill
+                      className="object-contain transition duration-500 group-hover:scale-105"
+                      sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
+                      priority
+                    />
+                  </div>
                 </div>
-                <div className="space-y-3 p-6">
+                <div className="flex flex-1 flex-col space-y-3 p-6">
                   <h3 className="text-lg font-semibold text-white">Programme ADVENIR</h3>
                   <p className="text-sm text-slate-300">
                     Une aide dédiée aux infrastructures de recharge pour véhicules électriques, accessible aux copropriétés, entreprises et collectivités.
@@ -96,17 +98,19 @@ export default function SolarSolution() {
                 </div>
               </div>
 
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src="/credit-impot.png"
-                    alt="Crédit d’impôt pour borne de recharge"
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
-                  />
+              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
+                <div className="relative flex items-center justify-center bg-slate-900/60 p-6">
+                  <div className="relative aspect-square w-full max-w-[220px]">
+                    <Image
+                      src="/credit-impot.png"
+                      alt="Crédit d’impôt pour borne de recharge"
+                      fill
+                      className="object-contain transition duration-500 group-hover:scale-105"
+                      sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-3 p-6">
+                <div className="flex flex-1 flex-col space-y-3 p-6">
                   <h3 className="text-lg font-semibold text-white">Crédit d’impôt</h3>
                   <p className="text-sm text-slate-300">
                     Un dispositif fiscal pour encourager l’installation de bornes de recharge à domicile, applicable une fois par résidence principale ou secondaire.
