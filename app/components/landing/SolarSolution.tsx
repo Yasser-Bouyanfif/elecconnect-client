@@ -75,40 +75,48 @@ export default function SolarSolution() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+          <div className="space-y-8">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-emerald-500/10 backdrop-blur">
+                <div className="relative h-64 w-full sm:h-72">
                   <Image
                     src="/advenir.png"
                     alt="Programme de financement ADVENIR"
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                     priority
                   />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
                 </div>
-                <div className="space-y-3 p-6">
-                  <h3 className="text-lg font-semibold text-white">Programme ADVENIR</h3>
-                  <p className="text-sm text-slate-300">
+                <div className="relative space-y-4 p-8">
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-200">
+                    Subvention phare
+                  </span>
+                  <h3 className="text-2xl font-semibold text-white">Programme ADVENIR</h3>
+                  <p className="text-base text-slate-200">
                     Une aide dédiée aux infrastructures de recharge pour véhicules électriques, accessible aux copropriétés, entreprises et collectivités.
                   </p>
                 </div>
               </div>
 
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
-                <div className="relative h-48 w-full">
+              <div className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-emerald-500/10 backdrop-blur">
+                <div className="relative h-64 w-full sm:h-72">
                   <Image
                     src="/credit-impot.png"
                     alt="Crédit d’impôt pour borne de recharge"
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 220px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                   />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
                 </div>
-                <div className="space-y-3 p-6">
-                  <h3 className="text-lg font-semibold text-white">Crédit d’impôt</h3>
-                  <p className="text-sm text-slate-300">
+                <div className="relative space-y-4 p-8">
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-200">
+                    Coup de pouce fiscal
+                  </span>
+                  <h3 className="text-2xl font-semibold text-white">Crédit d’impôt</h3>
+                  <p className="text-base text-slate-200">
                     Un dispositif fiscal pour encourager l’installation de bornes de recharge à domicile, applicable une fois par résidence principale ou secondaire.
                   </p>
                 </div>
