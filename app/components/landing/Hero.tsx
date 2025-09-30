@@ -31,8 +31,8 @@ export default function Hero() {
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6 leading-tight">
-            Explorez la mobilité durable
-            <span className="block text-emerald-600">pour votre mobilité</span>
+              La mobilité durable,
+            <span className="block text-emerald-600">pensée pour vous</span>
           </h1>
 
           <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
