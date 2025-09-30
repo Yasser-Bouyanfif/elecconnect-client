@@ -72,14 +72,6 @@ export default function Footer() {
               <li className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 text-emerald-400 mt-1 flex-shrink-0" />
                 <div>
-                  <a 
-                    href="https://www.google.com/maps/place/31+Rue+Chevalier+Paul,+83000+Toulon" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="block text-gray-300 hover:text-emerald-400 transition-colors"
-                  >
-                    31 rue Chevalier Paul
-                  </a>
                   <span className="block text-gray-300">
                     83000 Toulon, France
                   </span>
