@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { STRIPE_SECRET_KEY } from "../../lib/serverEnv";
-import { LOCAL_URL } from "@/app/lib/constants";
+import { SERVER_URL } from "@/app/lib/constants";
 import {
   checkoutSessionSchema,
   type CheckoutSessionPayload,
@@ -53,8 +53,8 @@ export async function POST(request: Request) {
       mode: "payment",
       payment_method_types: ["card"],
       line_items,
-      success_url: `${LOCAL_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${LOCAL_URL}/cart`,
+      success_url: `${SERVER_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${SERVER_URL}/cart`,
     });
 
     return NextResponse.json({ url: session.url });

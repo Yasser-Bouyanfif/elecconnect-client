@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import orderApis from "@/app/strapi/orderApis";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
-import { LOCAL_URL } from "@/app/lib/constants";
+import { SERVER_URL } from "@/app/lib/constants";
 
 type OrderLine = {
   quantity?: number;
@@ -213,7 +213,7 @@ const buildEmailHtml = (order: OrderPayload) => {
   <body>
     <div class="container">
       <div class="header">
-        <img src="${LOCAL_URL}/image01-high.webp" alt="logo" />
+        <img src="${SERVER_URL}/image01-high.webp" alt="logo" />
         <div class="header-title">ELEC'CONNECT</div>
       </div>
 
