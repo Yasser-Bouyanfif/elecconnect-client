@@ -26,9 +26,11 @@ export default function RootLayout({
     <ClerkProvider localization={frFR}>
       <CartProvider>
         <html lang="fr" data-theme="emerald">
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen flex-col`}
+          >
             <Header />
-            {children}
+            <main className="flex-1">{children}</main>
             <Footer />
             <CookieBanner />
           </body>
