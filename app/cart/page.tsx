@@ -315,7 +315,7 @@ function CartPage() {
                   </div>
                   <button
                     type="button"
-                    className="btn btn-outline btn-sm"
+                    className="btn btn-soft"
                     onClick={handleApplyPromotion}
                     disabled={applyingPromotion}
                   >

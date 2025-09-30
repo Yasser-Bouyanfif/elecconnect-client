@@ -39,7 +39,7 @@ export default function Header() {
             <div className="hidden md:block">
               <h1 className="text-2xl font-bold text-gray-900">ELEC'CONNECT</h1>
               <p className="text-sm text-emerald-600 font-medium">
-                Solutions de recharge électrique
+              Explorez la mobilité durable
               </p>
             </div>
           </Link>

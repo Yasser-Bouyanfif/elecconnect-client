@@ -293,7 +293,7 @@ export default function ShopPage() {
                         <div className="mt-auto pt-3">
                           <Link
                             href={href}
-                            className="btn btn-outline btn-sm md:btn-md w-full"
+                            className="btn btn-soft btn-sm md:btn-md w-full"
                             aria-disabled={!id}
                           >
                             Voir le produit

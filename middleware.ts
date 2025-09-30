@@ -1,4 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
+
+// Configuration pour forcer l'encodage UTF-8
 
 const isPublicRoute = createRouteMatcher([
   '/account(.*)',
@@ -13,14 +16,21 @@ const isPublicRoute = createRouteMatcher([
   '/api/promotion(.*)',
   '/api/google-reviews(.*)',
   '/404(.*)',
+  '/mentions-legales(.*)',
+  '/confidentialite(.*)',
+  '/cgv(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
+  const response = NextResponse.next()
+
+  
   if (!isPublicRoute(req)) {
     const signInAbs = new URL("/account", req.nextUrl.origin).toString();
-
     await auth.protect({ unauthenticatedUrl: signInAbs });
   }
+  
+  return response
 });
 
 export const config = {

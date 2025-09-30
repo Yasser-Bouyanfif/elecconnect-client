@@ -31,7 +31,7 @@ export default function Hero() {
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6 leading-tight">
-            Solutions de recharge électrique
+          Explorez la mobilité durable
             <span className="block text-emerald-600">pour votre mobilité</span>
           </h1>
 
@@ -48,7 +48,7 @@ export default function Hero() {
             </button>
             </a>
             <a href="/shop">
-            <button className="btn btn-outline btn-lg">
+            <button className="btn btn-neutral btn-outline btn-lg">
               Notre boutique
             </button>
             </a>

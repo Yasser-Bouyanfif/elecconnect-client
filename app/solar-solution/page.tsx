@@ -48,26 +48,59 @@ export default function SolutionsSolaires() {
                 <p className="text-slate-600 mt-2">En partenariat avec SSP pour des installations conformes et performantes.</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {/* SSP */}
-                <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                  <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
-                    <Image src="/ssp.png" alt="Partenaire SSP" fill className="object-contain" sizes="(max-width: 640px) 40vw, 20vw" priority />
+                <div className="group rounded-2xl border-2 border-slate-100 bg-white p-6 flex flex-col items-center text-center hover:border-emerald-100 hover:shadow-md transition-all duration-300 h-full">
+                  <div className="relative w-full h-20 mb-4 flex-shrink-0">
+                    <Image 
+                      src="/ssp.jpeg" 
+                      alt="Partenaire SSP" 
+                      fill 
+                      className="object-contain" 
+                      sizes="(max-width: 640px) 40vw, 20vw" 
+                      priority 
+                    />
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Partenaire</p>
-                    <p className="font-semibold text-slate-900">SSP</p>
+                  <div className="mt-2">
+                    <p className="text-sm text-slate-500">Partenaire officiel</p>
+                    <p className="font-bold text-lg text-slate-800">SSP</p>
                   </div>
                 </div>
 
                 {/* RGE */}
-                <div className="group rounded-xl border border-slate-100 bg-slate-50/50 p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                  <div className="relative w-36 h-14 sm:w-44 sm:h-16 flex-shrink-0">
-                    <Image src="/rge.png" alt="Certification RGE" fill className="object-contain" sizes="(max-width: 640px) 40vw, 20vw" priority />
+                <div className="group rounded-2xl border-2 border-slate-100 bg-white p-6 flex flex-col items-center text-center hover:border-emerald-100 hover:shadow-md transition-all duration-300 h-full">
+                  <div className="relative w-full h-20 mb-4 flex-shrink-0">
+                    <Image 
+                      src="/rge.png" 
+                      alt="Certification RGE" 
+                      fill 
+                      className="object-contain" 
+                      sizes="(max-width: 640px) 40vw, 20vw" 
+                      priority 
+                    />
                   </div>
-                  <div>
+                  <div className="mt-2">
                     <p className="text-sm text-slate-500">Certification</p>
-                    <p className="font-semibold text-slate-900">RGE</p>
+                    <p className="font-bold text-lg text-slate-800">Reconnu Garant de l'Environnement</p>
+                  </div>
+                </div>
+
+                {/* Qualifelec */}
+                <div className="group rounded-2xl border-2 border-slate-100 bg-white p-6 flex flex-col items-center text-center hover:border-emerald-100 hover:shadow-md transition-all duration-300 h-full">
+                  <div className="relative w-full h-20 mb-4 flex-shrink-0">
+                    <Image 
+                      src="/qualifelec.png" 
+                      alt="Certification Qualifelec" 
+                      fill 
+                      className="object-contain" 
+                      sizes="(max-width: 640px) 40vw, 20vw" 
+                      priority 
+                    />
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-sm text-slate-500">Certification</p>
+                    <p className="font-bold text-lg text-slate-800">Qualifelec</p>
+                    <p className="text-xs text-slate-500 mt-1">Qualité des installations électriques</p>
                   </div>
                 </div>
               </div>
