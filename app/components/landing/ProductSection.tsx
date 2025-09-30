@@ -284,7 +284,7 @@ export default function ProductCarouselSimple() {
                     <div className="mt-auto pt-3">
                       <Link
                         href={`/product/${product.id}`}
-                        className="btn btn-outline md:btn-md"
+                        className="btn btn-soft md:btn-md"
                         aria-label={`Voir le produit ${title}`}
                       >
                         Voir le produit

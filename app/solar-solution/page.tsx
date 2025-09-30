@@ -203,7 +203,7 @@ export default function SolutionsSolaires() {
                 <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-100">
                   Offre exclusive
                 </div>
-                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWc + borne clé en main</h3>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Carport solaire 3 kWH + borne clé en main</h3>
                 <p className="mt-4 text-lg text-slate-200">
                   Profitez d'une solution complète combinant protection de votre véhicule, production d'énergie solaire et borne de recharge intelligente installée par nos experts certifiés.
                 </p>
@@ -219,7 +219,7 @@ export default function SolutionsSolaires() {
                     <ul className="mt-3 space-y-2 text-sm text-slate-200">
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
-                        Carport solaire premium 3 kWc
+                        Carport solaire premium 3 kWH
                       </li>
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-300" />
@@ -278,7 +278,7 @@ export default function SolutionsSolaires() {
                 <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold tracking-wide uppercase text-emerald-600">
                   Offre exclusive
                 </div>
-                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Installation en toiture 3 kWc</h3>
+                <h3 className="mt-6 text-3xl font-bold md:text-4xl">Installation en toiture 3 kWh</h3>
                 <p className="mt-4 text-lg text-slate-600">
                   Optez pour une installation solaire discrète sur votre toiture avec une borne de recharge 7 kW offerte et la mise en service réalisée par nos équipes certifiées (après validation technique).
                 </p>
@@ -294,7 +294,7 @@ export default function SolutionsSolaires() {
                     <ul className="mt-3 space-y-2 text-sm text-slate-600">
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" />
-                        Panneaux photovoltaïques 3 kWc en toiture
+                        Panneaux photovoltaïques 3 kWh en toiture
                       </li>
                       <li className="flex items-center">
                         <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" />
@@ -354,7 +354,7 @@ export default function SolutionsSolaires() {
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Borne de Recharge 7 kW à 0€</h3>
                 <p className="text-emerald-100 mb-6">
-                  Avec l'installation de panneaux solaires d'une puissance minimale de 3 kWc, la borne de recharge 7 kW est offerte
+                  Avec l'installation de panneaux solaires d'une puissance minimale de 3 kWh, la borne de recharge 7 kW est offerte
                 </p>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center text-emerald-50">
