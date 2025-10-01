@@ -25,10 +25,15 @@ const getProductsPagination = (
   return axiosClient.get(`/products?${params.toString()}`);
 };
 
-const getProductById = (id: string) =>
-  axiosClient.get(
-    `/products?filters[id][$eq]=${id}&pagination[pageSize]=1&populate=*`
-  );
+const getProductById = (id: string) => {
+  const params = new URLSearchParams({
+    "filters[id][$eq]": id,
+    "pagination[pageSize]": "1",
+    populate: "*",
+  });
+
+  return axiosClient.get(`/products?${params.toString()}`);
+};
 
 const getProducts = () => 
   axiosClient.get(`/products?populate=*&sort[0]=id:desc`);
@@ -36,5 +41,5 @@ const getProducts = () =>
 export default {
   getProductsPagination,
   getProductById,
-  getProducts
+  getProducts,
 };

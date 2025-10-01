@@ -8,6 +8,7 @@ import {
   CartContextType,
   CartItem,
   MAX_PER_PRODUCT,
+  type ShippingMethod,
 } from "../../contexts/CartContext";
 
 function groupCart(cart: (CartItem | null | undefined)[]) {
@@ -22,11 +23,18 @@ function groupCart(cart: (CartItem | null | undefined)[]) {
   return Array.from(map.values());
 }
 
-async function createCheckoutSession(items: { title?: string; price: number; quantity: number }[]) {
+type CheckoutItemPayload = { id: string | number; quantity: number };
+
+type CheckoutSessionPayload = {
+  items: CheckoutItemPayload[];
+  shippingMethod: ShippingMethod;
+};
+
+async function createCheckoutSession(payload: CheckoutSessionPayload) {
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error(await res.text());
   return (await res.json()) as { url?: string };
@@ -51,31 +59,27 @@ export default function ShippingStepPage() {
   }, [groups, router]);
 
   const handleProceedToPayment = async () => {
-    type CheckoutItem = { title?: string; price: number; quantity: number };
-    const items = groups.reduce<CheckoutItem[]>((acc, { item, quantity }) => {
+    const items = groups.reduce<CheckoutItemPayload[]>((acc, { item, quantity }) => {
       const safeQuantity = Number.isFinite(quantity) ? quantity : 0;
       if (safeQuantity <= 0) {
         return acc;
       }
 
-      const checkoutItem: CheckoutItem = {
-        price: Number(item.price) || 0,
-        quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
-      };
-
-      if (item.title !== undefined) {
-        checkoutItem.title = item.title;
+      if (typeof item.id !== "string" && typeof item.id !== "number") {
+        return acc;
       }
 
-      acc.push(checkoutItem);
+      acc.push({
+        id: item.id,
+        quantity: Math.min(safeQuantity, MAX_PER_PRODUCT),
+      });
       return acc;
     }, []);
 
-    if (shippingMethod === "express") {
-      items.push({ title: "Livraison express", price: 12.9, quantity: 1 });
-    }
-
-    const { url } = await createCheckoutSession(items);
+    const { url } = await createCheckoutSession({
+      items,
+      shippingMethod,
+    });
     if (url) window.location.href = url;
   };
 

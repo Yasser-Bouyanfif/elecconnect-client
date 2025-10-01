@@ -1,4 +1,14 @@
 import axiosClient from "./axiosClient";
 
-const getOrderLines = (orderNumber: string) => 
-    axiosClient.get(`/order-lines?filters[order][orderNumber][$eq]=${orderNumber}&populate=*`);
+const getOrderLines = (orderNumber: string) => {
+  const params = new URLSearchParams({
+    "filters[order][orderNumber][$eq]": orderNumber,
+    populate: "*",
+  });
+
+  return axiosClient.get(`/order-lines?${params.toString()}`);
+};
+
+export default {
+  getOrderLines,
+};
