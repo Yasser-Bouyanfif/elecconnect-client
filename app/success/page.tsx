@@ -197,19 +197,10 @@ function SuccessPage() {
                     </span>
                     .
                   </p>
-                  <p className="mt-2 text-xs text-gray-500">
-                    Pensez à vérifier votre dossier de courrier indésirable si vous ne trouvez pas notre message.
+                  <p className="mt-2 text-xs text-gray-500 font-bold">
+                    Pensez à vérifier vos courriers indésirables.
                   </p>
                 </div>
-              </div>
-              <div className="mt-4 sm:mt-0">
-                <Link
-                  href="/orders"
-                  className="inline-flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700"
-                >
-                  Suivre ma commande
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
               </div>
             </div>
           </div>
