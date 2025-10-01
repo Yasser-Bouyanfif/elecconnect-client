@@ -14,7 +14,7 @@ export default function CGV() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">1. Objet</h2>
         <p className="mb-4">
-          Les présentes conditions générales de vente (CGV) s'appliquent à toutes les commandes passées sur le site internet ElecConnect. Toute commande implique l'acceptation sans réserve des présentes conditions générales de vente.
+          Les présentes conditions générales de vente (CGV) s’appliquent à toutes les commandes passées sur le site internet ElecConnect. Toute commande implique l’acceptation sans réserve des présentes conditions générales de vente.
         </p>
       </section>
 
@@ -41,27 +41,27 @@ export default function CGV() {
           Les délais de livraison sont indiqués lors de la commande. Ils sont donnés à titre indicatif et ne sont aucunement garantis. En cas de retard de livraison, le client sera informé par email.
         </p>
         <p className="mb-4">
-          Les frais de livraison sont calculés en fonction du poids du colis et de l'adresse de livraison. Ils sont indiqués de manière claire et compréhensible avant la validation de la commande.
+          Les frais de livraison sont calculés en fonction du poids du colis et de l’adresse de livraison. Ils sont indiqués de manière claire et compréhensible avant la validation de la commande.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">5. Paiement et exécution de la commande</h2>
         <p className="mb-4">
-          Le paiement s'effectue par carte bancaire via une plateforme sécurisée. La commande ne sera validée qu'à réception du paiement. En cas de défaut de paiement, de refus d'autorisation de paiement par carte bancaire, de défaut de provision ou de tout autre incident, la commande sera annulée.
+          Le paiement s’effectue par carte bancaire via une plateforme sécurisée. La commande ne sera validée qu’à réception du paiement. En cas de défaut de paiement, de refus d’autorisation de paiement par carte bancaire, de défaut de provision ou de tout autre incident, la commande sera annulée.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">6. Droit de rétractation</h2>
         <p className="mb-4">
-          Conformément à l'article L.221-18 du Code de la consommation, vous disposez d'un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités. Pour les retours, les frais de retour sont à votre charge.
+          Conformément à l’article L.221-18 du Code de la consommation, vous disposez d’un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités. Pour les retours, les frais de retour sont à votre charge.
         </p>
         <p className="mb-4">
           <strong>Formulaire de rétractation :</strong> Vous pouvez utiliser le formulaire suivant pour exercer votre droit de rétractation :
         </p>
         <div className="bg-gray-50 p-4 rounded-lg mb-4">
-          <p className="font-medium mb-2">À l'attention de [Votre société], [Votre adresse]</p>
+          <p className="font-medium mb-2">À l’attention de [Votre société], [Votre adresse]</p>
           <p className="mb-4">Je vous notifie par la présente ma rétractation du contrat portant sur la vente du bien ci-dessous :</p>
           <p>Commandé le [date] / reçu le [date]</p>
           <p>Numéro de commande : [numéro]</p>
@@ -78,7 +78,7 @@ export default function CGV() {
           Tous nos produits bénéficient de la garantie légale de conformité de 2 ans (article L. 217-4 du code de la consommation) et de la garantie des vices cachés (articles 1641 à 1649 du code civil).
         </p>
         <p className="mb-4">
-          Pour toute réclamation, merci de contacter notre service client à l'adresse suivante : sav@elecconnect.fr
+          Pour toute réclamation, merci de contacter notre service client à l’adresse suivante : sav@elecconnect.fr
         </p>
       </section>
 
@@ -102,10 +102,10 @@ export default function CGV() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">9. Retours et réclamations</h2>
         <p className="mb-4">
-          Les retours doivent être effectués dans leur état d'origine et complets. Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part ou de produit non conforme.
+          Les retours doivent être effectués dans leur état d’origine et complets. Les frais de retour sont à la charge du client, sauf en cas d’erreur de notre part ou de produit non conforme.
         </p>
         <p className="mb-4">
-          Pour toute réclamation, vous pouvez nous contacter par email à l'adresse reclamations@elecconnect.fr ou par courrier à l'adresse indiquée dans les mentions légales.
+          Pour toute réclamation, vous pouvez nous contacter par email à l’adresse reclamations@elecconnect.fr ou par courrier à l’adresse indiquée dans les mentions légales.
         </p>
       </section>
 
@@ -118,7 +118,7 @@ export default function CGV() {
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <Link href="/" className="text-emerald-600 hover:text-emerald-800 font-medium">
-          &larr; Retour à l'accueil
+          &larr; Retour à l’accueil
         </Link>
       </div>
     </main>

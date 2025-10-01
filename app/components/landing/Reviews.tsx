@@ -32,8 +32,6 @@ type GoogleReviewResponse = {
   user_ratings_total?: number;
 };
 
-const FALLBACK_SECRET = "";
-
 const MOBILE_COMMENT_CHAR_LIMIT = 120;
 const DESKTOP_COMMENT_CHAR_LIMIT = 220;
 

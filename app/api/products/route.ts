@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import productApis from "@/app/strapi/productApis";
-import { auth } from "@clerk/nextjs/server";
 const PAGE_SIZE = 6;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const user = await auth()
 
   try {
 

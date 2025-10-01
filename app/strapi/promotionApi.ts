@@ -8,6 +8,8 @@ const getPromotionById = (code: string) => {
   return axiosClient.get(`/promotions?${params.toString()}`);
 };
 
-export default {
+const promotionApi = {
   getPromotionById,
 };
+
+export default promotionApi;

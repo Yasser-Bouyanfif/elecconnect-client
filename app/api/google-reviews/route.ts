@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { GOOGLE_API_KEY, GOOGLE_PLACE_ID } from "@/app/lib/serverEnv";
 
-export async function GET(req: Request) {
+export async function GET() {
   if (!GOOGLE_PLACE_ID || !GOOGLE_API_KEY) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }

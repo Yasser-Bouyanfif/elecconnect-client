@@ -1,6 +1,6 @@
-import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import Stripe from "stripe";
 import orderApis from "@/app/strapi/orderApis";
 import productApis from "@/app/strapi/productApis";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
@@ -140,7 +140,7 @@ async function buildOrderLines(
 }
 
 export async function POST(request: Request) {
-  const {userId} = await auth()
+  const { userId } = await auth();
 
   try {    
     if (!userId) {
@@ -172,7 +172,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripe = require('stripe')(STRIPE_SECRET_KEY);
+    const stripe = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: "2024-06-20",
+    });
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
     if (session.payment_status !== 'paid') {

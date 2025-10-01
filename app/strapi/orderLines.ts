@@ -9,6 +9,8 @@ const getOrderLines = (orderNumber: string) => {
   return axiosClient.get(`/order-lines?${params.toString()}`);
 };
 
-export default {
+const orderLinesApi = {
   getOrderLines,
 };
+
+export default orderLinesApi;

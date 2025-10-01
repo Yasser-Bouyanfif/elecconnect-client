@@ -35,11 +35,13 @@ const getProductById = (id: string) => {
   return axiosClient.get(`/products?${params.toString()}`);
 };
 
-const getProducts = () => 
+const getProducts = () =>
   axiosClient.get(`/products?populate=*&sort[0]=id:desc`);
 
-export default {
+const productApis = {
   getProductsPagination,
   getProductById,
   getProducts,
 };
+
+export default productApis;

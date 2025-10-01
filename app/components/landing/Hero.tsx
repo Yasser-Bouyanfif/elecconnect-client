@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
@@ -36,7 +37,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-            ELEC'CONNECT, votre partenaire de confiance pour l'installation professionnelle
+            ELEC’CONNECT, votre partenaire de confiance pour l’installation professionnelle
             de bornes de recharge pour véhicules électriques.
           </p>
 
@@ -44,17 +45,17 @@ export default function Hero() {
               then placed side-by-side (sm:flex-row) on small screens and up.
               Added w-full to buttons for clean stacking on mobile. */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#contact" className="w-full sm:w-auto">
+            <Link href="#contact" className="w-full sm:w-auto">
               <button className="btn btn-success btn-lg text-white hover:text-white flex items-center gap-2 w-full justify-center">
                 <span>Devis gratuit</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-            </a>
-            <a href="/shop" className="w-full sm:w-auto">
+            </Link>
+            <Link href="/shop" className="w-full sm:w-auto">
               <button className="btn btn-warning btn-lg w-full text-white hover:text-white">
                 Notre boutique
               </button>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

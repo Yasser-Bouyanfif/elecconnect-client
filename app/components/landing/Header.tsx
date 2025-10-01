@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useContext, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { PhoneCall, Menu, ShoppingCart, LogIn } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
@@ -31,13 +32,16 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           {/* Logo cliquable */}
           <Link href="/" className="flex items-center space-x-3">
-            <img
+            <Image
               src="/image01-high.webp"
-              alt="ELEC'CONNECT"
+              alt="ELEC’CONNECT"
+              width={48}
+              height={48}
               className="w-12 h-12 object-contain"
+              priority
             />
             <div className="hidden md:block">
-              <h1 className="text-2xl font-bold text-gray-900">ELEC'CONNECT</h1>
+              <h1 className="text-2xl font-bold text-gray-900">ELEC’CONNECT</h1>
               <p className="text-sm text-emerald-600 font-medium">
               Explorez la mobilité durable
               </p>
@@ -46,18 +50,27 @@ export default function Header() {
 
           {/* Navigation desktop - visible à partir de lg */}
           <nav className="hidden lg:flex items-center space-x-8">
-            <a href="/" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            <Link
+              href="/"
+              className="text-gray-700 hover:text-emerald-600 transition-colors font-medium"
+            >
               Accueil
-            </a>
-            <a href="/solar-solution" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            </Link>
+            <Link
+              href="/solar-solution"
+              className="text-gray-700 hover:text-emerald-600 transition-colors font-medium"
+            >
               Solution Solaire
-            </a>
-            <a href="/shop" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">
+            </Link>
+            <Link
+              href="/shop"
+              className="text-gray-700 hover:text-emerald-600 transition-colors font-medium"
+            >
               Boutique
-            </a>
+            </Link>
 
             {/* Bouton Contact (inchangé) */}
-            <a
+            <Link
               href="/#contact"
               className="btn btn-success btn text-white flex items-center gap-2"
             >
@@ -69,7 +82,7 @@ export default function Header() {
                 />
                 <PhoneCall className="w-4 h-4 text-white phone-ring" strokeWidth={3} aria-hidden="true" />
               </span>
-            </a>
+            </Link>
 
             {/* >>> Actions à droite : Panier (toujours) + Login/User <<< */}
             <div className="hidden md:flex items-center gap-4 pl-4">
@@ -152,34 +165,34 @@ export default function Header() {
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-200">
           <nav className="px-4 py-3 space-y-3">
-            <a 
-              href="/" 
+            <Link
+              href="/"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
               onClick={() => setIsMenuOpen(false)}
             >
               Accueil
-            </a>
-            <a 
-              href="/solar-solution" 
+            </Link>
+            <Link
+              href="/solar-solution"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
               onClick={() => setIsMenuOpen(false)}
             >
               Solution Solaire
-            </a>
-            <a 
-              href="/shop" 
+            </Link>
+            <Link
+              href="/shop"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
               onClick={() => setIsMenuOpen(false)}
             >
               Boutique
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#contact"
               className="block px-3 py-2 text-emerald-600 hover:bg-gray-50 rounded-md font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
-            </a>
+            </Link>
           </nav>
         </div>
       )}
