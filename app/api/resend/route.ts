@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import orderApis from "@/app/strapi/orderApis";
 import { RESEND_API_KEY } from "@/app/lib/serverEnv";
-import { LOCAL_URL, SERVER_URL } from "@/app/lib/constants";
+import { LOCAL_URL } from "@/app/lib/constants";
+import {
+  getClientIdentifier,
+  takeRateLimitToken,
+} from "@/app/lib/rateLimit";
 
 type OrderLine = {
   quantity?: number;
@@ -302,6 +306,24 @@ const buildEmailHtml = (order: OrderPayload) => {
 
 export async function POST(request: Request) {
   try {
+    const clientId = getClientIdentifier(request);
+    const rateLimitKey = `resend-order:${clientId}`;
+    const rateLimitResult = takeRateLimitToken(rateLimitKey);
+
+    if (rateLimitResult.limited) {
+      return NextResponse.json(
+        {
+          error: "Trop de requêtes. Merci de réessayer dans quelques instants.",
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": rateLimitResult.retryAfterSeconds.toString(),
+          },
+        },
+      );
+    }
+
     const body = await request.json();
     const stripeSessionId = body?.stripeSessionId;
 
