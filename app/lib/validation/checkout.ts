@@ -1,8 +1,6 @@
 import { z } from "zod";
 
 const MAX_LINE_ITEMS = 50;
-const MAX_PRICE_IN_CENTS = 50_000_000;
-
 const ensureFiniteNumber = (message: string) =>
   z.coerce.number().superRefine((value, ctx) => {
     if (!Number.isFinite(value)) {
@@ -10,14 +8,19 @@ const ensureFiniteNumber = (message: string) =>
     }
   });
 
+const productIdentifierSchema = z.union([
+  z
+    .string()
+    .trim()
+    .min(1, "L'identifiant de produit est obligatoire."),
+  z
+    .number()
+    .int("L'identifiant de produit doit être un entier.")
+    .min(1, "L'identifiant de produit est invalide."),
+]);
+
 export const checkoutItemSchema = z.object({
-  title: z.string().trim().min(1, "Le titre de l'article est obligatoire.")
-    .max(150, "Le titre de l'article est trop long.")
-    .optional(),
-  price: ensureFiniteNumber("Le prix doit être un nombre valide.")
-    .min(0, "Le prix ne peut pas être négatif.")
-    .max(MAX_PRICE_IN_CENTS / 100, "Le prix est trop élevé.")
-    .default(0),
+  id: productIdentifierSchema,
   quantity: ensureFiniteNumber("La quantité doit être un nombre entier.")
     .int("La quantité doit être un nombre entier.")
     .min(1, "La quantité doit être d'au moins 1.")
@@ -36,6 +39,13 @@ export const checkoutSessionSchema = z.object({
       .min(1, "La commande doit contenir au moins un article.")
       .max(MAX_LINE_ITEMS, "La commande contient trop d'articles.")
   ),
+  shippingMethod: z
+    .enum(["standard", "express"], {
+      errorMap: () => ({
+        message: "Le mode de livraison sélectionné est invalide.",
+      }),
+    })
+    .optional(),
 });
 
 export type CheckoutSessionPayload = z.infer<typeof checkoutSessionSchema>;
