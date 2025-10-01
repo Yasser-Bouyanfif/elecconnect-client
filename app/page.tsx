@@ -1,16 +1,13 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import Hero from "./components/landing/Hero";
 import AboutUs from "./components/landing/AboutUs";
 import Reviews from "./components/landing/Reviews";
 import ProductSection from "./components/landing/ProductSection";
 import Contact from "./components/landing/Contact";
-import SolaireSolution from "./components/landing/Advantages";
-import dynamic from 'next/dynamic';
-import { auth } from "@clerk/nextjs/server";
-import { useUser } from '@clerk/nextjs';
-import Advantages from './components/landing/Advantages';
+import dynamic from "next/dynamic";
+import Advantages from "./components/landing/Advantages";
 
 const ExclusiveOfferPopup = dynamic(
   () => import('./components/ui/ExclusiveOfferPopup'),
@@ -21,7 +18,7 @@ export default function Page() {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    const popupShown = sessionStorage.getItem('popupShown');
+    const popupShown = sessionStorage.getItem("popupShown");
 
     if (!popupShown) {
       const timer = setTimeout(() => {
@@ -33,7 +30,7 @@ export default function Page() {
   }, []);
 
   const handleClosePopup = () => {
-    console.log('Fermeture de la popup');
+    console.log("Fermeture de la popup");
     setShowPopup(false);
   };
   

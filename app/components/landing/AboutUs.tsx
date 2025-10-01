@@ -21,7 +21,7 @@ export default function AboutUs() {
           <div className="max-w-2xl">
             <div className="space-y-5 text-lg text-slate-700 leading-relaxed">
               <p>
-                <strong className="text-emerald-600">ELEC'CONNECT</strong> vous accompagne
+                <strong className="text-emerald-600">ELEC’CONNECT</strong> vous accompagne
                 pour l’installation fiable de bornes de recharge pour véhicules électriques garanties <b>2 ans</b>.
                 Nous concevons des solutions performantes, durables et réellement adaptées à vos usages.
               </p>
@@ -36,7 +36,7 @@ export default function AboutUs() {
           <div className="relative w-full h-56 sm:h-64 lg:h-72">
             <Image
               src="/borne.png"
-              alt="Borne de recharge ELEC'CONNECT"
+              alt="Borne de recharge ELEC’CONNECT"
               fill
               sizes="(max-width: 1024px) 100vw, 600px"
               className="object-contain"

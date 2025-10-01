@@ -389,7 +389,7 @@ export default function OrdersPage() {
                 Mes commandes
               </h1>
               <p className="mt-2 text-lg text-stone-600 max-w-2xl">
-                Retrouvez l'historique et le suivi de vos commandes passées sur ElecConnect
+                Retrouvez l’historique et le suivi de vos commandes passées sur ElecConnect
               </p>
             </div>
           </div>

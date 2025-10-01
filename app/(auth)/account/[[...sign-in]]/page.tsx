@@ -22,7 +22,7 @@ export default function AuthPage() {
             {/* Brand (titre + slogan) */}
             <div className="space-y-3 w-full">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 leading-tight">
-                Bienvenue sur <span className="text-emerald-600">ELEC'CONNECT</span>
+                Bienvenue sur <span className="text-emerald-600">ELEC’CONNECT</span>
               </h1>
               <p className="text-base sm:text-lg text-slate-600">
                 La solution tout-en-un pour la recharge de votre véhicule électrique

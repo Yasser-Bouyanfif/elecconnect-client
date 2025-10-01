@@ -9,6 +9,7 @@ import {
 } from "../contexts/CartContext";
 import { SERVER_URL } from "../lib/constants";
 import Link from "next/link";
+import Image from "next/image";
 import { Minus, Plus, Trash2, ArrowLeft, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { promotionCodeSchema } from "@/app/lib/validation/promotion";
@@ -226,9 +227,11 @@ function CartPage() {
                     return (
                       <li key={toCartKey(item)} className="p-4 sm:p-5 flex items-center gap-4">
                         {item.banner?.url && (
-                          <img
+                          <Image
                             src={`${SERVER_URL}${item.banner.url}`}
-                            alt={item.title}
+                            alt={item.title ?? "Produit"}
+                            width={96}
+                            height={96}
                             className="h-20 w-20 sm:h-24 sm:w-24 rounded-md object-cover bg-gray-50 border"
                           />
                         )}

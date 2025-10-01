@@ -31,10 +31,12 @@ const getOrderByStripeSession = (stripeSessionId: string) => {
   return axiosClient.get(`/orders?${params.toString()}`);
 };
 
-export default {
+const orderApis = {
   createOrder,
   createOrderLine,
   getOrdersByUser,
   getOrderByStripeSession,
 };
+
+export default orderApis;
 

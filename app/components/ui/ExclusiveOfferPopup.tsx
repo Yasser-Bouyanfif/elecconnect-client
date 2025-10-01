@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Image from 'next/image';
-import { X } from 'lucide-react';
+import { useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { X } from "lucide-react";
 
 interface ExclusiveOfferPopupProps {
   onClose: () => void;
@@ -48,7 +49,7 @@ const ExclusiveOfferPopup = ({ onClose }: ExclusiveOfferPopupProps) => {
           <div className="max-h-[40vh] overflow-y-auto pr-2 -mr-2">
             <div className="space-y-3 text-gray-700 text-left">
               <p className="text-lg font-semibold">
-                ELEC'CONNECT & SSP vous accompagnent dans votre transition énergétique 📗☀️
+                ELEC’CONNECT & SSP vous accompagnent dans votre transition énergétique 📗☀️
               </p>
               
               <div className="bg-emerald-50 p-3 rounded-lg">
@@ -78,13 +79,13 @@ const ExclusiveOfferPopup = ({ onClose }: ExclusiveOfferPopupProps) => {
           </div>
           
           <div className="space-y-3 mt-3">
-            <a
+            <Link
               href="/solar-solution"
               onClick={onClose}
               className="block w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-medium py-2 px-4 rounded-lg text-center transition-all duration-300 text-sm sm:text-base"
             >
               En savoir plus sur la solution solaire
-            </a>
+            </Link>
             <button
               onClick={onClose}
               className="w-full text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium py-1.5 transition-colors"

@@ -12,9 +12,9 @@ const contactSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "L'adresse e-mail est obligatoire.")
+    .min(1, "L’adresse e-mail est obligatoire.")
     .email('Adresse e-mail invalide.')
-    .max(320, "L'adresse e-mail est trop longue."),
+    .max(320, "L’adresse e-mail est trop longue."),
   phone: z
     .string()
     .optional()
@@ -87,7 +87,7 @@ export default function Contact() {
         setErrorMessage(
           typeof errorBody?.error === 'string'
             ? errorBody.error
-            : "Une erreur est survenue lors de l'envoi du message."
+            : "Une erreur est survenue lors de l’envoi du message."
         );
         setStatus('error');
         return;
@@ -97,7 +97,7 @@ export default function Contact() {
       setStatus('success');
     } catch (error) {
       console.error('Erreur lors de la soumission du formulaire de contact', error);
-      setErrorMessage("Impossible d'envoyer votre demande pour le moment. Veuillez réessayer plus tard.");
+      setErrorMessage("Impossible d’envoyer votre demande pour le moment. Veuillez réessayer plus tard.");
       setStatus('error');
     }
   };
@@ -129,7 +129,7 @@ export default function Contact() {
               Contactez-nous
             </h2>
             <p className="text-slate-600 mb-8">
-              Obtenez votre devis gratuit sous 8h pour votre projet d'installation.
+              Obtenez votre devis gratuit sous 8h pour votre projet d’installation.
             </p>
 
             <div className="space-y-4">
@@ -170,9 +170,9 @@ export default function Contact() {
                   <MapPin className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium text-slate-800">Provence-Alpes-Côte d'Azur</div>
+                  <div className="font-medium text-slate-800">Provence-Alpes-Côte d’Azur</div>
                   <div className="font-medium text-slate-800 mt-1">Île-de-France</div>
-                  <div className="text-sm text-slate-500">Zones d'intervention</div>
+                  <div className="text-sm text-slate-500">Zones d’intervention</div>
                 </div>
               </div>
             </div>

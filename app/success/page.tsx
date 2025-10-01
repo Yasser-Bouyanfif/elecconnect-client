@@ -4,16 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowRight,
-  CalendarDays,
-  CheckCircle2,
-  Mail,
-  MapPin,
-  PackageCheck,
-  Truck,
-  Wallet,
-} from "lucide-react";
+import { CheckCircle2, MapPin, PackageCheck, Truck } from "lucide-react";
 import { CartContext, CartContextType } from "../contexts/CartContext";
 
 interface Address {
@@ -104,12 +95,12 @@ function SuccessPage() {
 
           if (!resendResponse.ok) {
             console.error(
-              "Échec de l'envoi de l'email de confirmation",
+              "Échec de l’envoi de l’email de confirmation",
               await resendResponse.text()
             );
           }
         } catch (error) {
-          console.error("Échec de l'envoi de l'email de confirmation", error);
+          console.error("Échec de l’envoi de l’email de confirmation", error);
         }
 
         const response2 = await fetch('/api/order/by-session', {
@@ -232,7 +223,12 @@ function SuccessPage() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-900">Commande en cours de traitement.</p>
                   <p className="mt-1 text-sm text-gray-500">
-                    Nous avons bien reçu votre commande. Suivez son avancement sur votre espace client dans la rubrique "<a href="/orders"><u>Mes commandes</u></a>".
+                    Nous avons bien reçu votre commande. Suivez son avancement sur votre espace client dans la rubrique
+                    {" "}
+                    <Link href="/orders" className="font-medium text-emerald-600 underline underline-offset-2">
+                      Mes commandes
+                    </Link>
+                    .
                   </p>
                   <p className="mt-2 text-xs text-gray-500">
                     Date de commande: {orderDate}
@@ -353,7 +349,14 @@ function SuccessPage() {
           {/* Pied de page */}
           <div className="px-6 py-5 bg-gray-50 text-center sm:px-6">
             <p className="text-sm text-gray-500 mb-4">
-              Un problème avec votre commande ?<a href="/#contact" className="font-medium text-emerald-600 hover:text-emerald-500"> Contactez-nous{' '}</a>
+              Un problème avec votre commande ?
+              <Link
+                href="/#contact"
+                className="font-medium text-emerald-600 hover:text-emerald-500"
+              >
+                {" "}
+                Contactez-nous
+              </Link>
             </p>
           </div>
         </div>

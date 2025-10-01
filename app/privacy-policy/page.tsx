@@ -26,8 +26,8 @@ export default function Confidentialite() {
           <p className="mb-2">Les données collectées sont utilisées aux fins suivantes :</p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
             <li>Gestion des commandes et de la relation client</li>
-            <li>Envoi d'informations commerciales (avec votre consentement)</li>
-            <li>Amélioration de nos services et personnalisation de l'expérience utilisateur</li>
+            <li>Envoi d’informations commerciales (avec votre consentement)</li>
+            <li>Amélioration de nos services et personnalisation de l’expérience utilisateur</li>
             <li>Respect de nos obligations légales et réglementaires</li>
           </ul>
         </article>
@@ -38,7 +38,7 @@ export default function Confidentialite() {
             Le traitement de vos données est fondé sur :
           </p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li>L'exécution d'un contrat pour la gestion de votre commande</li>
+            <li>L’exécution d’un contrat pour la gestion de votre commande</li>
             <li>Votre consentement pour les opérations de marketing</li>
             <li>Notre intérêt légitime pour améliorer nos services</li>
             <li>Le respect de nos obligations légales</li>
@@ -47,7 +47,7 @@ export default function Confidentialite() {
 
         <article className="mb-6">
           <h3 className="text-xl font-semibold text-gray-700 mb-3">1.4 Durée de conservation</h3>
-          <p className="mb-2">Vos données sont conservées pour une durée qui n'excède pas la durée nécessaire aux finalités pour lesquelles elles sont collectées :</p>
+          <p className="mb-2">Vos données sont conservées pour une durée qui n’excède pas la durée nécessaire aux finalités pour lesquelles elles sont collectées :</p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
             <li>Données de facturation : 10 ans (obligation légale)</li>
             <li>Données clients : 3 ans à compter de la fin de la relation commerciale</li>
@@ -66,18 +66,18 @@ export default function Confidentialite() {
           <h3 className="text-xl font-semibold text-gray-700 mb-3">1.6 Vos droits</h3>
           <p className="mb-2">Conformément à la réglementation sur la protection des données, vous disposez des droits suivants :</p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li>Droit d'accès et de rectification de vos données</li>
-            <li>Droit à l'effacement (droit à l'oubli)</li>
+            <li>Droit d’accès et de rectification de vos données</li>
+            <li>Droit à l’effacement (droit à l’oubli)</li>
             <li>Droit à la limitation du traitement</li>
             <li>Droit à la portabilité de vos données</li>
-            <li>Droit d'opposition</li>
+            <li>Droit d’opposition</li>
             <li>Définir des directives relatives au sort de vos données après votre décès</li>
           </ul>
           <p className="mb-4">
-            Pour exercer ces droits, vous pouvez nous contacter à l'adresse suivante : contact@elecconnect.fr ou par courrier à l'adresse du siège social.
+            Pour exercer ces droits, vous pouvez nous contacter à l’adresse suivante : contact@elecconnect.fr ou par courrier à l’adresse du siège social.
           </p>
           <p className="mb-4">
-            Vous avez également le droit d'introduire une réclamation auprès de la CNIL (www.cnil.fr) si vous estimez que vos droits ne sont pas respectés.
+            Vous avez également le droit d’introduire une réclamation auprès de la CNIL (www.cnil.fr) si vous estimez que vos droits ne sont pas respectés.
           </p>
         </article>
       </section>
@@ -86,9 +86,9 @@ export default function Confidentialite() {
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">2. Politique relative aux cookies</h2>
         
         <article className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-3">2.1 Qu'est-ce qu'un cookie ?</h3>
+          <h3 className="text-xl font-semibold text-gray-700 mb-3">2.1 Qu’est-ce qu’un cookie ?</h3>
           <p className="mb-4">
-            Un cookie est un petit fichier texte déposé sur votre ordinateur lors de la visite d'un site. Il permet de conserver des informations relatives à votre navigation sur le site.
+            Un cookie est un petit fichier texte déposé sur votre ordinateur lors de la visite d’un site. Il permet de conserver des informations relatives à votre navigation sur le site.
           </p>
         </article>
 
@@ -116,7 +116,7 @@ export default function Confidentialite() {
                 </tr>
                 <tr>
                   <td className="px-4 py-2 border-b">_ga</td>
-                  <td className="px-4 py-2 border-b">Analyse d'audience (Google Analytics)</td>
+                  <td className="px-4 py-2 border-b">Analyse d’audience (Google Analytics)</td>
                   <td className="px-4 py-2 border-b">13 mois</td>
                 </tr>
                 <tr>
@@ -136,14 +136,14 @@ export default function Confidentialite() {
           </p>
           <p className="mb-2">Pour gérer les cookies en fonction de vos souhaits, nous vous invitons à paramétrer votre navigateur en tenant compte de la finalité des cookies.</p>
           <p className="mb-4">
-            Pour plus d'informations sur la gestion des cookies, consultez le site de la CNIL : <a href="https://www.cnil.fr/fr/cookies-les-outils-pour-les-maitriser" className="text-emerald-600 hover:underline" target="_blank" rel="noopener noreferrer">https://www.cnil.fr/fr/cookies-les-outils-pour-les-maitriser</a>
+            Pour plus d’informations sur la gestion des cookies, consultez le site de la CNIL : <a href="https://www.cnil.fr/fr/cookies-les-outils-pour-les-maitriser" className="text-emerald-600 hover:underline" target="_blank" rel="noopener noreferrer">https://www.cnil.fr/fr/cookies-les-outils-pour-les-maitriser</a>
           </p>
         </article>
 
         <article className="mb-6">
           <h3 className="text-xl font-semibold text-gray-700 mb-3">2.4 Comment modifier vos préférences ?</h3>
           <p className="mb-4">
-            Vous pouvez à tout moment modifier vos préférences en matière de cookies en cliquant sur le lien "Gérer les cookies" en bas de chaque page de notre site.
+            Vous pouvez à tout moment modifier vos préférences en matière de cookies en cliquant sur le lien « Gérer les cookies » en bas de chaque page de notre site.
           </p>
         </article>
       </section>
@@ -161,7 +161,7 @@ export default function Confidentialite() {
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <Link href="/" className="text-emerald-600 hover:text-emerald-800 font-medium">
-          &larr; Retour à l'accueil
+          &larr; Retour à l’accueil
         </Link>
       </div>
     </main>

@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import Stripe from "stripe";
 import orderApis from "@/app/strapi/orderApis";
-import { currentUser } from "@clerk/nextjs/server";
 import { STRIPE_SECRET_KEY } from "@/app/lib/serverEnv";
-import { useUser } from "@clerk/nextjs";
-
-type User = {
-    id: string;
-    emailAddresses: Array<{ emailAddress: string }>;
-  };
 
 export async function POST(request: Request) {
   try {
-    const {userId} = await auth()
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
@@ -27,8 +21,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripe = require('stripe')(STRIPE_SECRET_KEY);
+    const stripe = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: "2024-06-20",
+    });
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+
+    if (session.payment_status !== "paid") {
+      return NextResponse.json(
+        { error: "Paiement non confirmé" },
+        { status: 402 }
+      );
+    }
 
     const orderResponse = await orderApis.getOrderByStripeSession(stripeSessionId);
     

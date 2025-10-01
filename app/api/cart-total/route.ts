@@ -12,16 +12,30 @@ type StrapiV5Product = {
   price?: unknown;
 };
 
+type CalculationResultItem = {
+  id: string | number;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+  title?: string;
+  isValid: boolean;
+  error?: string;
+};
+
 type CalculationResult = {
   total: number;
-  items: {
-    id: string | number;
-    quantity: number;
-    unitPrice: number;
-    subtotal: number;
-    title?: string;
-    isValid: boolean;
-  }[];
+  items: CalculationResultItem[];
+};
+
+const isStrapiV5Product = (value: unknown): value is StrapiV5Product => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as { id?: unknown };
+  return (
+    typeof candidate.id === "string" || typeof candidate.id === "number"
+  );
 };
 
 const parsePrice = (value: unknown): number => {
@@ -45,19 +59,22 @@ const normalizeStrapiV5Product = (response: unknown): StrapiV5Product | null => 
   }
 
   if ('data' in response) {
-    const data = (response as any).data;
-    
+    const data = (response as { data: unknown }).data;
+
     if (Array.isArray(data) && data.length > 0) {
-      return data[0] as StrapiV5Product;
+      const [firstItem] = data;
+      if (isStrapiV5Product(firstItem)) {
+        return firstItem;
+      }
     }
-    
-    if (data && typeof data === 'object' && 'id' in data) {
-      return data as StrapiV5Product;
+
+    if (isStrapiV5Product(data)) {
+      return data;
     }
   }
 
-  if (response && typeof response === 'object' && 'id' in response) {
-    return response as StrapiV5Product;
+  if (isStrapiV5Product(response)) {
+    return response;
   }
 
   return null;
@@ -71,13 +88,13 @@ const toSafeQuantity = (value: unknown): number => {
 export async function POST(request: Request) {
   try {
     const { items } = await request.json();
-    
+
     if (!Array.isArray(items)) {
       return NextResponse.json({ error: "Invalid items" }, { status: 400 });
     }
 
-    const calculations = await Promise.all(
-      items.map(async (item: CartTotalItem) => {
+    const calculations: CalculationResultItem[] = await Promise.all(
+      items.map(async (item: CartTotalItem): Promise<CalculationResultItem> => {
         if (!item || (typeof item.id !== "string" && typeof item.id !== "number")) {
           return {
             id: item?.id || 'unknown',
@@ -142,13 +159,15 @@ export async function POST(request: Request) {
       })
     );
 
-    const validItems = calculations.filter(item => item.isValid);
+    const validItems = calculations.filter((item) => item.isValid);
     const total = validItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-    return NextResponse.json({ 
+    const result: CalculationResult = {
       total: Math.round(total * 100) / 100,
-      items: calculations 
-    });
+      items: calculations,
+    };
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error("Échec du calcul du total", error);
