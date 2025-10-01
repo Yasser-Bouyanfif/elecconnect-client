@@ -179,25 +179,41 @@ function SuccessPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* En-tête avec fond bleu */}
-      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
-            <CheckCircle2 className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Commande confirmée
-          </h1>
-          <p className="text-lg text-emerald-100 max-w-2xl mx-auto">
-            Un email de confirmation a été envoyé à {user?.emailAddresses?.[0]?.emailAddress}
-          </p>
-        </div>
-      </div>
-
-      {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-6 border-b border-gray-200 bg-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 bg-emerald-100 rounded-full p-3">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div className="ml-4">
+                  <h1 className="text-2xl font-semibold text-gray-900">Commande confirmée</h1>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Nous avons bien reçu votre commande. Un email de confirmation a été envoyé à{" "}
+                    <span className="font-medium">
+                      {user?.emailAddresses?.[0]?.emailAddress}
+                    </span>
+                    .
+                  </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Pensez à vérifier votre dossier de courrier indésirable si vous ne trouvez pas notre message.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 sm:mt-0">
+                <Link
+                  href="/orders"
+                  className="inline-flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                >
+                  Suivre ma commande
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* En-tête de la commande */}
           <div className="px-6 py-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
             <div>
