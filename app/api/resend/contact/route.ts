@@ -4,6 +4,10 @@ import {
   contactFormServerSchema,
   type ContactFormServerPayload,
 } from "@/app/lib/validation/contact";
+import {
+  getClientIdentifier,
+  takeRateLimitToken,
+} from "@/app/lib/rateLimit";
 
 const escapeHtml = (value: string) =>
   value
@@ -71,6 +75,27 @@ const buildHtml = ({
 
 export async function POST(request: Request) {
   try {
+    const clientId = getClientIdentifier(request);
+    const rateLimitKey = `resend-contact:${clientId}`;
+    const rateLimitResult = takeRateLimitToken(rateLimitKey, {
+      windowMs: 60_000,
+      maxRequests: 3,
+    });
+
+    if (rateLimitResult.limited) {
+      return NextResponse.json(
+        {
+          error: "Trop de requêtes. Merci de réessayer ultérieurement.",
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": rateLimitResult.retryAfterSeconds.toString(),
+          },
+        },
+      );
+    }
+
     const jsonBody = await request.json().catch(() => null);
     if (!jsonBody || typeof jsonBody !== "object") {
       return NextResponse.json(
