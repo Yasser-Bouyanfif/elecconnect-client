@@ -42,9 +42,9 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">Liens utiles</h4>
             <ul className="space-y-2">
-              <li><a href="/mentions-legales" className="text-gray-300 hover:text-emerald-400 transition-colors">Mentions Légales</a></li>
-              <li><a href="/cgv" className="text-gray-300 hover:text-emerald-400 transition-colors">Conditions Générales de Vente</a></li>
-              <li><a href="/confidentialite" className="text-gray-300 hover:text-emerald-400 transition-colors">Politique de confidentialité</a></li>
+              <li><a href="/legal-notice" className="text-gray-300 hover:text-emerald-400 transition-colors">Mentions Légales</a></li>
+              <li><a href="/terms" className="text-gray-300 hover:text-emerald-400 transition-colors">Conditions Générales de Vente</a></li>
+              <li><a href="/privacy-policy" className="text-gray-300 hover:text-emerald-400 transition-colors">Politique de confidentialité</a></li>
             </ul>
           </div>
 

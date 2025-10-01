@@ -6,10 +6,11 @@ import AboutUs from "./components/landing/AboutUs";
 import Reviews from "./components/landing/Reviews";
 import ProductSection from "./components/landing/ProductSection";
 import Contact from "./components/landing/Contact";
-import SolaireSolution from "./components/landing/SolarSolution";
+import SolaireSolution from "./components/landing/Advantages";
 import dynamic from 'next/dynamic';
 import { auth } from "@clerk/nextjs/server";
 import { useUser } from '@clerk/nextjs';
+import Advantages from './components/landing/Advantages';
 
 const ExclusiveOfferPopup = dynamic(
   () => import('./components/ui/ExclusiveOfferPopup'),
@@ -57,7 +58,9 @@ export default function Page() {
         <ProductSection />
       </section>
 
-      <SolaireSolution />
+      <section id="advantages" className="scroll-mt-24">
+        <Advantages />
+      </section>
 
       <section id="contact" className="scroll-mt-24">
         <Contact />

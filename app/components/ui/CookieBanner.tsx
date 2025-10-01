@@ -34,7 +34,7 @@ export default function CookieBanner() {
               Nous utilisons des cookies pour vous offrir une meilleure expérience sur notre site. 
               En continuant à naviguer, vous acceptez notre utilisation des cookies. 
               Pour en savoir plus, consultez notre 
-              <Link href="/confidentialite#cookies" className="text-emerald-600 hover:underline ml-1">
+              <Link href="/privacy-policy#cookies" className="text-emerald-600 hover:underline ml-1">
                 politique en matière de cookies
               </Link>.
             </p>

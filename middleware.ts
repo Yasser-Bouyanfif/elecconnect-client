@@ -16,9 +16,9 @@ const isPublicRoute = createRouteMatcher([
   '/api/promotion(.*)',
   '/api/google-reviews(.*)',
   '/404(.*)',
-  '/mentions-legales(.*)',
-  '/confidentialite(.*)',
-  '/cgv(.*)',
+  '/legal-notice(.*)',
+  '/privacy-policy(.*)',
+  '/terms(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
