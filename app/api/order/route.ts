@@ -79,9 +79,13 @@ function generateOrderNumber() {
 
 async function buildOrderLines(
   items: Array<[string, { quantity: number }]>
-): Promise<{ orderLines: OrderLineInput[]; subtotal: number }> {
+): Promise<{
+  orderLines: OrderLineInput[];
+  subtotal: number;
+  subtotalInCents: number;
+}> {
   const orderLines: OrderLineInput[] = [];
-  let subtotal = 0;
+  let subtotalInCents = 0;
 
   for (const [id, { quantity }] of items) {
     try {
@@ -114,7 +118,14 @@ async function buildOrderLines(
         continue;
       }
 
-      subtotal += unitPrice * quantity;
+      const unitAmountInCents = Math.round(unitPrice * 100);
+
+      if (!Number.isFinite(unitAmountInCents) || unitAmountInCents <= 0) {
+        console.warn(`Invalid price detected for product ${id}`);
+        continue;
+      }
+
+      subtotalInCents += unitAmountInCents * quantity;
       orderLines.push({
         productDocumentId: resolvedDocumentId,
         quantity,
@@ -125,7 +136,7 @@ async function buildOrderLines(
     }
   }
 
-  return { orderLines, subtotal };
+  return { orderLines, subtotal: subtotalInCents / 100, subtotalInCents };
 }
 
 export async function POST(request: Request) {
@@ -217,12 +228,70 @@ export async function POST(request: Request) {
     }
 
     const entries = Array.from(productMap.entries());
-    const { orderLines, subtotal } = await buildOrderLines(entries);
+    const { orderLines, subtotal, subtotalInCents } = await buildOrderLines(entries);
 
     if (orderLines.length === 0) {
       return NextResponse.json(
         { error: "Unable to prepare order lines" },
         { status: 500 }
+      );
+    }
+
+    const shippingTotalInCents = Math.round(shippingDetails.price * 100);
+
+    if (!Number.isFinite(shippingTotalInCents) || shippingTotalInCents < 0) {
+      console.error(
+        `Invalid shipping price calculated for method ${resolvedShippingMethod}: ${shippingDetails.price}`
+      );
+      return NextResponse.json(
+        { error: "Montant de livraison invalide" },
+        { status: 500 }
+      );
+    }
+
+    const expectedTotalInCents = subtotalInCents + shippingTotalInCents;
+    const amountTotalPaid = session.amount_total;
+    const sessionCurrency = session.currency?.toLowerCase();
+    const discountedAmount = session.total_details?.amount_discount ?? 0;
+    const taxAmount = session.total_details?.amount_tax ?? 0;
+
+    if (discountedAmount > 0 || taxAmount > 0) {
+      console.error(
+        `Unsupported adjustments detected for session ${stripeSessionId}: discounts=${discountedAmount}, taxes=${taxAmount}`
+      );
+      return NextResponse.json(
+        { error: "La commande contient des remises ou taxes non prises en charge." },
+        { status: 400 }
+      );
+    }
+
+    if (sessionCurrency && sessionCurrency !== "eur") {
+      console.error(
+        `Unexpected currency for session ${stripeSessionId}: ${session.currency}`
+      );
+      return NextResponse.json(
+        { error: "Devise de paiement invalide." },
+        { status: 400 }
+      );
+    }
+
+    if (typeof amountTotalPaid !== "number") {
+      console.error(
+        `Unable to read amount_total for session ${stripeSessionId}: ${amountTotalPaid}`
+      );
+      return NextResponse.json(
+        { error: "Montant payé introuvable." },
+        { status: 400 }
+      );
+    }
+
+    if (amountTotalPaid !== expectedTotalInCents) {
+      console.error(
+        `Amount mismatch for session ${stripeSessionId}: expected=${expectedTotalInCents}, paid=${amountTotalPaid}`
+      );
+      return NextResponse.json(
+        { error: "Le montant payé ne correspond pas au total attendu." },
+        { status: 400 }
       );
     }
 
