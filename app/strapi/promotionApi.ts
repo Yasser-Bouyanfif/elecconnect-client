@@ -1,11 +1,13 @@
 import axiosClient from "./axiosClient";
 
+const getPromotionById = (code: string) => {
+  const params = new URLSearchParams({
+    "filters[code][$eq]": code,
+  });
 
-const getPromotionById = (code: string) =>
-    axiosClient.get(
-      `/promotions?filters[code][$eq]=${code}`
-    );
-    
-  export default {
-    getPromotionById
-  };
+  return axiosClient.get(`/promotions?${params.toString()}`);
+};
+
+export default {
+  getPromotionById,
+};
