@@ -330,12 +330,12 @@ function SuccessPage() {
                 <span className="text-gray-500">Sous-total</span>
                 <span className="font-medium text-gray-900">{(order.total - (order.shipping?.price || 0)).toFixed(2)} €</span>
               </div>
-              {order.shipping?.price && (
-                <div className="flex justify-between py-2 text-sm">
+              <div className="flex justify-between py-2 text-sm">
                   <span className="text-gray-500">Frais de livraison</span>
-                  <span className="font-medium text-gray-900">{order.shipping.price.toFixed(2)} €</span>
-                </div>
-              )}
+                  <span className="font-medium text-gray-900">
+                    {order.shipping?.price?.toFixed(2) ?? "0.00"} €
+                </span>
+              </div>
               <div className="flex justify-between py-2 text-base font-medium text-gray-900 border-t border-gray-200 mt-3 pt-3">
                 <span>Total TTC</span>
                 <span>{order.total.toFixed(2)} €</span>
