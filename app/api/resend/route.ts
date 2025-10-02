@@ -352,7 +352,7 @@ export async function POST(request: Request) {
     }
 
     const emailPayload = {
-      from: "ELEC'CONNECT <no-reply@send.elecconnect.fr>",
+      from: "ELEC'CONNECT <no-reply@updates.chajaratmaryam.fr>",
       to: [order.userEmail],
       subject: `Confirmation de commande.`,
       html: buildEmailHtml(order),
