@@ -217,7 +217,7 @@ const buildEmailHtml = (order: OrderPayload) => {
   <body>
     <div class="container">
       <div class="header">
-        <img src="${LOCAL_URL}/image01-high.webp" alt="logo" />
+        <img src="${LOCAL_URL}/logo.png" alt="logo" />
         <div class="header-title">ELEC'CONNECT</div>
       </div>
 

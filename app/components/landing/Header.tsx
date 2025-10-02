@@ -33,7 +33,7 @@ export default function Header() {
           {/* Logo cliquable */}
           <Link href="/" className="flex items-center space-x-3">
             <Image
-              src="/image01-high.webp"
+              src="/logo.png"
               alt="ELEC’CONNECT"
               width={48}
               height={48}

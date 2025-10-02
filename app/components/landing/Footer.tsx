@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-3">
               <Image
-                src="/image01-high.webp"
+                src="/logo.png"
                 alt="ELEC’CONNECT"
                 width={40}
                 height={40}
