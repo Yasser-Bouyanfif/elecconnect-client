@@ -39,6 +39,7 @@ interface Product {
   title: string;
   description: string;
   price: number;
+  oldPrice?: number | null;
   weight?: string;
   banner?: BannerImage[] | BannerImage | null;
   productSection: [];
@@ -316,7 +317,16 @@ export default function ProductDetails() {
 
               {/* Prix */}
               <div className="mb-4">
-                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{product.price.toFixed(2)} €</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {product.price.toFixed(2)} €
+                  </p>
+                  {product.oldPrice != null && (
+                    <span className="text-lg sm:text-xl font-semibold text-gray-400 line-through">
+                      {product.oldPrice.toFixed(2)} €
+                    </span>
+                  )}
+                </div>
                 {product.weight && (
                   <p className="text-sm text-gray-500 mt-1">Poids: {product.weight} kg</p>
                 )}
