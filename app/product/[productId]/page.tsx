@@ -39,6 +39,7 @@ interface Product {
   title: string;
   description: string;
   price: number;
+  oldPrice?: number | null;
   weight?: string;
   banner?: BannerImage[] | BannerImage | null;
   productSection: [];
@@ -256,6 +257,16 @@ export default function ProductDetails() {
 
   const sections = extractSections(product);
 
+  const hasPromotion = product.oldPrice !== null && product.oldPrice !== undefined;
+  const showPromotion =
+    hasPromotion && typeof product.oldPrice === "number" && product.oldPrice > product.price;
+  const formattedOldPrice =
+    typeof product.oldPrice === "number" ? product.oldPrice.toFixed(2) : null;
+  const discountPercentage =
+    showPromotion && typeof product.oldPrice === "number" && product.oldPrice > 0
+      ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+      : null;
+
   return (
     <div className="bg-gray-50 py-8">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -316,7 +327,19 @@ export default function ProductDetails() {
 
               {/* Prix */}
               <div className="mb-4">
-                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{product.price.toFixed(2)} €</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">{product.price.toFixed(2)} €</p>
+                  {showPromotion && formattedOldPrice && (
+                    <span className="text-lg text-gray-500 line-through">
+                      {formattedOldPrice} €
+                    </span>
+                  )}
+                  {showPromotion && discountPercentage && discountPercentage > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
+                      -{discountPercentage}%
+                    </span>
+                  )}
+                </div>
                 {product.weight && (
                   <p className="text-sm text-gray-500 mt-1">Poids: {product.weight} kg</p>
                 )}

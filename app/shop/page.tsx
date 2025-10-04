@@ -28,6 +28,7 @@ type ProductAttributes = {
   title?: string;
   description?: string;
   price?: number;
+  oldPrice?: number | null;
   banner?: BannerImage[] | BannerImage | null;
 };
 
@@ -162,11 +163,15 @@ function extractPagination(meta: unknown): Pagination | null {
 }
 
 function getProductData(product: Product) {
+  const attributes = product.attributes ?? product;
   return {
-    id: product.id,
-    title: product.title,
-    description: product.description,
-    price: product.price,
+    id: attributes.id ?? product.id,
+    title: attributes.title ?? product.title,
+    description: attributes.description ?? product.description,
+    price: attributes.price ?? product.price,
+    oldPrice:
+      attributes.oldPrice ??
+      ("oldPrice" in product ? (product as ProductAttributes).oldPrice ?? null : null),
   };
 }
 
@@ -255,10 +260,26 @@ export default function ShopPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product, index) => {
-                  const { id, title, description, price } = getProductData(product);
+                  const { id, title, description, price, oldPrice } = getProductData(product);
                   const { src, alt } = getImageUrl(product);
-                  const formattedPrice =
-                    typeof price === "number" ? price.toLocaleString() : null;
+                  const hasPrice = typeof price === "number";
+                  const hasPromotion =
+                    hasPrice && typeof oldPrice === "number" && oldPrice > price;
+                  const formattedPrice = hasPrice
+                    ? price.toLocaleString("fr-FR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : null;
+                  const formattedOldPrice = hasPromotion
+                    ? oldPrice.toLocaleString("fr-FR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : null;
+                  const discountPercentage = hasPromotion
+                    ? Math.round(((oldPrice - price) / oldPrice) * 100)
+                    : null;
                   const href = id ? `/product/${id}` : "#";
 
                   return (
@@ -278,9 +299,38 @@ export default function ShopPage() {
                       </div>
                       <div className="p-4 flex flex-col">
                         {formattedPrice && (
-                          <p className="text-base font-semibold text-slate-900">
-                            {formattedPrice}€ <span className="text-xs text-slate-500">TTC</span>
-                          </p>
+                          <div className="flex flex-col gap-1 mb-3">
+                            <div
+                              className={`inline-flex items-baseline gap-2 rounded-lg px-3 py-1 ${
+                                hasPromotion
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "bg-slate-100 text-slate-900"
+                              }`}
+                            >
+                              <p
+                                className={`text-lg font-semibold ${
+                                  hasPromotion ? "text-emerald-700" : "text-slate-900"
+                                }`}
+                              >
+                                {formattedPrice} €
+                              </p>
+                              {formattedOldPrice && (
+                                <span className="text-sm text-slate-500 line-through">
+                                  {formattedOldPrice} €
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 pl-1">
+                              <span className="text-xs uppercase tracking-wide text-slate-500">
+                                TTC
+                              </span>
+                              {discountPercentage !== null && discountPercentage > 0 && (
+                                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                  -{discountPercentage}%
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         )}
                         <h3 className="text-slate-800 font-medium text-sm md:text-base line-clamp-1">
                           {title}
